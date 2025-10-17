@@ -1,11 +1,114 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your ultimate ticketing platform.">
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/components/navbar.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/components/forms.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/components/footer.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" type="text/css">
+
+    <link rel="icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
 </head>
+
 <body>
-  {% block content %}{% endblock %}
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="#">Eventhub</a>
+            </div>
+            <div class="nav-search" id="navSearch">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search events, artists, venues..." id="globalSearch">
+                <button class="search-filter-btn" id="searchFilterBtn">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                {% if user.is_authenticated %}
+                <div class="user-menu" id="userMenu">
+                    <button class="user-avatar" id="userAvatar">
+                        <img src="{% static 'img/demo_avatar.jpg' %}" alt="Demo user profile avatar for Eventhub"
+                            width="64" height="64">
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#"><i class="fas fa-home"></i> Home</a>
+                        <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
+                        <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="auth-buttons">
+                    <button class="btn-secondary" id="loginBtn">Log In</button>
+                    <button class="btn-primary" id="registerBtn">Register</button>
+                </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <span>Menu</span>
+            <button class="mobile-menu-close" id="mobileMenuClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mobile-menu-content">
+            <div class="mobile-search">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search events...">
+            </div>
+
+            <a href="#"><i class="fas fa-home"></i> Home</a>
+            <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
+        </div>
+    </div>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <h3>Eventhub</h3>
+                <p>Discover and experience live events near you. Buy tickets instantly and create memorable moments.</p>
+                <p>Developed by <a href="https://github.com/marythedev" target="_blank">@marythedev</a></p>
+            </div>
+            <div class="footer-bottom">
+                <ul>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li class="dot-separator">&middot;</li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li class="dot-separator">&middot;</li>
+                    <li><a href="#">Donate</a></li>
+                </ul>
+                <p>© 2023 - <span id="current-year"></span> Eventhub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/script.js' %}" type="module" defer></script>
+    <script src="{% static 'js/theme.js' %}" type="module" defer></script>
+    {% if not user.is_authenticated %}
+    <script src="{% static 'js/navbar.js' %}" type="module" defer></script>
+    {% endif %}
+
 </body>
+
 </html>

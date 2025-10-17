@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %} Registration {% endblock %}
+
+{% block content %}
+
+<section id="register" class="auth-section">
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h2>Create Your Account</h2>
+                <p>Join Eventhub and start experiencing</p>
+            </div>
+
+            <form class="auth-form" action="{% url 'users:register' %}" method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" name="full_name" placeholder="Jack Sparrow"
+                        value="{{ form.full_name.value|default_if_none:'' }}" required>
+                    {% if form.full_name.errors %}
+                    <small class="form-error">{{ form.full_name.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" id="registerEmail" name="email" placeholder="your@email.com"
+                        value="{{ form.email.value|default_if_none:'' }}" required>
+                    {% if form.email.errors %}
+                    <small class="form-error">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" name="password" placeholder="At least 8 characters"
+                        minlength="8" required>
+                    {% if form.password.errors %}
+                    <small class="form-error">{{ form.password.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="registerConfirmPassword">Confirm Password</label>
+                    <input type="password" id="registerConfirmPassword" name="confirm_password"
+                        placeholder="Re-enter your password" minlength="8" required>
+                    {% if form.confirm_password.errors %}
+                    <small class="form-error">{{ form.confirm_password.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" {% if form.terms_accepted.value %} checked {% endif %}
+                            name="terms_accepted" required>
+                        <span>I agree with <a href="#" class="link-text">Terms and Conditions</a></span>
+                    </label>
+                    {% if form.terms_accepted.errors %}
+                    <small class="form-error">{{ form.terms_accepted.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary btn-full">Sign Up</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a href="{% url 'users:login' %}" class="link-text">Log in</a></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

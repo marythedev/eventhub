@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- title based on user status (guest / authenticated) -->
+{% block title %}
+{% if not user.is_authenticated %} Eventhub - Discover Events &amp; Get Tickets {% else %} Home {% endif %}
+{% endblock %}
+
+<!-- stylesheets -->
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/landing.css' %}" type="text/css">
+{% endblock %}
+
+<!-- content based on user status (guest / authenticated) -->
+{% block content %}
+
+{% if not user.is_authenticated %}
+<section id="landing" class="landing-hero">
+    <video autoplay muted loop class="bg-video">
+        <source src="{% static 'video/bg-video.webm' %}" type="video/mp4" id="bg-video-source">
+    </video>
+
+    <div class="hero-content">
+        <h1 class="hero-title">Discover Live Events Near You</h1>
+        <p class="hero-subtitle">From concerts to community gatherings, find tickets to the experiences that move you
+        </p>
+        <div class="hero-button">
+            <button class="btn-primary btn-large" id="heroExploreBtn">Dive into EventHub</button>
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="hero-cards">
+            <div class="hero-card card-1">
+                <img src="{% static 'img/landing/concert.webp' %}" alt="Concert image" width="300" height="240">
+                <div class="hero-card-info">
+                    <h3>Standup Show</h3>
+                    <p><i class="fas fa-calendar"></i> Apr 8</p>
+                </div>
+            </div>
+            <div class="hero-card card-2">
+                <img src="{% static 'img/landing/dj_music.webp' %}" alt="DJ plays music" width="300"
+                    height="240">
+                <div class="hero-card-info">
+                    <h3>Electronic Dance Nights</h3>
+                    <p><i class="fas fa-calendar"></i> Nov 10</p>
+                </div>
+            </div>
+            <div class="hero-card card-3">
+                <img src="{% static 'img/landing/tomorrowland.webp' %}" alt="Music festival" width="300"
+                    height="240">
+                <div class="hero-card-info">
+                    <h3>Tomorrowland</h3>
+                    <p><i class="fas fa-calendar"></i> Jul 17</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% else %}
+
+<h1>This is user's home page.</h1>
+{% endif %}
+
+{% endblock %}

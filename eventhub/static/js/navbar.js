@@ -1,20 +1,3 @@
-// navbar redirection
-const loginBtn = document.getElementById('loginBtn');
-const registerBtn = document.getElementById('registerBtn');
-
-if (loginBtn) {
-    loginBtn.addEventListener('click', function () {
-        window.location.href = '/login';
-    });
-}
-
-if (registerBtn) {
-    registerBtn.addEventListener('click', function () {
-        window.location.href = '/register';
-    });
-}
-
-
 // mobile menu toggle
 const mobileMenu = document.getElementById('mobileMenu');
 const mobileMenuClose = document.getElementById('mobileMenuClose');

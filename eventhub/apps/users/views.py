@@ -16,8 +16,6 @@ def register(request):
         - Return register form with errors or redirect to home on success.
     """
     
-    error_message = None
-
     if request.method == "POST":
         form = RegisterFormValidator(request.POST)
         if form.is_valid():
@@ -36,13 +34,12 @@ def register(request):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 auth_login(request, user)
-                return redirect('/login')        #TODO: redirect to home
-        else:
-            # Capture the first form error only
-            error_message = list(form.errors.values())[0][0]
+                return redirect('core:home')
+            else:
+                return redirect('users:login')
     else:
             form = RegisterFormValidator()
-    return render(request, 'users/register.html', {'form': form, 'error_message': error_message})
+    return render(request, 'users/register.html', {'form': form})
 
 def login(request):
     """
@@ -56,23 +53,19 @@ def login(request):
         - Return login form with errors or redirect to home on success.
     """
     
-    error_message = None
-
     if request.method == "POST":
         form = LoginFormValidator(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             auth_login(request, user)
-            return redirect('/register')        #TODO: redirect to home
-        else:
-            # Capture the first form error only
-            error_message = list(form.errors.values())[0][0]
+            return redirect('core:home')
     else:
         form = LoginFormValidator()
 
-    return render(request, 'users/login.html', {'form': form, 'error_message': error_message})
+    return render(request, 'users/login.html', {'form': form})
 
 @login_required
 def logout(request):
+    """Terminate current user session and redirect to the homepage."""
     auth_logout(request)
-    return redirect('/login')    #TODO: redirect to home
+    return redirect('core:home')

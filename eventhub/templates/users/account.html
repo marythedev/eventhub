@@ -60,30 +60,42 @@
                         {% endif %}
                     </div>
 
-                    <form class="account-form" action="#" method="POST">
-                        <input type="hidden" name="form_name" value="update_profile_form">
+                    <form class="account-form" action="{% url 'users:profile_update' %}" method="POST">
+                        {% csrf_token %}
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="firstName">First Name</label>
-                                <input type="text" id="firstName" name="first_name" value="">
+                                <label for="full_name">Full Name</label>
+                                <input type="text" id="full_name" name="full_name" value="{{user.full_name}}">
+                                {% if form.full_name.errors %}
+                                <small class="form-error">{{ form.full_name.errors.0 }}</small>
+                                {% endif %}
                             </div>
                             <div class="form-group">
-                                <label for="lastName">Last Name</label>
-                                <input type="text" id="lastName" name="last_name" value="">
+                                <label for="accountEmail">Email Address</label>
+                                <input type="email" id="accountEmail" name="email" value="{{user.email}}">
+                                {% if form.email.errors %}
+                                <small class="form-error">{{ form.email.errors.0 }}</small>
+                                {% endif %}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="accountEmail">Email Address</label>
-                            <input type="email" id="accountEmail" name="email" value="">
-                        </div>
-                        <div class="form-group">
-                            <label for="phoneNumber">Phone Number</label>
-                            <input type="tel" id="phoneNumber" name="phone" placeholder="">
-                        </div>
-                        <div class="form-group">
-                            <label for="location">Location</label>
-                            <input type="text" id="location" name="location" placeholder="">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number</label>
+                                <input type="tel" id="phoneNumber" name="phone"
+                                    value="{{user.phone|default_if_none:''}}">
+                                {% if form.phone.errors %}
+                                <small class="form-error">{{ form.phone.errors.0 }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                <label for="location">Location</label>
+                                <input type="text" id="location" name="location"
+                                    value="{{user.location|default_if_none:''}}">
+                                {% if form.location.errors %}
+                                <small class="form-error">{{ form.location.errors.0 }}</small>
+                                {% endif %}
+                            </div>
                         </div>
                         <button type="submit" class="btn-primary">Save Changes</button>
                     </form>
@@ -114,8 +126,6 @@
                         <button type="submit" class="btn-primary">Update Password</button>
                     </form>
                 </div>
-
-                
             </div>
         </div>
     </div>

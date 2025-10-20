@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from PIL import Image
 
 from .utils import *
-from .forms import RegisterFormValidator, LoginFormValidator
+from .forms import RegisterFormValidator, LoginFormValidator, ProfileFormValidator
 from .models import Profile
 
 
@@ -46,7 +46,8 @@ def register(request):
             else:
                 return redirect('users:login')
     else:
-            form = RegisterFormValidator()
+        form = RegisterFormValidator()
+        
     return render(request, 'users/register.html', {'form': form})
 
 
@@ -76,12 +77,38 @@ def login(request):
 
 @login_required
 def account(request):
+    """
+    Display the account page and handle basic profile updates.
+
+    GET:
+        - Render the account page with user information.
+
+    Returns: Rendered account page.
+    """
     return render(request, 'users/account.html')
 
 
 @login_required
 def avatar_upload(request):
     """Handles POST requests for avatar validation and upload."""
+    
+    """
+    Handle avatar validation, preprocessing and upload.
+    
+    GET:
+        - Redirects to account page (does nothing).
+    
+    POST:
+        - Validates and processes (crops & resizes) submitted file.
+        - Deletes previous avatar from cloud storage.
+        - Uploads new avatar to cloud storage and stores access link in user's instance.
+
+    Validations:
+        - Must be JPG, PNG, GIF or WEBP format.
+        - Must be smaller than 5MB.
+
+    Returns: Rendered account page (with error messages if any).
+    """
     
     MAX_FILE_SIZE_MB = 5
     TARGET_SIZE = (300, 300)
@@ -121,8 +148,8 @@ def avatar_upload(request):
                 # set new avatar
                 set_custom_avatar(user, buffer, uploaded_file.name)
                 
-            except Exception as e:
-                avatar_error = f"Something went wrong."
+            except Exception:
+                avatar_error = "Something went wrong."
 
         return render(request, 'users/account.html', {'avatar_error': avatar_error})
     return redirect('users:account')
@@ -130,7 +157,19 @@ def avatar_upload(request):
 
 @login_required
 def avatar_delete(request):
-    """Handles POST requests for deleting avatar."""
+    """
+    Handle deletion of the user's current avatar.
+    
+    GET:
+        - Redirects to account page (does nothing).
+
+    POST:
+        - Deletes avatar from cloud storage.
+        - Sets default avatar for the user.
+
+    Returns: Rendered account page (with error messages if any).
+    """
+    
     if request.method == "POST":
         user = request.user
         avatar_error = None
@@ -142,10 +181,31 @@ def avatar_delete(request):
             # set default avatar
             set_default_avatar(user)
             
-        except Exception as e:
+        except Exception:
             avatar_error = "Failed to delete an avatar."
             
         return render(request, 'users/account.html', {'avatar_error': avatar_error})
+    return redirect('users:account')
+
+
+@login_required
+def profile_update(request):
+    """Update profile information for the user (name, email, phone, location)."""
+    if request.method == "POST":
+        user = request.user
+        form = ProfileFormValidator(request.POST, user=user)
+        if form.is_valid():
+            full_name = form.cleaned_data['full_name']
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+            location = form.cleaned_data['location']
+            
+            user.full_name = full_name
+            user.email = email
+            user.phone = phone
+            user.location = location
+            user.save()
+        return render(request, 'users/account.html', {'form': form})
     return redirect('users:account')
 
 

@@ -23,12 +23,21 @@ class ProfileManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, full_name, password, **extra_fields)
     
-    def user_exists(self, email):
-        """Checks if a user with the specified email exists."""
+    def user_exists(self, email, ignore_user_id=None):
+        """
+        Checks if a user with the specified email exists.
+        
+        Args:
+            email: Email to check.
+            ignore_user_id: User (primary key) to exclude from the check.
+
+        Returns: True if another user with the email exists, False otherwise.
+        """
         email = self.normalize_email(email)
-        if self.model.objects.filter(email = email).exists():
-            return True
-        return False
+        query = self.model.objects.filter(email = email)
+        if ignore_user_id:
+            query = query.exclude(pk = ignore_user_id)
+        return query.exists()
 
 
 class Profile(AbstractBaseUser, PermissionsMixin):
@@ -45,11 +54,13 @@ class Profile(AbstractBaseUser, PermissionsMixin):
         is_staff (bool): Admin site access status.
     """
     
+    avatar = models.URLField(blank=False, null=False)
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    avatar = models.URLField(blank=False, null=False)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']     # for superuser

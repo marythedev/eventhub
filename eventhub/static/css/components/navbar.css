@@ -89,19 +89,7 @@
 }
 
 .theme-toggle {
-    background: none;
-    border: none;
-    color: var(--text-primary);
     font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: var(--transition);
-}
-
-.theme-toggle:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--primary-color);
 }
 
 .auth-buttons {
@@ -291,12 +279,30 @@
 }
 
 @media (max-width: 1024px) {
-    .nav-search {
+    .unauth-nav .nav-search {
         display: none;
     }
 
-    .mobile-menu-toggle {
+    .unauth-nav .mobile-menu-toggle {
         display: block;
+    }
+}
+
+@media (max-width: 768px) {
+    .unauth-nav .navbar {
+        background-color: var(--bg-primary);
+        border: none;
+    }
+
+    .unauth-nav #mobileMenu {
+        background-color: var(--bg-primary);
+        border-left: none;
+    }
+}
+
+@media (max-width: 665px) {
+    .nav-search {
+        display: none;
     }
 }
 

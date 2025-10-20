@@ -21,66 +21,68 @@
 </head>
 
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="{% url 'core:home' %}">Eventhub</a>
-            </div>
-            <div class="nav-search" id="navSearch">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search events, artists, venues..." id="globalSearch">
-                <button class="search-filter-btn" id="searchFilterBtn">
-                    <i class="fas fa-filter"></i>
-                </button>
-            </div>
-            <div class="nav-actions">
-                <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-                    <i class="fas fa-moon"></i>
-                </button>
-                {% if user.is_authenticated %}
-                <div class="user-menu" id="userMenu">
-                    <button class="user-avatar" id="userAvatar">
-                        <img src="{{user.avatar}}" alt="Avatar" width="64" height="64">
+    <div class="{% if not user.is_authenticated %}unauth-nav{% endif %}">
+        <nav class="navbar" id="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <a href="{% url 'core:home' %}">Eventhub</a>
+                </div>
+                <div class="nav-search" id="navSearch">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search events, artists, venues..." id="globalSearch">
+                    <button class="search-filter-btn" id="searchFilterBtn">
+                        <i class="fas fa-filter"></i>
                     </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
-                        <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
-                        <a href="{% url 'users:account' %}"><i class="fas fa-user"></i> My Account</a>
-                        <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+                </div>
+                <div class="nav-actions">
+                    <button class="btn-icon theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    {% if user.is_authenticated %}
+                    <div class="user-menu" id="userMenu">
+                        <button class="user-avatar" id="userAvatar">
+                            <img src="{{user.avatar}}" alt="Avatar" width="64" height="64">
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
+                            <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
+                            <a href="{% url 'users:account' %}"><i class="fas fa-user"></i> My Account</a>
+                            <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+                        </div>
                     </div>
+                    {% else %}
+                    <div class="auth-buttons">
+                        <a href="{% url 'users:login' %}">
+                            <button class="btn-secondary" id="loginBtn">Log In</button>
+                        </a>
+                        <a href="{% url 'users:register' %}">
+                            <button class="btn-primary" id="registerBtn">Register</button>
+                        </a>
+                    </div>
+                    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="auth-buttons">
-                    <a href="{% url 'users:login' %}">
-                        <button class="btn-secondary" id="loginBtn">Log In</button>
-                    </a>
-                    <a href="{% url 'users:register' %}">
-                        <button class="btn-primary" id="registerBtn">Register</button>
-                    </a>
-                </div>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                    <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-menu-header">
+                <span>Menu</span>
+                <button class="mobile-menu-close" id="mobileMenuClose">
+                    <i class="fas fa-times"></i>
                 </button>
-                {% endif %}
             </div>
-        </div>
-    </nav>
+            <div class="mobile-menu-content">
+                <div class="mobile-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search events...">
+                </div>
 
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu-header">
-            <span>Menu</span>
-            <button class="mobile-menu-close" id="mobileMenuClose">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <div class="mobile-menu-content">
-            <div class="mobile-search">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search events...">
+                <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
+                <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
             </div>
-
-            <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
-            <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
         </div>
     </div>
 

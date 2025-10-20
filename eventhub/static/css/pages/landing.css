@@ -135,17 +135,7 @@
 
 }
 
-@media (max-width: 768px) {
-    .navbar {
-        background-color: var(--bg-primary);
-        border: none;
-    }
-
-    #mobileMenu {
-        background-color: var(--bg-primary);
-        border-left: none;
-    }
-    
+@media (max-width: 768px) {    
     .hero-title {
         font-size: 2.8rem;
     }

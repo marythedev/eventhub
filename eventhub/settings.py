@@ -42,6 +42,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGIN_URL = '/user/login/'
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

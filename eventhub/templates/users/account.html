@@ -3,31 +3,123 @@
 
 {% block title %} Account {% endblock %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/account.css' %}" type="text/css">
+{% endblock %}
+
 {% block content %}
 
-{% if avatar_error %}
-    <div class="alert alert-danger">{{ avatar_error }}</div>
-{% endif %}
+<section id="account" class="account-section">
+    <div class="container">
+        <h1>Account Settings</h1>
+        <div class="account-layout">
+            <aside class="account-sidebar">
+                <nav class="account-nav">
+                    <a href="#profile" class="account-nav-link active">
+                        <i class="fas fa-user"></i> Profile Information
+                    </a>
+                    <a href="#security" class="account-nav-link">
+                        <i class="fas fa-lock"></i> Security
+                    </a>
+                </nav>
+            </aside>
 
-<form id="avatarUploadForm" action="{% url 'users:avatar_upload' %}" method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="profile-avatar-section">
-        <div class="avatar-display">
-            <img src="{{user.avatar}}" alt="User's avatar" width="120" height="120" id="avatar-img">
-        </div>
-        <div class="avatar-actions">
-            <input type="file" id="imageUpload" name="imageFile" accept=".jpg,.jpeg,.png,.gif,.webp" style="display: none;">
+            <div class="account-main">
+                <div class="account-section-content" id="profile">
+                    <div class="section-header-account">
+                        <h2>Profile Information</h2>
+                        <p>Manage your personal information</p>
+                    </div>
 
-            <button type="button" class="btn-secondary" id="changePhotoBtn">Change Photo</button>
+                    <div class="profile-avatar-section">
+                        <div class="upload-avatar-section">
+                            <div class="avatar-display">
+                                <img src="{{user.avatar}}" alt="User's avatar" width="120" height="120" id="avatar-img">
+                            </div>
+
+                            <div class="avatar-actions">
+                                <form id="avatarUploadForm" action="{% url 'users:avatar_upload' %}" method="POST"
+                                    enctype="multipart/form-data">
+                                    {% csrf_token %}
+
+                                    <input type="file" id="imageUpload" name="imageFile"
+                                        accept=".jpg,.jpeg,.png,.gif,.webp" style="display: none;">
+                                    <button type="button" class="btn-secondary" id="changePhotoBtn">Change
+                                        Photo</button>
+                                </form>
+
+                                <form action="{% url 'users:avatar_delete' %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-icon remove-avatar">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        {% if avatar_error %}
+                        <small class="form-error general-error"> {{ avatar_error }} </small>
+                        {% endif %}
+                    </div>
+
+                    <form class="account-form" action="#" method="POST">
+                        <input type="hidden" name="form_name" value="update_profile_form">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name</label>
+                                <input type="text" id="firstName" name="first_name" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name</label>
+                                <input type="text" id="lastName" name="last_name" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="accountEmail">Email Address</label>
+                            <input type="email" id="accountEmail" name="email" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="phoneNumber">Phone Number</label>
+                            <input type="tel" id="phoneNumber" name="phone" placeholder="">
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" placeholder="">
+                        </div>
+                        <button type="submit" class="btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="account-section-divider"></div>
+
+                <div class="account-section-content" id="security">
+                    <div class="section-header-account">
+                        <h2>Security Settings</h2>
+                        <p>Manage your password and security preferences</p>
+                    </div>
+                    <form class="account-form" action="#" method="POST">
+                        <input type="hidden" name="form_name" value="change_password_form">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="current_password" required="">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="new_password" minlength="8" required="">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" id="confirmNewPassword" name="confirm_new_password" minlength="8"
+                                required="">
+                        </div>
+                        <button type="submit" class="btn-primary">Update Password</button>
+                    </form>
+                </div>
+
+                
+            </div>
         </div>
     </div>
-</form>
-
-<form action="{% url 'users:avatar_delete' %}" method="POST">
-    {% csrf_token %}
-    <button type="submit" class="link-text">Remove</button>
-</form>
-
+</section>
 
 <script src="{% static 'js/avatar-upload.js' %}" defer></script>
 

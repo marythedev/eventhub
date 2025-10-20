@@ -43,6 +43,10 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+button {
+    width: fit-content;
+}
+
 .btn-primary,
 .btn-secondary {
     padding: 0.65rem 1.5rem;
@@ -112,8 +116,11 @@ body {
 }
 
 .btn-icon:hover {
-    background-color: var(--bg-tertiary);
     color: var(--primary-color);
+}
+
+.btn-icon:hover:not(.remove-avatar) {
+    background-color: var(--bg-tertiary);
 }
 
 main {
@@ -140,4 +147,16 @@ section {
 .container-fluid {
     max-width: 100%;
     padding: 0 2rem;
+}
+
+@media (max-width: 480px) {
+    .container,
+    .container-small,
+    .container-fluid {
+        padding: 0 1.25rem;
+    }
+
+    .btn-large {
+        width: 100%;
+    }
 }

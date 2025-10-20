@@ -1,11 +1,13 @@
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent             # project (where manage.py & db)
 APP_ROOT = Path(os.path.dirname(__file__))                    # application (where settings.py & other configs)
 sys.path.insert(0, os.path.join(APP_ROOT, 'apps'))            # subapps (backend) of the main eventhub application
 
+load_dotenv()
 
 # development settings
 # TODO: review before prod
@@ -79,6 +81,12 @@ STATICFILES_DIRS = [ APP_ROOT / "static" ]
 # TODO: for prod run python manage.py collectstatic
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
+# media
+UPLOADCARE = {
+    "pub_key": os.getenv('UPLOADCARE_PUBLIC_KEY'),
+    "secret": os.getenv('UPLOADCARE_SECRET'),
+}
+CDN_DOMAIN = os.getenv('CDN_DOMAIN')
 
 # Database
 DATABASES = {

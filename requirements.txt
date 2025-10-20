@@ -2,4 +2,7 @@ Django>=5.0,<6.0
 pylint ~= 2.16.3
 pylint-django ~= 2.5.3
 python-dotenv ~= 1.0.0
-Pillow>=10.0.0      # for images
+
+# for images
+Pillow ~= 10.0.0
+pyuploadcare[django] ~= 6.2.1

@@ -40,12 +40,12 @@
                 {% if user.is_authenticated %}
                 <div class="user-menu" id="userMenu">
                     <button class="user-avatar" id="userAvatar">
-                        <img src="{% static 'img/demo_avatar.jpg' %}" alt="Demo user profile avatar for Eventhub"
-                            width="64" height="64">
+                        <img src="{{user.avatar}}" alt="Avatar" width="64" height="64">
                     </button>
                     <div class="user-dropdown" id="userDropdown">
                         <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
                         <a href="#"><i class="fas fa-compass"></i> Explore Events</a>
+                        <a href="{% url 'users:account' %}"><i class="fas fa-user"></i> My Account</a>
                         <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
                     </div>
                 </div>

@@ -40,6 +40,10 @@
     gap: 1.5rem;
 }
 
+.form-success {
+    color: var(--success-color);
+}
+
 .form-error {
     color: var(--error-color);
 }

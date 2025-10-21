@@ -1,35 +1,19 @@
 import os
 import re
 import requests
+from dotenv import load_dotenv
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from dotenv import load_dotenv
 
 from .models import Profile
 
 load_dotenv()
 
-class RegisterFormValidator(forms.Form):
-    """
-    Validates user registration data.
-
-    Args:
-        full_name (str): User's full name, max length 100.
-        email (str): User's email address, must be unique.
-        password (str): User's password, with complexity requirements.
-        confirm_password (str): Confirmation of password, must match.
-        terms_accepted (bool): Indicates acceptance of terms.
-
-    Raises:
-        ValidationError: Raised if any validation rule fails, such as missing fields, duplicate email,
-                         weak password, passwords don't match, or terms not accepted.
-
-    Returns:
-        dict: Cleaned data containing containing validated form input.
-    """
-    
-    full_name = forms.CharField(
+# Helper functions
+def _full_name_field():
+    """Helper function that returns CharField with full name validation rules."""
+    return forms.CharField(
         max_length=100,
         required=True,
         error_messages={
@@ -37,22 +21,72 @@ class RegisterFormValidator(forms.Form):
             'max_length': 'Full name length exceeded.'
         }
     )
-    email = forms.EmailField(
+
+def _email_field():
+    """Helper function that returns EmailField with email validation rules."""
+    return forms.EmailField(
         required=True,
         error_messages={'required': 'Email is required.'}
     )
-    password = forms.CharField(
+
+def _password_field(required_message):
+    """Helper function that returns CharField with password validation rules."""
+    return forms.CharField(
         min_length=8,
         required=True,
         widget=forms.PasswordInput,
-        error_messages={'required': 'Password is required.'}
+        error_messages={
+            'min_length': 'Password must be at least 8 characters long.',
+            'required': required_message
+        }
     )
-    confirm_password = forms.CharField(
-        min_length=8,
-        required=True,
-        widget=forms.PasswordInput,
-        error_messages={'required': 'Confirm password is required.'}
-    )
+
+def _validate_password(password):
+    """
+    Helper function to define password validation rules:
+        - At least 8 characters long
+        - Contains at least one uppercase letter
+        - Contains at least one lowercase letter
+        - Contains at least one digit
+        - Contains at least one special character (@, $, !, %, *, ?, &)
+    """
+    
+    if len(password) < 8:
+        raise ValidationError("Password must be at least 8 characters long.")
+    if not re.search(r"[A-Z]", password):
+        raise ValidationError("Password must contain at least one uppercase letter.")
+    if not re.search(r"[a-z]", password):
+        raise ValidationError("Password must contain at least one lowercase letter.")
+    if not re.search(r"[0-9]", password):
+        raise ValidationError("Password must contain at least one digit.")
+    if not re.search(r"[@$!%*?&]", password):
+        raise ValidationError("Password must contain at least one special character (@, $, !, %, *, ?, &).")
+
+
+# Validation forms
+class RegisterValidator(forms.Form):
+    """
+    Validates user registration data.
+
+    Args:
+        full_name (str): User's full name, max length 100.
+        email (str): User's email address, must be unique.
+        password (str): User's password, must satisfy validation rules.
+        confirm_password (str): Confirmation of password, must match the password.
+        terms_accepted (bool): Indicates acceptance of terms.
+
+    Raises:
+        ValidationError: Raised if any validation rule fails, such as missing fields, duplicate email,
+                         weak password, passwords don't match, or terms not accepted.
+
+    Returns:
+        dict: Cleaned data containing validated form input.
+    """
+    
+    full_name = _full_name_field()
+    email = _email_field()
+    password = _password_field('Password is required.')
+    confirm_password = _password_field('Confirm password is required.')
     terms_accepted = forms.BooleanField(
         required=True,
         error_messages={'required': 'Please accept the Terms and Conditions.'}
@@ -69,16 +103,7 @@ class RegisterFormValidator(forms.Form):
     def clean_password(self):
         password = self.cleaned_data.get('password')
 
-        if len(password) < 8:
-            raise ValidationError("Password must be at least 8 characters long.")
-        if not re.search(r"[A-Z]", password):
-            raise ValidationError("Password must contain at least one uppercase letter.")
-        if not re.search(r"[a-z]", password):
-            raise ValidationError("Password must contain at least one lowercase letter.")
-        if not re.search(r"[0-9]", password):
-            raise ValidationError("Password must contain at least one digit.")
-        if not re.search(r"[@$!%*?&]", password):
-            raise ValidationError("Password must contain at least one special character (@, $, !, %, *, ?, &).")
+        _validate_password(password)
 
         return password
 
@@ -94,7 +119,7 @@ class RegisterFormValidator(forms.Form):
         return cleaned_data
 
 
-class LoginFormValidator(forms.Form):
+class LoginValidator(forms.Form):
     """
     Validates user login credentials.
 
@@ -110,10 +135,7 @@ class LoginFormValidator(forms.Form):
         dict: The authenticated user is stored in the form's cleaned data.
     """
     
-    email = forms.EmailField(
-        required=True,
-        error_messages={'required': 'Email is required.'}
-    )
+    email = _email_field()
     password = forms.CharField(
         required=True,
         widget=forms.PasswordInput,
@@ -136,9 +158,9 @@ class LoginFormValidator(forms.Form):
         return cleaned_data
 
 
-class ProfileFormValidator(forms.Form):
+class ProfileValidator(forms.Form):
     """
-    Validates and updates user profile data.
+    Validates user's profile information for its further update.
 
     Fields:
         full_name (str): User's full name, required.
@@ -157,20 +179,8 @@ class ProfileFormValidator(forms.Form):
         super().__init__(*args, **kwargs)
         self.user = user
     
-    full_name = forms.CharField(
-        max_length=100,
-        required=True,
-        error_messages={
-            'required': 'Full name is required.',
-            'max_length': 'Full name length exceeded.'
-        }
-    )
-    email = forms.EmailField(
-        required=True,
-        error_messages={
-            'required': 'Email is required.'
-        }
-    )
+    full_name = _full_name_field()
+    email = _email_field()
     phone = forms.CharField(
         max_length=25,
         required=False,
@@ -245,4 +255,53 @@ class ProfileFormValidator(forms.Form):
     
     def clean(self):
         cleaned_data = super().clean()
+        return cleaned_data
+
+
+class SecurityValidator(forms.Form):
+    """
+    Validates user's security information for its further update.
+
+    Fields:
+        current_password (str): User's current password.
+        new_password (str): User's new password, must satisfy validation rules.
+        confirm_new_password (str): Confirmation of password, must match the new password.
+
+    Args:
+        user (Profile): The current user instance for whom information is being updated.
+
+    Returns:
+        dict: Cleaned data containing validated form input.
+    """
+
+    def __init__(self, *args, user, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+    
+    current_password = _password_field('Current password is required.')
+    new_password = _password_field('New password is required.')
+    confirm_new_password = _password_field('Confirmation of the new password is required.')
+    
+    # check new password again the password validation rules
+    def clean_new_password(self):
+        new_password = self.cleaned_data.get('new_password')
+
+        _validate_password(new_password)
+
+        return new_password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        current_password = cleaned_data.get("current_password")
+        new_password = cleaned_data.get("new_password")
+        confirm_new_password = cleaned_data.get("confirm_new_password")
+
+        # check if new password and confirm new password match
+        if new_password and confirm_new_password and new_password != confirm_new_password:
+            self.add_error('confirm_new_password', "Passwords do not match.")
+        
+        # check if entered current password is correct
+        if current_password and not self.user.check_password(current_password):
+            self.add_error('current_password', "Current password is incorrect.")
+        
         return cleaned_data

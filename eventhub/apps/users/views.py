@@ -1,11 +1,11 @@
 import io
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
 from PIL import Image
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 
 from .utils import *
-from .forms import RegisterFormValidator, LoginFormValidator, ProfileFormValidator
+from .forms import RegisterValidator, LoginValidator, ProfileValidator, SecurityValidator
 from .models import Profile
 
 
@@ -22,7 +22,7 @@ def register(request):
     """
     
     if request.method == "POST":
-        form = RegisterFormValidator(request.POST)
+        form = RegisterValidator(request.POST)
         if form.is_valid():
             full_name = form.cleaned_data['full_name']
             email = form.cleaned_data['email']
@@ -46,7 +46,7 @@ def register(request):
             else:
                 return redirect('users:login')
     else:
-        form = RegisterFormValidator()
+        form = RegisterValidator()
         
     return render(request, 'users/register.html', {'form': form})
 
@@ -64,13 +64,13 @@ def login(request):
     """
     
     if request.method == "POST":
-        form = LoginFormValidator(request.POST)
+        form = LoginValidator(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             auth_login(request, user)
             return redirect('core:home')
     else:
-        form = LoginFormValidator()
+        form = LoginValidator()
 
     return render(request, 'users/login.html', {'form': form})
 
@@ -193,7 +193,7 @@ def profile_update(request):
     """Update profile information for the user (name, email, phone, location)."""
     if request.method == "POST":
         user = request.user
-        form = ProfileFormValidator(request.POST, user=user)
+        form = ProfileValidator(request.POST, user=user)
         if form.is_valid():
             full_name = form.cleaned_data['full_name']
             email = form.cleaned_data['email']
@@ -206,6 +206,23 @@ def profile_update(request):
             user.location = location
             user.save()
         return render(request, 'users/account.html', {'form': form})
+    return redirect('users:account')
+
+
+@login_required
+def security_update(request):
+    """Handle user password update."""
+    if request.method == "POST":
+        user = request.user
+        form = SecurityValidator(request.POST, user=user)
+        success_password_update = None
+        if form.is_valid():
+            new_password = form.cleaned_data['new_password']
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+            success_password_update = "Your password has been updated."
+        return render(request, 'users/account.html', {'form': form, 'success_password_update': success_password_update})
     return redirect('users:account')
 
 

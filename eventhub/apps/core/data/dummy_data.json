@@ -1,0 +1,92 @@
+[
+    {
+        "day": 15,
+        "month": "Jun",
+        "title": "Summer Music Festival",
+        "location": "Central Park, New York",
+        "category": "Music",
+        "price": "45.00",
+        "image_uuid": "9b0f51bd-bd33-4f42-bc16-eacb604aec79",
+        "badge": "Featured"
+    },
+    {
+        "day": 22,
+        "month": "Jun",
+        "title": "Electronic Nights: EDM Party",
+        "location": "The Warehouse, Brooklyn",
+        "category": "Music",
+        "price": "30.00",
+        "image_uuid": "4ab908fc-0cbb-4fd7-aa6d-ecb0d0ddea37",
+        "badge": "Sale"
+    },
+    {
+        "day": 5,
+        "month": "Jul",
+        "title": "Jazz in the Park",
+        "location": "Madison Square Park, NYC",
+        "category": "Music",
+        "price": "Free",
+        "image_uuid": "3c6d6166-7842-4117-ba8b-79e186a97ae7",
+        "badge": "Free"
+    },
+    {
+        "day": 12,
+        "month": "Jul",
+        "title": "Indie Rock Showcase",
+        "location": "The Bowery Ballroom",
+        "category": "Music",
+        "price": "25.00",
+        "image_uuid": "71ff647b-9840-4665-835a-5827ae6dcde4",
+        "badge": ""
+    },
+    {
+        "day": 18,
+        "month": "Jul",
+        "title": "Pop Stars Live",
+        "location": "Madison Square Garden",
+        "category": "Music",
+        "price": "75.00",
+        "image_uuid": "a8961bb1-5631-423f-a9ee-b187c6f9ea5b",
+        "badge": ""
+    },
+    {
+        "day": 25,
+        "month": "Jul",
+        "title": "Hip Hop Festival",
+        "location": "Barclays Center, Brooklyn",
+        "category": "Music",
+        "price": "55.00",
+        "image_uuid": "492efdb1-ad61-4336-bdb6-e0d02d4399da",
+        "badge": "Hot"
+    },
+    {
+        "day": 2,
+        "month": "Aug",
+        "title": "Country Roads Festival",
+        "location": "Coney Island Amphitheater",
+        "category": "Music",
+        "price": "40.00",
+        "image_uuid": "54342f90-43e9-473f-9051-1711924d38ae",
+        "badge": ""
+    },
+    {
+        "day": 8,
+        "month": "Aug",
+        "title": "Stand-Up Comedy Night",
+        "location": "Comedy Cellar, Manhattan",
+        "category": "Comedy",
+        "price": "35.00",
+        "image_uuid": "02120fa3-e925-4be4-bd08-4eb877687791",
+        "badge": ""
+    },
+    {
+        "day": 15,
+        "month": "Aug",
+        "title": "Broadway Musical Night",
+        "location": "Broadway Theater",
+        "category": "Arts & Theater",
+        "price": "95.00",
+        "image_uuid": "e10b0f53-acc4-4e56-8ab0-dda000f2684a",
+        "badge": ""
+    }
+]

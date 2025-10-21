@@ -25,7 +25,9 @@
         <p class="hero-subtitle">From concerts to community gatherings, find tickets to the experiences that move you
         </p>
         <div class="hero-button">
-            <button class="btn-primary btn-large" id="heroExploreBtn">Dive into EventHub</button>
+            <a href="{% url 'core:explore' %}">
+                <button class="btn-primary btn-large" id="heroExploreBtn">Dive into EventHub</button>
+            </a>
         </div>
     </div>
     <div class="hero-visual">
@@ -38,16 +40,14 @@
                 </div>
             </div>
             <div class="hero-card card-2">
-                <img src="{% static 'img/landing/dj_music.webp' %}" alt="DJ plays music" width="300"
-                    height="240">
+                <img src="{% static 'img/landing/dj_music.webp' %}" alt="DJ plays music" width="300" height="240">
                 <div class="hero-card-info">
                     <h3>Electronic Dance Nights</h3>
                     <p><i class="fas fa-calendar"></i> Nov 10</p>
                 </div>
             </div>
             <div class="hero-card card-3">
-                <img src="{% static 'img/landing/tomorrowland.webp' %}" alt="Music festival" width="300"
-                    height="240">
+                <img src="{% static 'img/landing/tomorrowland.webp' %}" alt="Music festival" width="300" height="240">
                 <div class="hero-card-info">
                     <h3>Tomorrowland</h3>
                     <p><i class="fas fa-calendar"></i> Jul 17</p>

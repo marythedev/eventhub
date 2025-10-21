@@ -109,18 +109,6 @@
     accent-color: var(--primary-color);
 }
 
-.link-text {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-size: 0.9rem;
-    transition: var(--transition);
-}
-
-.link-text:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-}
-
 .auth-footer {
     text-align: center;
     margin-top: 2rem;

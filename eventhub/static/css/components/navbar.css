@@ -33,6 +33,7 @@
 }
 
 .nav-search {
+    height: 50px;
     flex: 1;
     max-width: 600px;
     position: relative;
@@ -66,20 +67,6 @@
 
 .nav-search input::placeholder {
     color: var(--text-secondary);
-}
-
-.search-filter-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 0.5rem;
-    margin-left: 0.5rem;
-    transition: var(--transition);
-}
-
-.search-filter-btn:hover {
-    color: var(--primary-color);
 }
 
 .nav-actions {

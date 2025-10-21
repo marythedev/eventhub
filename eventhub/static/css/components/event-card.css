@@ -1,0 +1,132 @@
+.event-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.event-card:hover {
+    box-shadow: var(--card-shadow);
+    border-color: var(--primary-color);
+}
+
+.event-card:hover .event-image img {
+    transform: scale(1.1);
+}
+
+.event-image {
+    position: relative;
+    overflow: hidden;
+    height: 200px;
+}
+
+.event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.event-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+    color: #FFFFFF;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.event-badge.sale {
+    background: var(--error-color);     /* #FF5252 */
+}
+
+.event-content {
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between; 
+}
+
+.event-description {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.event-date {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.75rem;
+    text-align: center;
+    min-width: 60px;
+}
+
+.date-day {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.date-month {
+    display: block;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.event-info {
+    flex: 1;
+}
+
+.event-info h3 {
+    font-size: 1.15rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.event-location,
+.event-category {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: start;
+    gap: 0.5rem;
+}
+
+.event-location i,
+.event-category i {
+    padding-top: 4px;
+}
+
+.event-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: auto;
+}
+
+.event-price {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.event-price.free {
+    color: var(--success-color);
+}

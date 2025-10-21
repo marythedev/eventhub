@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Explore Events {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/events.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="events" class="events-section">
+    <div class="container-fluid">
+        <div class="events-header">
+            <h1>Explore Events</h1>
+            <a href="#">
+                <button class="btn-primary" id="addEventBtn"><i class="fas fa-plus"></i> Create Event</button>
+            </a>
+        </div>
+
+        <div class="events-controls">
+            <button class="filter-toggle-btn" id="filterToggleBtn">
+                <i class="fas fa-sliders-h"></i> <span id="filterBtnText">Filters</span>
+            </button>
+            <div class="search-bar-large">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search events, keywords or locations..." id="eventsSearch">
+            </div>
+
+        </div>
+
+        <div class="events-content">
+            <aside class="filters-sidebar" id="filtersSidebar">
+                <div class="filters-header">
+                    <h3>Filters</h3>
+                    <button class="btn-icon link-text" id="clearFilters">Clear all</button>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Price Range</h4>
+                    <div class="price-inputs">
+                        <input type="number" placeholder="Min" class="filter-input" min="0">
+                        <span>to</span>
+                        <input type="number" placeholder="Max" class="filter-input" min="0">
+                    </div>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="free_only">
+                        <span>Free events only</span>
+                    </label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Location</h4>
+                    <input type="text" placeholder="City or venue" class="filter-input">
+                    <div class="radius-slider">
+                        <label for="radiusSlider">Radius: <span id="radiusValue">25</span> km</label>
+                        <input type="range" id="radiusSlider" min="1" max="100" value="25">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Date</h4>
+                    <div class="date-range-inputs">
+                        <div class="date-from">
+                            <label for="dateFrom">From</label>
+                            <input type="date" id="dateFrom" name="date_from">
+                        </div>
+                        <div class="date-to">
+                            <label for="dateTo">To</label>
+                            <input type="date" id="dateTo" name="date_to">
+                        </div>
+                    </div>
+                    <div class="quick-dates">
+                        <button class="quick-date-btn">Today</button>
+                        <button class="quick-date-btn">This Week</button>
+                        <button class="quick-date-btn">This Month</button>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Categories</h4>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="arts">
+                        <span>Arts</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="business">
+                        <span>Business</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="family">
+                        <span>Family</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="food">
+                        <span>Food &amp; Drink</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="music">
+                        <span>Music &amp; Concerts</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="social">
+                        <span>Social &amp; Comedy</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="sports">
+                        <span>Sports</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="category" value="tech">
+                        <span>Technology</span>
+                    </label>
+                </div>
+
+                <button class="btn-primary btn-full" id="applyFilters">Apply Filters</button>
+            </aside>
+
+            <div class="events-main">
+                <div class="events-results-header">
+                    <p class="results-count">Showing {{events|length}} events</p>
+                    <div class="sort-controls">
+                        <label for="sortBy">Sort by:</label>
+                        <select id="sortBy">
+                            <option value="relevance">Relevance</option>
+                            <option value="date">Date</option>
+                            <option value="price-low">Price (Low to High)</option>
+                            <option value="price-high">Price (High to Low)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="events-grid-large" id="eventsGrid">
+                    {% for event in events %}
+                    <div class="event-card">
+                        <div class="event-image">
+                            <img src="{{CDN_DOMAIN}}/{{ event.image_uuid }}/" alt="{{ event.title }}" width="400"
+                                height="320">
+                            {% if event.badge %}
+                            <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="event-content">
+                            <div class="event-description">
+                                <div class="event-date">
+                                    <span class="date-day">{{ event.day }}</span>
+                                    <span class="date-month">{{ event.month }}</span>
+                                </div>
+                                
+                                <div class="event-info">
+                                    <h3>{{ event.title }}</h3>
+                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                                    </p>
+                                    <p class="event-category"><i class="fas fa-tags"></i> {{ event.category }}</p>
+                                </div>
+                            </div>
+
+                            <div class="event-footer">
+                                <span class="event-price {% if event.badge == 'Free' %}free{% endif %}">
+                                    {% if not event.price == 'Free' %} From ${% endif %}{{ event.price }}
+                                </span>
+
+                                <a href="#">
+                                    <button class="btn-primary btn-small">
+                                        {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

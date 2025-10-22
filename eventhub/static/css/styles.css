@@ -119,8 +119,20 @@ button {
     color: var(--primary-color);
 }
 
-.btn-icon:hover:not(.link-text) {
+.btn-icon:hover:not(.link-btn) {
     background-color: var(--bg-tertiary);
+}
+
+.link-text {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.link-text:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
 }
 
 main {

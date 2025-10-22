@@ -13,15 +13,17 @@
     <div class="container-fluid">
         <div class="events-header">
             <h1>Explore Events</h1>
-            <a href="#">
-                <button class="btn-primary" id="addEventBtn"><i class="fas fa-plus"></i> Create Event</button>
+            <a href="#" id="addEventBtn">
+                <button class="btn-secondary"><i class="fas fa-plus"></i> Create Event</button>
             </a>
         </div>
 
         <div class="events-controls">
-            <button class="filter-toggle-btn" id="filterToggleBtn">
-                <i class="fas fa-sliders-h"></i> <span id="filterBtnText">Filters</span>
-            </button>
+            <div class="events-controls-btns">
+                <button class="filter-toggle-btn" id="filterToggleBtn">
+                    <i class="fas fa-sliders-h"></i> <span id="filterBtnText">Filters</span>
+                </button>
+            </div>
             <div class="search-bar-large">
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Search events, keywords or locations..." id="eventsSearch">
@@ -33,7 +35,7 @@
             <aside class="filters-sidebar" id="filtersSidebar">
                 <div class="filters-header">
                     <h3>Filters</h3>
-                    <button class="btn-icon link-text" id="clearFilters">Clear all</button>
+                    <button class="btn-icon link-btn" id="clearFilters">Clear all</button>
                 </div>
 
                 <div class="filter-group">
@@ -62,19 +64,20 @@
                     <h4>Date</h4>
                     <div class="date-range-inputs">
                         <div class="date-from">
-                            <label for="dateFrom">From</label>
+                            <label for="dateFrom">from</label>
                             <input type="date" id="dateFrom" name="date_from">
                         </div>
                         <div class="date-to">
-                            <label for="dateTo">To</label>
+                            <label for="dateTo">to</label>
                             <input type="date" id="dateTo" name="date_to">
                         </div>
                     </div>
                     <div class="quick-dates">
-                        <button class="quick-date-btn">Today</button>
-                        <button class="quick-date-btn">This Week</button>
-                        <button class="quick-date-btn">This Month</button>
+                        <button class="quick-date-btn" data-range="today">Today</button>
+                        <button class="quick-date-btn" data-range="week">This Week</button>
+                        <button class="quick-date-btn" data-range="month">This Month</button>
                     </div>
+
                 </div>
 
                 <div class="filter-group">
@@ -120,7 +123,7 @@
                 <div class="events-results-header">
                     <p class="results-count">Showing {{events|length}} events</p>
                     <div class="sort-controls">
-                        <label for="sortBy">Sort by:</label>
+                        <label for="sortBy">Sort&nbsp;by:</label>
                         <select id="sortBy">
                             <option value="relevance">Relevance</option>
                             <option value="date">Date</option>
@@ -147,7 +150,7 @@
                                     <span class="date-day">{{ event.day }}</span>
                                     <span class="date-month">{{ event.month }}</span>
                                 </div>
-                                
+
                                 <div class="event-info">
                                     <h3>{{ event.title }}</h3>
                                     <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
@@ -175,5 +178,7 @@
         </div>
     </div>
 </section>
+
+<script src="{% static 'js/explore-events.js' %}" defer></script>
 
 {% endblock %}

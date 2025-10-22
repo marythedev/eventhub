@@ -54,7 +54,7 @@ class Profile(AbstractBaseUser, PermissionsMixin):
         is_staff (bool): Admin site access status.
     """
     
-    avatar = models.URLField(blank=False, null=False)
+    avatar = models.URLField()
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True, null=True)

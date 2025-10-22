@@ -1,6 +1,7 @@
 const body = document.body;
-
 const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('theme');
+const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 function setTheme(theme) {
     if (theme === 'light') {
@@ -12,9 +13,6 @@ function setTheme(theme) {
     }
     localStorage.setItem('theme', theme);
 }
-
-const savedTheme = localStorage.getItem('theme');
-const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
 if (savedTheme) {
     setTheme(savedTheme);

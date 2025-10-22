@@ -4,13 +4,15 @@ const changePhotoBtn = document.getElementById('changePhotoBtn');
 const form = document.getElementById('avatarUploadForm');
 
 // when the button is clicked, trigger the hidden file input
-changePhotoBtn.addEventListener('click', () => {
-    fileInput.click();
-});
+if (changePhotoBtn)
+    changePhotoBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
 
 // when a file is selected, submit the form
-fileInput.addEventListener('change', () => {
-    if (fileInput.files.length > 0) {
-        form.submit();
-    }
-});
+if (fileInput)
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            form.submit();
+        }
+    });

@@ -1,6 +1,8 @@
 import os
+import requests
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.core.exceptions import ValidationError
 from pyuploadcare import Uploadcare
 from PIL import Image
 
@@ -128,3 +130,43 @@ def set_custom_avatar(user, file, filename):
         # cleanup
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
+
+def validate_location(location):
+    """
+    Helper function that validates location.
+    
+    Args:
+        location (str): Location to be validated.
+    
+    Raises:
+        ValidationError: when location is not valid (not found) or something is wrong with the fetch.
+        
+    Returns:
+        location (str): Location after the validation (either validated or incorrect with raised error).
+    """
+    try:
+        # fetch openstreetmap to check if location exists
+        response = requests.get(
+            'https://nominatim.openstreetmap.org/search',
+            params={'q': location, 'format': 'json'},
+            headers={
+                'User-Agent': f'Eventhub/{os.getenv("APP_VERSION", "1.0")}',
+                'Accept-Language': 'en'
+            }
+        )
+        data = response.json()
+        
+        print(data)
+        if len(data) == 0:
+            raise ValidationError("Location not found. Please enter a valid place.")
+
+        # transform location to full display name for consistent location format
+        location = data[0]['display_name']
+        
+    except ValidationError:
+        raise
+    except Exception:
+        raise ValidationError("Failed to validate location. Try again later.")
+    
+    return location
+

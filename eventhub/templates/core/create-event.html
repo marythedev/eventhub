@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Create New Event {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/create-event.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="new-event" class="new-event-section">
+    <div class="container-small">
+        <div class="section-header-large">
+            <h1>Create New Event</h1>
+            <p>Fill in the details below to create your event</p>
+        </div>
+
+        <form class="event-form" action="{% url 'core:create_event' %}" method="POST">
+            {% csrf_token %}
+            <div class="form-section">
+                <h3>Event Information</h3>
+
+                <div class="form-group">
+                    <div class="event-name-label">
+                        <label for="eventName">Event Name</label>
+                        <small id="nameCounter" class="char-counter"></small>
+                    </div>
+                    <input type="text" id="eventName" name="event_name" maxlength="50" placeholder="Enter event name"
+                        value="{{ form.event_name.value|default_if_none:'' }}" required>
+                    {% if form.event_name.errors %}
+                    <small class="form-error">{{ form.event_name.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Event Date</label>
+                        <input type="date" id="eventDate" name="event_date"
+                            value="{{ form.event_date.value|default_if_none:'' }}" required>
+                        {% if form.event_date.errors %}
+                        <small class="form-error">{{ form.event_date.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="eventTime">Start Time</label>
+                        <input type="time" id="eventTime" name="event_time"
+                            value="{{ form.event_time.value|default_if_none:'' }}" required>
+                        {% if form.event_time.errors %}
+                        <small class="form-error">{{ form.event_time.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventAddress">Location</label>
+                    <input type="text" id="eventAddress" name="event_location" placeholder="Enter full address"
+                        value="{{ form.event_location.value|default_if_none:'' }}" required>
+                    {% if form.event_location.errors %}
+                    <small class="form-error">{{ form.event_location.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="eventCategory">Category</label>
+                    <select id="eventCategory" name="event_category" required>
+                        <option value="">Select category</option>
+                        {% for value, label in form.fields.event_category.choices %}
+                        {% if form.event_category.value == value %}
+                        <option value="{{ value }}" selected>{{ label }}</option>
+                        {% else %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if form.event_category.errors %}
+                    <small class="form-error">{{ form.event_category.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="eventDescription">Description</label>
+                    <textarea id="eventDescription" name="event_description" rows="6" maxlength="5000"
+                        placeholder="Describe your event...">{{ form.event_description.value|default_if_none:'' }}</textarea>
+                    <small id="descCounter" class="char-counter"></small>
+                    {% if form.event_description.errors %}
+                    <small class="form-error">{{ form.event_description.errors.0 }}</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Publish Event</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+{% endblock %}

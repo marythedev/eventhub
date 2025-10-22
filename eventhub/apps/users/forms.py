@@ -1,12 +1,11 @@
-import os
 import re
-import requests
 from dotenv import load_dotenv
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 
 from .models import Profile
+from .utils import validate_location
 
 load_dotenv()
 
@@ -223,33 +222,11 @@ class ProfileValidator(forms.Form):
         
         return phone
     
-    # location validation rule
     def clean_location(self):
         location = self.cleaned_data.get('location')
         
         if location and location != self.user.location:
-            try:
-                # fetch openstreetmap to check if location exists
-                response = requests.get(
-                    'https://nominatim.openstreetmap.org/search',
-                    params={'q': location, 'format': 'json'},
-                    headers={
-                        'User-Agent': f'Eventhub/{os.getenv("APP_VERSION", "1.0")}',
-                        'Accept-Language': 'en'
-                    }
-                )
-                data = response.json()
-                
-                if len(data) == 0:
-                    raise ValidationError("Location not found. Please enter a valid place.")
-
-                # transform location to full display name for consistent location format
-                location = data[0]['display_name']
-                
-            except ValidationError:
-                raise
-            except Exception:
-                raise ValidationError("Failed to validate location. Try again later.")
+            location = validate_location(location)
             
         return location
     

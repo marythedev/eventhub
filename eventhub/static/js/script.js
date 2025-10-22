@@ -27,5 +27,30 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 });
 
 
+/* CREATE EVENT PAGE */
+function updateCounter(counterField, maxLength, inputField) {
+    const currentLength = inputField.value.length;
+    counterField.textContent = `${currentLength} / ${maxLength} characters`;
+}
+
+// dynamic update of input characters for event name
+const nameInput = document.getElementById('eventName');
+const nameCounter = document.getElementById('nameCounter');
+if (nameInput) {
+    const nameMaxLength = nameInput.getAttribute('maxlength');
+    updateCounter(nameCounter, nameMaxLength, nameInput);
+    nameInput.addEventListener('input', () => updateCounter(nameCounter, nameMaxLength, nameInput));
+}
+
+// dynamic update of input characters for event description
+const descTextarea = document.getElementById('eventDescription');
+const descCounter = document.getElementById('descCounter');
+if (descTextarea) {
+    const descMaxLength = descTextarea.getAttribute('maxlength');
+    updateCounter(descCounter, descMaxLength, descTextarea);
+    descTextarea.addEventListener('input', () => updateCounter(descCounter, descMaxLength, descTextarea));
+}
+
+
 /* FOOTER */
 document.getElementById('current-year').textContent = new Date().getFullYear();

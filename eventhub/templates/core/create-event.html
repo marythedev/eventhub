@@ -23,7 +23,7 @@
                 <h3>Event Information</h3>
 
                 <div class="form-group">
-                    <div class="event-name-label">
+                    <div class="label-row">
                         <label for="eventName">Event Name</label>
                         <small id="nameCounter" class="char-counter"></small>
                     </div>
@@ -114,6 +114,55 @@
                         </div> -->
                     </div>
                 </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Event Tickets</h3>
+                <div class="form-group">
+                    <label>Seating Type</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="seating_type" value="general" checked="">
+                            <span>General Admission</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="seating_type" value="reserved">
+                            <span>Reserved Seating</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="totalSeats">Total Seats Available</label>
+                    <input type="number" id="totalSeats" name="total_seats" placeholder="Enter total capacity" min="1"
+                        required="">
+                </div>
+                <div class="pricing-zones" id="pricingZones">
+                    <h4>Pricing Zones</h4>
+                    <div class="pricing-zone-item zone-1">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <div class="label-row">
+                                    <label for="zone_name_1">Zone Name</label>
+                                    <div class="remove-zone-1">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                </div>
+                                <input type="text" name="zone_name_1" placeholder="e.g. General Admission">
+                            </div>
+                            <div class="form-group">
+                                <label for="zone_price_1">Price (USD)</label>
+                                <input type="number" name="zone_price_1" placeholder="0.00" min="0" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="zone_seats_1">Seats</label>
+                                <input type="number" name="zone_seats_1" placeholder="Seat capacity" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-secondary" id="addPricingZone">
+                    <i class="fas fa-plus"></i> Add Another Zone
+                </button>
             </div>
 
             <div class="form-actions">

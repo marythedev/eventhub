@@ -51,6 +51,62 @@ if (descTextarea) {
     descTextarea.addEventListener('input', () => updateCounter(descCounter, descMaxLength, descTextarea));
 }
 
+// pricing zones dynamic render & removal
+const pricingZonesContainer = document.getElementById('pricingZones');
+const addZoneButton = document.getElementById('addPricingZone');
+let zoneCount = 1;
+
+if (addZoneButton)
+    addZoneButton.addEventListener('click', function () {
+        renderPricingZone();
+        zoneCount++;
+    });
+
+// remove on click event for pricing zone 1
+const zone1 = pricingZonesContainer.querySelector('.zone-1');
+const zone1Remove = pricingZonesContainer.querySelector('.remove-zone-1');
+if (zone1Remove)
+    zone1Remove.addEventListener('click', () => removePricingZone(zone1));
+
+function renderPricingZone() {
+    const newZone = document.createElement('div');
+    newZone.classList.add('pricing-zone-item', `zone-${zoneCount}`);
+
+    newZone.innerHTML = `
+        <div class="form-row">
+            <div class="form-group">
+                <div class="label-row">
+                    <label for="zone_name_${zoneCount}">Zone Name</label>
+                    <div class="remove-zone-${zoneCount}">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <input type="text" name="zone_name_${zoneCount}" placeholder="e.g. General Admission">
+            </div>
+            <div class="form-group">
+                <label for="zone_price_${zoneCount}">Price (USD)</label>
+                <input type="number" name="zone_price_${zoneCount}" placeholder="0.00" min="0" step="0.01">
+            </div>
+            <div class="form-group">
+                <label for="zone_seats_${zoneCount}">Seats</label>
+                <input type="number" name="zone_seats_${zoneCount}" placeholder="Seat capacity" min="1">
+            </div>
+        </div>
+    `;
+
+    pricingZonesContainer.appendChild(newZone);
+
+    const removeButton = newZone.querySelector(`.remove-zone-${zoneCount}`);
+    removeButton.addEventListener('click', () => removePricingZone(newZone));
+}
+
+function removePricingZone(newZone) {
+    if (zoneCount > 1) {
+        pricingZonesContainer.removeChild(newZone);
+        zoneCount--;
+    }
+}
+
 
 /* FOOTER */
 document.getElementById('current-year').textContent = new Date().getFullYear();

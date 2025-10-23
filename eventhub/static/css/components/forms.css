@@ -151,6 +151,85 @@
     gap: 1rem;
 }
 
+.image-upload-area {
+    margin-top: 1rem;
+}
+
+.upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.upload-box i {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.upload-box h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.upload-box:hover,
+.upload-box.dragover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--primary-color);
+    color: var(--text-secondary);
+}
+
+.uploaded-images {
+    width: 100%;
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.uploaded-image {
+    position: relative;
+    height: 100px;
+}
+
+.uploaded-images img {
+    height: 100%;
+    width: fit-content;
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.delete-uploaded-image {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+}
+
+.delete-uploaded-image:hover {
+    transform: scale(1.35);
+}
+
+.delete-uploaded-image i {
+    color: var(--error-color);
+    font-size: 1rem;
+}
+
 @media (max-width: 768px) {
     .form-row {
         grid-template-columns: 1fr;

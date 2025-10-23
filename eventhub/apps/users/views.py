@@ -110,8 +110,6 @@ def avatar_upload(request):
     Returns: Rendered account page (with error messages if any).
     """
     
-    MAX_FILE_SIZE_MB = 5
-    TARGET_SIZE = (300, 300)
     avatar_error = None
     user = request.user
     

@@ -16,7 +16,8 @@
             <p>Fill in the details below to create your event</p>
         </div>
 
-        <form class="event-form" action="{% url 'core:create_event' %}" method="POST">
+        <form class="event-form" id="eventForm" action="{% url 'core:create_event' %}" method="POST"
+            enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-section">
                 <h3>Event Information</h3>
@@ -86,6 +87,32 @@
                     {% if form.event_description.errors %}
                     <small class="form-error">{{ form.event_description.errors.0 }}</small>
                     {% endif %}
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Event Images</h3>
+                <div class="image-upload-area">
+                    <div class="upload-box" id="uploadBox">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h4>Upload Event Images</h4>
+                        <p>Drag and drop images here or click to browse</p>
+                        <p class="upload-hint">Recommended: 1200x630px, JPG, PNG, GIF or WEBP, max 5MB</p>
+                    </div>
+                    <input type="file" id="imageUpload" name="event_images" accept=".jpg, .jpeg, .png, .gif, .webp"
+                        style="display:none" multiple>
+
+                    <small class="form-error" id="image-upload-error">{{ form.event_images.errors.0 }}</small>
+
+                    <div class="uploaded-images" id="uploadedImages">
+                        <!--Uploaded images are appended here-->
+                        <!-- <div class="uploaded-image">
+                            <img src="" alt="Event image">
+                            <div class="delete-uploaded-image">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        </div> -->
+                    </div>
                 </div>
             </div>
 

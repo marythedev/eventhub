@@ -41,3 +41,22 @@ class Event(models.Model):
     
     def __str__(self):
         return self.event_name
+
+class EventImage(models.Model):
+    """
+    An image for event.
+
+    Attributes:
+        event (Event): The event to which this image relates.
+        image_url(str): The url by which the image can be accessed.
+    """
+    
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='images'
+    )
+    image_url = models.URLField()
+
+    def __str__(self):
+        return f"Image for {self.event.event_name}"

@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from pyuploadcare import Uploadcare
 from PIL import Image
 
+MAX_FILE_SIZE_MB = 5
+TARGET_SIZE = (300, 300)
 
 uploadcare = Uploadcare(public_key=settings.UPLOADCARE['pub_key'], secret_key=settings.UPLOADCARE['secret'])
 
@@ -24,6 +26,7 @@ def is_valid_image_format(file):
         return image.format in ALLOWED_IMAGE_FORMATS
     except Exception:
         return False
+
 
 def crop_to_center(image):
     """
@@ -50,13 +53,15 @@ def cloud_upload_img(file_path):
     Upload a local image file to Uploadcare cloud storage.
 
     Args: 
-        file_path (str) - the full local file path to the image.
-    Returns: uploaded file object containing UUID and metadata.
+        file_path (str) - full local file path to the image.
+    Returns:
+        url(str): URL by which uploaded image can be accessed.
     """
     
     try:
         with open(file_path, 'rb') as image_file:
-            return uploadcare.upload(image_file)
+            ucare_file = uploadcare.upload(image_file)
+            return f"{settings.CDN_DOMAIN}/{ucare_file.uuid}/"
     except Exception as e:
         raise Exception(f"Failed to upload image to cloud: {e}")
 
@@ -76,7 +81,7 @@ def cloud_delete_img(url):
         file.delete()
     except Exception as e:
         raise Exception(f"Failed to delete image from cloud: {e}")
-  
+
 
 def set_avatar(user, file_path):
     """
@@ -87,8 +92,7 @@ def set_avatar(user, file_path):
         file_path (str): Local path to the image file.
     Returns: None
     """
-    ucare_file = cloud_upload_img(file_path)
-    user.avatar = f"{settings.CDN_DOMAIN}/{ucare_file.uuid}/"
+    user.avatar = cloud_upload_img(file_path)
     user.save()
 
 
@@ -131,6 +135,7 @@ def set_custom_avatar(user, file, filename):
         if file_path and os.path.exists(file_path):
             os.remove(file_path)
 
+
 def validate_location(location):
     """
     Helper function that validates location.
@@ -156,7 +161,6 @@ def validate_location(location):
         )
         data = response.json()
         
-        print(data)
         if len(data) == 0:
             raise ValidationError("Location not found. Please enter a valid place.")
 
@@ -169,4 +173,3 @@ def validate_location(location):
         raise ValidationError("Failed to validate location. Try again later.")
     
     return location
-

@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from datetime import date, datetime
 
 from .models import Event
-from users.utils import validate_location
+from users.utils import validate_location, is_valid_image_format, MAX_FILE_SIZE_MB
 
 class CreateEventValidator(forms.Form):
     """
@@ -61,6 +61,12 @@ class CreateEventValidator(forms.Form):
             'max_length': 'Description cannot exceed 5000 characters.'
         }
     )
+    event_images = forms.FileField(
+        required=True,
+        error_messages={
+            'required': 'At least one image of the event is required.'
+        }
+    )
     
     # check that event date is not in the past
     def clean_event_date(self):
@@ -81,6 +87,20 @@ class CreateEventValidator(forms.Form):
         
         return event_location
 
+    # backend validation for event images
+    def clean_event_images(self):
+        event_images = self.files.getlist('event_images')
+
+        for image in event_images:
+            if not is_valid_image_format(image):
+                raise ValidationError(f"{image.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file.")
+
+            if image.size > MAX_FILE_SIZE_MB * 1024 * 1024:
+                raise ValidationError(f"{image.name} image file is too large (max {MAX_FILE_SIZE_MB}MB).")
+
+        return event_images
+
+    
     # check that event time is not in the past
     def clean(self):
         cleaned_data = super().clean()

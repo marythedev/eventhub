@@ -23,69 +23,69 @@
                 <h3>Event Information</h3>
 
                 <div class="form-group">
-                    <div class="label-row">
+                    <div class="input-meta-row">
                         <label for="eventName">Event Name</label>
                         <small id="nameCounter" class="char-counter"></small>
                     </div>
-                    <input type="text" id="eventName" name="event_name" maxlength="50" placeholder="Enter event name"
-                        value="{{ form.event_name.value|default_if_none:'' }}" required>
-                    {% if form.event_name.errors %}
-                    <small class="form-error">{{ form.event_name.errors.0 }}</small>
+                    <input type="text" id="eventName" name="name" maxlength="50" placeholder="Enter event name"
+                        value="{{ event_form.name.value|default_if_none:'' }}" required>
+                    {% if event_form.name.errors %}
+                    <small class="form-error">{{ event_form.name.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="eventDate">Event Date</label>
-                        <input type="date" id="eventDate" name="event_date"
-                            value="{{ form.event_date.value|default_if_none:'' }}" required>
-                        {% if form.event_date.errors %}
-                        <small class="form-error">{{ form.event_date.errors.0 }}</small>
+                        <input type="date" id="eventDate" name="date"
+                            value="{{ event_form.date.value|default_if_none:'' }}" required>
+                        {% if event_form.date.errors %}
+                        <small class="form-error">{{ event_form.date.errors.0 }}</small>
                         {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="eventTime">Start Time</label>
-                        <input type="time" id="eventTime" name="event_time"
-                            value="{{ form.event_time.value|default_if_none:'' }}" required>
-                        {% if form.event_time.errors %}
-                        <small class="form-error">{{ form.event_time.errors.0 }}</small>
+                        <input type="time" id="eventTime" name="time"
+                            value="{{ event_form.time.value|default_if_none:'' }}" required>
+                        {% if event_form.time.errors %}
+                        <small class="form-error">{{ event_form.time.errors.0 }}</small>
                         {% endif %}
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="eventAddress">Location</label>
-                    <input type="text" id="eventAddress" name="event_location" placeholder="Enter full address"
-                        value="{{ form.event_location.value|default_if_none:'' }}" required>
-                    {% if form.event_location.errors %}
-                    <small class="form-error">{{ form.event_location.errors.0 }}</small>
+                    <input type="text" id="eventAddress" name="location" placeholder="Enter full address"
+                        value="{{ event_form.location.value|default_if_none:'' }}" required>
+                    {% if event_form.location.errors %}
+                    <small class="form-error">{{ event_form.location.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <div class="form-group">
                     <label for="eventCategory">Category</label>
-                    <select id="eventCategory" name="event_category" required>
+                    <select id="eventCategory" name="category" required>
                         <option value="">Select category</option>
-                        {% for value, label in form.fields.event_category.choices %}
-                        {% if form.event_category.value == value %}
+                        {% for value, label in event_form.fields.category.choices %}
+                        {% if event_form.category.value == value %}
                         <option value="{{ value }}" selected>{{ label }}</option>
                         {% else %}
                         <option value="{{ value }}">{{ label }}</option>
                         {% endif %}
                         {% endfor %}
                     </select>
-                    {% if form.event_category.errors %}
-                    <small class="form-error">{{ form.event_category.errors.0 }}</small>
+                    {% if event_form.category.errors %}
+                    <small class="form-error">{{ event_form.category.errors.0 }}</small>
                     {% endif %}
                 </div>
 
                 <div class="form-group">
                     <label for="eventDescription">Description</label>
-                    <textarea id="eventDescription" name="event_description" rows="6" maxlength="5000"
-                        placeholder="Describe your event...">{{ form.event_description.value|default_if_none:'' }}</textarea>
+                    <textarea id="eventDescription" name="description" rows="6" maxlength="5000"
+                        placeholder="Describe your event...">{{ event_form.description.value|default_if_none:'' }}</textarea>
                     <small id="descCounter" class="char-counter"></small>
-                    {% if form.event_description.errors %}
-                    <small class="form-error">{{ form.event_description.errors.0 }}</small>
+                    {% if event_form.description.errors %}
+                    <small class="form-error">{{ event_form.description.errors.0 }}</small>
                     {% endif %}
                 </div>
             </div>
@@ -99,10 +99,10 @@
                         <p>Drag and drop images here or click to browse</p>
                         <p class="upload-hint">Recommended: 1200x630px, JPG, PNG, GIF or WEBP, max 5MB</p>
                     </div>
-                    <input type="file" id="imageUpload" name="event_images" accept=".jpg, .jpeg, .png, .gif, .webp"
+                    <input type="file" id="imageUpload" name="images" accept=".jpg, .jpeg, .png, .gif, .webp"
                         style="display:none" multiple>
 
-                    <small class="form-error" id="image-upload-error">{{ form.event_images.errors.0 }}</small>
+                    <small class="form-error" id="image-upload-error">{{ image_form.images.errors.0 }}</small>
 
                     <div class="uploaded-images" id="uploadedImages">
                         <!--Uploaded images are appended here-->
@@ -121,55 +121,78 @@
                 <div class="form-group">
                     <label>Seating Type</label>
                     <div class="radio-group">
+                        {% for value, label in event_form.fields.seating_type.choices %}
                         <label class="radio-label">
-                            <input type="radio" name="seating_type" value="general" checked="">
-                            <span>General Admission</span>
+                            {% if event_form.seating_type.value == value %}
+                            <input type="radio" name="seating_type" value="{{value}}" checked required>
+                            {% else %}
+                            <input type="radio" name="seating_type" value="{{value}}" required>
+                            {% endif %}
+                            <span>{{ label }}</span>
                         </label>
-                        <label class="radio-label">
-                            <input type="radio" name="seating_type" value="reserved">
-                            <span>Reserved Seating</span>
-                        </label>
+                        {% endfor %}
                     </div>
+                    {% if event_form.seating_type.errors %}
+                    <small class="form-error seating-type-error">
+                        {{ event_form.seating_type.errors.0}}
+                    </small>
+                    {% endif %}
                 </div>
-                <div class="form-group">
-                    <label for="totalSeats">Total Seats Available</label>
-                    <input type="number" id="totalSeats" name="total_seats" placeholder="Enter total capacity" min="1"
-                        required="">
-                </div>
+
                 <div class="pricing-zones" id="pricingZones">
-                    <h4>Pricing Zones</h4>
-                    <div class="pricing-zone-item zone-1">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <div class="label-row">
-                                    <label for="zone_name_1">Zone Name</label>
-                                    <div class="remove-zone-1">
-                                        <i class="fas fa-times"></i>
-                                    </div>
+                    <h5>Pricing Zones</h5>
+
+                    {{ price_zone_forms.management_form }}
+
+                    {% for form in price_zone_forms %}
+                    <div class="pricing-zone-item">
+                        <div class="form-group">
+                            <div class="input-meta-row">
+                                <label>Zone Name</label>
+                                <div class="remove-zone">
+                                    <i class="btn-icon fas fa-times"></i>
                                 </div>
-                                <input type="text" name="zone_name_1" placeholder="e.g. General Admission">
                             </div>
-                            <div class="form-group">
-                                <label for="zone_price_1">Price (USD)</label>
-                                <input type="number" name="zone_price_1" placeholder="0.00" min="0" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label for="zone_seats_1">Seats</label>
-                                <input type="number" name="zone_seats_1" placeholder="Seat capacity" min="1">
+                            {{ form.zone_name }}
+                            <div class="input-meta-row">
+                                {% if form.zone_name.errors %}
+                                <small class="form-error">{{ form.zone_name.errors.0 }}</small>
+                                {% endif %}
+                                <small class="zoneNameCounter char-counter"></small>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label>Price (USD)</label>
+                            {{ form.zone_price }}
+                            {% if form.zone_price.errors %}
+                            <small class="form-error">{{ form.zone_price.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label>Seats</label>
+                            {{ form.zone_seats }}
+                            {% if form.zone_seats.errors %}
+                            <small class="form-error">{{ form.zone_seats.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                        <span style="display: none;">{{form.DELETE}}</span>
                     </div>
+                    {% endfor %}
                 </div>
+
                 <button type="button" class="btn-secondary" id="addPricingZone">
                     <i class="fas fa-plus"></i> Add Another Zone
                 </button>
             </div>
-
             <div class="form-actions">
                 <button type="submit" class="btn-primary">Publish Event</button>
             </div>
         </form>
     </div>
 </section>
+
+<script src="{% static 'js/create-event.js' %}" defer></script>
 
 {% endblock %}

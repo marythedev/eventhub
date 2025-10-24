@@ -6,12 +6,13 @@ class Event(models.Model):
     An event created by a user.
 
     Attributes:
-        event_name (str): The name of the event, required.
-        event_date (date): The scheduled date of the event, required.
-        event_time (time): The scheduled start time of the event, required.
-        event_location (str): The full address or location of the event, required.
-        event_category (str): The category of the event, required.
-        event_description (str): A detailed description of the event (max 5000 characters), optional.
+        name (str): The name of the event, required.
+        date (date): The scheduled date of the event, required.
+        time (time): The scheduled start time of the event, required.
+        location (str): The full address or location of the event, required.
+        category (str): The category of the event, required.
+        description (str): A detailed description of the event (max 5000 characters), optional.
+        seating_type (str): Seating type of the event (general or reserved), required.
         organizer (Profile): The user who created the event.
     """
     
@@ -25,13 +26,19 @@ class Event(models.Model):
         ('sports', 'Sports'),
         ('tech', 'Technology'),
     ]
+    
+    SEATING_TYPES = [
+        ('general', 'General Admission'),
+        ('reserved', 'Reserved Seating'),
+    ]
 
-    event_name = models.CharField(max_length=200)
-    event_date = models.DateField()
-    event_time = models.TimeField()
-    event_location = models.CharField(max_length=255)
-    event_category = models.CharField(max_length=20, choices=CATEGORIES)
-    event_description = models.TextField(blank=True)
+    name = models.CharField(max_length=50)
+    date = models.DateField()
+    time = models.TimeField()
+    location = models.CharField(max_length=255)
+    category = models.CharField(max_length=20, choices=CATEGORIES)
+    description = models.TextField(blank=True)
+    seating_type = models.CharField(max_length=10, choices=SEATING_TYPES)
     
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -40,7 +47,8 @@ class Event(models.Model):
     )
     
     def __str__(self):
-        return self.event_name
+        return self.name
+
 
 class EventImage(models.Model):
     """
@@ -59,4 +67,28 @@ class EventImage(models.Model):
     image_url = models.URLField()
 
     def __str__(self):
-        return f"Image for {self.event.event_name}"
+        return f"Image for {self.event.name}"
+
+
+class EventPriceZone(models.Model):
+    """
+    A price zone (range of tickets selling for the same price) for the event.
+    
+    Attributes:
+        event (Event): The event to which this price zone relates.
+        zone_name (str): The name of the price zone.
+        zone_price (float): The price of the price zone in USD.
+        zone_seats (int): The capacity of seats of the price zone.
+    """
+    
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
+        related_name='price_zones'
+    )
+    zone_name = models.CharField(max_length=50)
+    zone_price = models.DecimalField(max_digits=8, decimal_places=2)
+    zone_seats = models.PositiveBigIntegerField()
+
+    def __str__(self):
+        return f"Price Zone {self.zone_name} for {self.event.name} event"

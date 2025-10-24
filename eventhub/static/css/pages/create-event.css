@@ -8,25 +8,35 @@
     gap: 3rem;
 }
 
-.form-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-}
-
-.pricing-zones h4 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
+.pricing-zones h5 {
+    margin: 1rem 0;
 }
 
 .pricing-zone-item {
+    display: flex;
+    flex-direction: column;
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     padding: 1.5rem;
+    padding-bottom: 0;
     margin-bottom: 1rem;
 }
 
-.pricing-zone-item input {
-    width: 100%;
+.pricing-zone-item > * {
+    margin-bottom: 1rem;
+}
+
+.seating-type-error {
+    margin-top: 0.5rem;
+}
+
+.char-counter {
+    text-align: right;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
 }

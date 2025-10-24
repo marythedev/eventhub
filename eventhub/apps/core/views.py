@@ -7,9 +7,9 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 
+from .models import *
+from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet
 from users.utils import cloud_upload_img
-from .models import Event, EventImage
-from .forms import CreateEventValidator
 
 load_dotenv()
 
@@ -34,31 +34,53 @@ def create_event(request):
         - Serve create event form page.
 
     POST:
-        - Create an event with the validated provided information.
-        - Return register form with errors or redirect to event page. 
+        Validate submitted form.
+        - On errors:
+            - Return create event form form with errors
+        - On success:
+            - Create event object (Event) with the validated provided details.
+            - Create price zone objects (EventPriceZone) associated with the event.
+            - Create image objects (EventImage) associated with the event.
+            - Redirect to event page.
     """
 
     if request.method == "POST":
         user = request.user
-        form = CreateEventValidator(request.POST, request.FILES)
+        event_form = EventInfoValidator(request.POST)
+        image_form = EventImageValidator(request.POST, request.FILES)
+        price_zone_forms = PriceZoneFormSet(request.POST, prefix="zones")
         
-        if form.is_valid():
+        if ( event_form.is_valid() and image_form.is_valid() and price_zone_forms.is_valid() ):
+            
+            # create event object
             event = Event.objects.create(
-                event_name=form.cleaned_data['event_name'],
-                event_date=form.cleaned_data['event_date'],
-                event_time=form.cleaned_data['event_time'],
-                event_location=form.cleaned_data['event_location'],
-                event_category=form.cleaned_data['event_category'],
-                event_description=form.cleaned_data['event_description'],
+                name=event_form.cleaned_data['name'],
+                date=event_form.cleaned_data['date'],
+                time=event_form.cleaned_data['time'],
+                location=event_form.cleaned_data['location'],
+                category=event_form.cleaned_data['category'],
+                description=event_form.cleaned_data['description'],
+                seating_type=event_form.cleaned_data['seating_type'],
                 organizer=user
             )
             
+            # create price zone object
+            for zone in price_zone_forms.cleaned_data:
+                if (zone):
+                    EventPriceZone.objects.create(
+                        event=event,
+                        zone_name=zone['zone_name'],
+                        zone_price=zone['zone_price'],
+                        zone_seats=zone['zone_seats']
+                    )
+            
+            # upload images and create image objects
             try:
-                event_images = form.cleaned_data.get('event_images', [])
+                images = image_form.cleaned_data.get('images', [])
                 fs = FileSystemStorage()
                 
-                for event_image in event_images:
-                    file = fs.save(event_image.name, event_image)
+                for img in images:
+                    file = fs.save(img.name, img)
                     file_path = fs.path(file)
                     url = cloud_upload_img(file_path)
                     fs.delete(file)
@@ -67,13 +89,17 @@ def create_event(request):
                         event=event,
                         image_url = url
                     )
-                
             except Exception:
-                form.add_error('event_images', "Something went wrong.")
+                event_form.add_error('images', "Something went wrong.")
 
-            for image in event.images.all():
-                print(image.image_url)
             # TODO: on success redirect to event page
     else:
-        form = CreateEventValidator
-    return render(request, 'core/create-event.html', {'form': form})
+        event_form = EventInfoValidator()
+        image_form = EventImageValidator()
+        price_zone_forms = PriceZoneFormSet(prefix="zones")
+    
+    return render(request, 'core/create-event.html', {
+            'event_form': event_form,
+            'image_form': image_form,
+            'price_zone_forms': price_zone_forms
+        })

@@ -168,7 +168,17 @@ section {
     margin-bottom: 3rem;
 }
 
+.not-found-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+    min-height: 75vh;
+}
+
 @media (max-width: 480px) {
+
     .container,
     .container-small,
     .container-fluid {
@@ -177,5 +187,11 @@ section {
 
     .btn-large {
         width: 100%;
+    }
+}
+
+@media (max-width: 320px) {
+    .not-found-section {
+        flex-direction: column;
     }
 }

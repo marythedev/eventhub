@@ -19,7 +19,6 @@ class EventInfoValidator(forms.Form):
         location (str): Full address, required.
         category (str): Event category from predefined choices.
         description (str): Description of the event, optional.
-        seating_type (str): Seating type of the event (general or reserved), required.
         
     Returns:
         dict: Cleaned and validated data.
@@ -64,15 +63,7 @@ class EventInfoValidator(forms.Form):
             'max_length': 'Description cannot exceed 5000 characters.'
         }
     )
-    seating_type = forms.ChoiceField(
-        required=True,
-        choices=Event.SEATING_TYPES,
-        error_messages={
-            'required': 'Seating type is required.',
-            'invalid_choice': 'Select a valid seating type.'
-        }
-    )
-    
+
     # check that event date is not in the past
     def clean_date(self):
         date = self.cleaned_data.get('date')
@@ -159,7 +150,7 @@ class PriceZoneValidator(forms.Form):
     
     zone_name = forms.CharField(
         required=True,
-        max_length=50,
+        max_length=30,
         widget=forms.TextInput(attrs={
             "required": True,
             "placeholder": "e.g. General Admission",
@@ -167,15 +158,29 @@ class PriceZoneValidator(forms.Form):
             "inputmode": "numeric"
         }),
         error_messages={
-            'required': 'Zone name is required.', 
-            'max_length': 'Name cannot exceed 50 characters.'
+            'required': 'Name is required.', 
+            'max_length': 'Name cannot exceed 30 characters.'
+        }
+    )
+    zone_desc = forms.CharField(
+        required=True,
+        max_length=50,
+        widget=forms.TextInput(attrs={
+            "required": True,
+            "placeholder": "Brief description of the price zone",
+            "class": "zone-input",
+            "inputmode": "numeric"
+        }),
+        error_messages={
+            'required': 'Brief description is required.', 
+            'max_length': 'Description cannot exceed 50 characters.'
         }
     )
     zone_price = forms.DecimalField(
         required=True,
         min_value=0,
         decimal_places=2,
-        max_digits=10,
+        max_digits=8,
         widget=forms.NumberInput(attrs={
             "required": True,
             "placeholder": "0.00",
@@ -185,6 +190,7 @@ class PriceZoneValidator(forms.Form):
             "inputmode": "numeric"
         }),
         error_messages={
+            'max_digits': 'Price exceeds the allowed system limit.',
             'required': 'Price is required.', 
             'min_value': 'Price cannot be negative.'
         }
@@ -201,7 +207,7 @@ class PriceZoneValidator(forms.Form):
         }),
         error_messages={
             'required': 'Seats capacity is required.', 
-            'min_value': 'The minimum seat capacity for the price zone is 1.'
+            'min_value': 'Minimum seat capacity is 1.'
         }
     )
 

@@ -34,9 +34,9 @@ function clearZoneInputs(zone, formCount) {
 }
 
 function initiateCharCounters() {
-    const charCounters = document.querySelectorAll('.zoneNameCounter');
+    const charCounters = document.querySelectorAll('.zoneInputCounter');
     for (const ctr of charCounters) {
-        const nameInput = ctr.parentElement.parentElement.querySelector('input');
+        const nameInput = ctr.parentElement.parentElement.parentElement.querySelector('input');
         if (nameInput) {
             const maxLen = nameInput.getAttribute('maxlength');
             updateCounter(ctr, maxLen, nameInput);

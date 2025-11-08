@@ -1,0 +1,295 @@
+.view-event-section {
+    padding: 4rem 0;
+}
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.v-event-layout {
+    display: flex;
+    gap: 2rem;
+}
+
+.v-event-main {
+    flex: 1;
+}
+
+.v-event-header {
+    margin-bottom: 3rem;
+}
+
+.v-event-img-carousel {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+.carousel-slide {
+    display: none;
+    width: 100%;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.carousel-slide.active {
+    display: block;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16/9;
+    object-fit: contain;
+}
+
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: background-color 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+}
+
+.v-event-info h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.v-event-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.v-event-meta p {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.event-organizer {
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.v-event-desc {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+}
+
+.v-event-desc h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.v-event-desc h3 {
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.v-event-desc ul {
+    margin-left: 1.5rem;
+}
+
+.v-event-desc li {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.ticket-selection {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.ticket-selection h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.price-zones {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.ticket-type {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.ticket-type-info h4 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+}
+
+.ticket-type-info p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.ticket-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.qty-btn {
+    width: 40px;
+    height: 40px;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.qty-btn:hover {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    border-color: var(--primary-color);
+}
+
+.qty-input {
+    width: 60px;
+    text-align: center;
+    padding: 0.5rem;
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.view-event-sidebar {
+    width: 350px;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.order-summary {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.order-summary h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.selected-tickets {
+    margin-bottom: 1.5rem;
+    min-height: 100px;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem 0;
+}
+
+.order-pricing {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.pricing-row.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.order-note {
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-align: center;
+}

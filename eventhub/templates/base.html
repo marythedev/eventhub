@@ -43,7 +43,7 @@
                         </button>
                         <div class="user-dropdown" id="userDropdown">
                             <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
-                            <a href="{% url 'core:explore' %}"><i class="fas fa-compass"></i> Explore Events</a>
+                            <a href="{% url 'events:view_events' %}"><i class="fas fa-compass"></i> Explore Events</a>
                             <a href="{% url 'users:account' %}"><i class="fas fa-user"></i> My Account</a>
                             <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
                         </div>
@@ -79,7 +79,7 @@
                 </div>
 
                 <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
-                <a href="{% url 'core:explore' %}"><i class="fas fa-compass"></i> Explore Events</a>
+                <a href="{% url 'events:view_events' %}"><i class="fas fa-compass"></i> Explore Events</a>
             </div>
         </div>
     </div>
@@ -108,7 +108,7 @@
         </div>
     </footer>
 
-    <script src="{% static 'js/script.js' %}" type="module" defer></script>
+    <script src="{% static 'js/general.js' %}" type="module" defer></script>
     <script src="{% static 'js/theme.js' %}" type="module" defer></script>
     {% if not user.is_authenticated %}
     <script src="{% static 'js/navbar.js' %}" type="module" defer></script>

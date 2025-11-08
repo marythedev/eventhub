@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} {{event.name}} {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/view-event.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="view-event" class="view-event-section">
+    <div class="container">
+        <div class="v-event-layout">
+            <div class="v-event-main">
+                <div class="breadcrumb">
+                    <a href="{% url 'events:view_events' %}">Events</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>{{ event.name }}</span>
+                </div>
+                <div class="v-event-header">
+                    <div class="v-event-img-carousel">
+                        <div class="carousel-container" id="eventCarousel">
+                            {% for img in imgs %}
+                            <div class="carousel-slide {% if forloop.first %}active{% endif %}">
+                                <img src="{{ img }}" alt="Event image {{ forloop.counter }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
+                        <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+                    </div>
+
+                    <div class="v-event-info">
+                        <h1>{{ event.name }}</h1>
+                        <div class="v-event-meta">
+                            <p><i class="fas fa-calendar-alt"></i>
+                                {{ event.date|date:"l" }}, {{event.date|date:"F j, Y"}} at {{event.time|date:"g:i A"}}
+                            </p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
+                            <p><i class="fas fa-tags"></i> {{event.category|capfirst}}</p>
+                        </div>
+                        <div class="event-organizer">
+                            <p><strong>Organized by:</strong> {{ event.organizer.get_full_name }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="v-event-desc">
+                    <h2>About This Event</h2>
+                    <p>{{ event.description|linebreaks }}</p>
+                    <h3>What to Bring:</h3>
+                    <ul>
+                        <li>Valid ID for personal verification</li>
+                        <li>Your ticket</li>
+                    </ul>
+                </div>
+
+                <div class="ticket-selection">
+                    <h2>Select Your Tickets</h2>
+
+                    <div class="price-zones">
+                        {% for zone in price_zones %}
+                        <div class="ticket-type" data-ticket-name="{{zone.name}}" data-price="{{zone.price}}"
+                            data-zone-id="{{zone.id}}">
+                            <div class="ticket-type-info">
+                                <h4>{{zone.name}}</h4>
+                                <p>{{zone.desc}}</p>
+                                <p class="ticket-price">${{zone.price}}</p>
+                            </div>
+                            <div class="quantity-controls">
+                                <button class="qty-btn" data-action="decrease">-</button>
+                                <input type="number" class="qty-input" value="0" min="0" max="{{zone.seats}}" readonly>
+                                <button class="qty-btn" data-action="increase">+</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+
+            <aside class="view-event-sidebar">
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div class="selected-tickets" id="selectedTickets">
+                        <p class="empty-state">No tickets selected</p>
+                    </div>
+                    <div class="order-pricing">
+                        <div class="pricing-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="pricing-row">
+                            <span>Service Fee</span>
+                            <span id="serviceFee">$0.00</span>
+                        </div>
+                        <div class="pricing-row">
+                            <span>Tax</span>
+                            <span id="tax">$0.00</span>
+                        </div>
+                        <div class="pricing-row total">
+                            <span>Total</span>
+                            <span id="total">$0.00</span>
+                        </div>
+                    </div>
+                    <a href="#">
+                        <button class="btn-primary btn-full" disabled>Proceed to Payment</button>
+                    </a>
+                    <p class="order-note">Tickets are non-refundable. All sales are final.</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+</section>
+
+<script src="{% static 'js/view-event.js' %}" defer></script>
+
+{% endblock %}

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 
 class Event(models.Model):
     """
@@ -12,7 +13,6 @@ class Event(models.Model):
         location (str): The full address or location of the event, required.
         category (str): The category of the event, required.
         description (str): A detailed description of the event (max 5000 characters), optional.
-        seating_type (str): Seating type of the event (general or reserved), required.
         organizer (Profile): The user who created the event.
     """
     
@@ -27,18 +27,12 @@ class Event(models.Model):
         ('tech', 'Technology'),
     ]
     
-    SEATING_TYPES = [
-        ('general', 'General Admission'),
-        ('reserved', 'Reserved Seating'),
-    ]
-
     name = models.CharField(max_length=50)
     date = models.DateField()
     time = models.TimeField()
     location = models.CharField(max_length=255)
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
-    seating_type = models.CharField(max_length=10, choices=SEATING_TYPES)
     
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -56,7 +50,7 @@ class EventImage(models.Model):
 
     Attributes:
         event (Event): The event to which this image relates.
-        image_url(str): The url by which the image can be accessed.
+        url(str): The url by which the image can be accessed.
     """
     
     event = models.ForeignKey(
@@ -64,7 +58,7 @@ class EventImage(models.Model):
         on_delete=models.CASCADE,
         related_name='images'
     )
-    image_url = models.URLField()
+    url = models.URLField()
 
     def __str__(self):
         return f"Image for {self.event.name}"
@@ -76,9 +70,10 @@ class EventPriceZone(models.Model):
     
     Attributes:
         event (Event): The event to which this price zone relates.
-        zone_name (str): The name of the price zone.
-        zone_price (float): The price of the price zone in USD.
-        zone_seats (int): The capacity of seats of the price zone.
+        name (str): The name of the price zone.
+        desc (str): Brief description of the price zone.
+        price (float): The price of the price zone in USD.
+        seats (int): The capacity of seats of the price zone.
     """
     
     event = models.ForeignKey(
@@ -86,9 +81,15 @@ class EventPriceZone(models.Model):
         on_delete=models.CASCADE,
         related_name='price_zones'
     )
-    zone_name = models.CharField(max_length=50)
-    zone_price = models.DecimalField(max_digits=8, decimal_places=2)
-    zone_seats = models.PositiveBigIntegerField()
+    name = models.CharField(max_length=30)
+    desc = models.CharField(max_length=50)
+    price = models.DecimalField(max_digits=8, decimal_places=2, default=0,
+        validators=[
+            MinValueValidator(0)
+        ]
+    )
+
+    seats = models.PositiveBigIntegerField()
 
     def __str__(self):
-        return f"Price Zone {self.zone_name} for {self.event.name} event"
+        return f"Price Zone {self.name} for {self.event.name} event"

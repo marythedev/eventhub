@@ -16,7 +16,7 @@
             <p>Fill in the details below to create your event</p>
         </div>
 
-        <form class="event-form" id="eventForm" action="{% url 'core:create_event' %}" method="POST"
+        <form class="event-form" id="eventForm" action="{% url 'events:create_event' %}" method="POST"
             enctype="multipart/form-data">
             {% csrf_token %}
             <div class="form-section">
@@ -118,29 +118,8 @@
 
             <div class="form-section">
                 <h3>Event Tickets</h3>
-                <div class="form-group">
-                    <label>Seating Type</label>
-                    <div class="radio-group">
-                        {% for value, label in event_form.fields.seating_type.choices %}
-                        <label class="radio-label">
-                            {% if event_form.seating_type.value == value %}
-                            <input type="radio" name="seating_type" value="{{value}}" checked required>
-                            {% else %}
-                            <input type="radio" name="seating_type" value="{{value}}" required>
-                            {% endif %}
-                            <span>{{ label }}</span>
-                        </label>
-                        {% endfor %}
-                    </div>
-                    {% if event_form.seating_type.errors %}
-                    <small class="form-error seating-type-error">
-                        {{ event_form.seating_type.errors.0}}
-                    </small>
-                    {% endif %}
-                </div>
 
                 <div class="pricing-zones" id="pricingZones">
-                    <h5>Pricing Zones</h5>
 
                     {{ price_zone_forms.management_form }}
 
@@ -149,33 +128,49 @@
                         <div class="form-group">
                             <div class="input-meta-row">
                                 <label>Zone Name</label>
-                                <div class="remove-zone">
-                                    <i class="btn-icon fas fa-times"></i>
+                                <div class="input-meta-subrow">
+                                    <small class="zoneInputCounter char-counter"></small>
+                                    <div class="remove-zone">
+                                        <i class="btn-icon fas fa-times"></i>
+                                    </div>
                                 </div>
                             </div>
                             {{ form.zone_name }}
+                            {% if form.zone_name.errors %}
+                            <small class="form-error">{{ form.zone_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
                             <div class="input-meta-row">
-                                {% if form.zone_name.errors %}
-                                <small class="form-error">{{ form.zone_name.errors.0 }}</small>
-                                {% endif %}
-                                <small class="zoneNameCounter char-counter"></small>
+                                <label>Zone Description</label>
+                                <div class="input-meta-subrow">
+                                    <small class="zoneInputCounter char-counter"></small>
+                                    <span style="width: 28px;"></span>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Price (USD)</label>
-                            {{ form.zone_price }}
-                            {% if form.zone_price.errors %}
-                            <small class="form-error">{{ form.zone_price.errors.0 }}</small>
+                            {{ form.zone_desc }}
+                            {% if form.zone_desc.errors %}
+                            <small class="form-error">{{ form.zone_desc.errors.0 }}</small>
                             {% endif %}
                         </div>
 
-                        <div class="form-group">
-                            <label>Seats</label>
-                            {{ form.zone_seats }}
-                            {% if form.zone_seats.errors %}
-                            <small class="form-error">{{ form.zone_seats.errors.0 }}</small>
-                            {% endif %}
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Price (USD)</label>
+                                {{ form.zone_price }}
+                                {% if form.zone_price.errors %}
+                                <small class="form-error">{{ form.zone_price.errors.0 }}</small>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label>Seats</label>
+                                {{ form.zone_seats }}
+                                {% if form.zone_seats.errors %}
+                                <small class="form-error">{{ form.zone_seats.errors.0 }}</small>
+                                {% endif %}
+                            </div>
                         </div>
                         <span style="display: none;">{{form.DELETE}}</span>
                     </div>

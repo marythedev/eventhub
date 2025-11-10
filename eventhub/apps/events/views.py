@@ -108,3 +108,8 @@ def view_events(request):
     with open(file_path, "r") as f:
         dummy_data = json.load(f)
     return render(request, 'events/view-events.html', {'events': dummy_data, 'CDN_DOMAIN': os.getenv('CDN_DOMAIN')})
+
+@login_required
+def checkout(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'events/checkout.html', {'event': event})

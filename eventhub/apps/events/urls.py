@@ -6,5 +6,6 @@ app_name = 'events'
 urlpatterns = [
     path('explore/', views.view_events, name="view_events"),
     path('create/', views.create_event, name="create_event"),
-    path('view/<int:event_id>/', views.view_event, name="view_event")
+    path('view/<int:event_id>/', views.view_event, name="view_event"),
+    path('checkout/<int:event_id>/', views.checkout, name="checkout")
 ]

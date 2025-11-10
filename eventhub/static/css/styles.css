@@ -168,6 +168,43 @@ section {
     margin-bottom: 3rem;
 }
 
+.breadcrumb {
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a,
+.billing-address a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.billing-address a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.pricing-row.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
 .not-found-section {
     display: flex;
     align-items: center;

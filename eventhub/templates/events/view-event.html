@@ -104,8 +104,8 @@
                             <span id="total">$0.00</span>
                         </div>
                     </div>
-                    <a href="#">
-                        <button class="btn-primary btn-full" disabled>Proceed to Payment</button>
+                    <a href="{% url 'events:checkout' event_id=event.id %}">
+                        <button class="btn-primary btn-full" id="checkoutBtn" disabled>Proceed to Checkout</button>
                     </a>
                     <p class="order-note">Tickets are non-refundable. All sales are final.</p>
                 </div>

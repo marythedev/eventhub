@@ -7,7 +7,7 @@ const subtotalSpan = document.getElementById('subtotal');
 const serviceFeeSpan = document.getElementById('serviceFee');
 const taxSpan = document.getElementById('tax');
 const totalSpan = document.getElementById('total');
-const proceedToPaymentBtn = document.querySelector('.btn-primary');
+const checkoutBtn = document.getElementById('checkoutBtn');
 
 
 // img carousel manipulation
@@ -56,7 +56,7 @@ function updateOrderSummary() {
         serviceFeeSpan.textContent = '$0.00';
         taxSpan.textContent = '$0.00';
         totalSpan.textContent = '$0.00';
-        proceedToPaymentBtn.disabled = true;
+        checkoutBtn.disabled = true;
     } else {
         const serviceFee = subtotal * 0.08;
         const tax = subtotal * 0.13;
@@ -67,7 +67,7 @@ function updateOrderSummary() {
         serviceFeeSpan.textContent = `$${serviceFee.toFixed(2)}`;
         taxSpan.textContent = `$${tax.toFixed(2)}`;
         totalSpan.textContent = `$${total.toFixed(2)}`;
-        proceedToPaymentBtn.disabled = false;
+        checkoutBtn.disabled = false;
     }
 }
 

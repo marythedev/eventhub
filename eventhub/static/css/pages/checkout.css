@@ -1,0 +1,149 @@
+.checkout-section {
+    padding: 4rem 0;
+}
+
+.checkout-section h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.checkout-layout {
+    display: flex;
+    gap: 2rem;
+}
+
+.checkout-main {
+    flex: 1;
+}
+
+.checkout-box {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.checkout-box h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.checkout-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.card-input-wrapper {
+    position: relative;
+}
+
+.card-input-wrapper input {
+    width: 100%;
+}
+
+.card-icons {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.billing-address {
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.billing-address h3 {
+    font-size: 1.25rem;
+}
+
+.checkout-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.checkout-security {
+    text-align: center;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.checkout-sidebar {
+    width: 350px;
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.order-summary-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+}
+
+.order-summary-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.event-summary {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.event-summary img {
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.event-summary h4 {
+    margin-bottom: 0.5rem;
+}
+
+.event-summary p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.tickets-summary {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ticket-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.pricing-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+@media (max-width: 925px) {
+    .checkout-layout {
+        flex-wrap: wrap-reverse;
+    }
+
+    .checkout-sidebar {
+        width: 100%;
+        position: static;
+    }
+}

@@ -5,7 +5,7 @@
     right: 0;
     background-color: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    padding: 1rem 0;
+    padding: 1.25rem 0;
     z-index: 1000;
     transition: var(--transition);
 }
@@ -17,7 +17,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 2rem;
+    gap: 3.5rem;
 }
 
 .nav-logo a {
@@ -276,14 +276,13 @@
 }
 
 @media (max-width: 768px) {
-    .unauth-nav .navbar {
+    .unauth-nav.landing .navbar {
         background-color: var(--bg-primary);
         border: none;
     }
 
-    .unauth-nav #mobileMenu {
+    .unauth-nav.landing #mobileMenu {
         background-color: var(--bg-primary);
-        border-left: none;
     }
 }
 

@@ -22,7 +22,7 @@
 </head>
 
 <body>
-    <div class="{% if not user.is_authenticated %}unauth-nav{% endif %}">
+    <div class="{% if not user.is_authenticated %}unauth-nav{% endif %} {% block navclass %}{% endblock %}">
         <nav class="navbar" id="navbar">
             <div class="nav-container">
                 <div class="nav-logo">

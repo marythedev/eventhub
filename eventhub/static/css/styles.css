@@ -177,6 +177,16 @@ section {
     flex-wrap: wrap;
 }
 
+a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--primary-color);
+}
+
 .breadcrumb a,
 .billing-address a {
     color: var(--primary-color);

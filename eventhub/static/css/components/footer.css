@@ -4,16 +4,6 @@
     padding: 4rem 0 2rem;
 }
 
-.footer a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: var(--transition);
-}
-
-.footer a:hover {
-    color: var(--primary-color);
-}
-
 .footer ul {
     display: flex;
     flex-direction: row;

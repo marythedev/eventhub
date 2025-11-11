@@ -130,6 +130,8 @@ function handleFileUpload(files) {
             reader.readAsDataURL(file);
         }
     }
+
+    imageUpload.value = "";
 }
 
 // send uploaded files with the form

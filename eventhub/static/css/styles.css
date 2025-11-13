@@ -168,18 +168,6 @@ section {
     margin-bottom: 3rem;
 }
 
-.breadcrumb {
-    margin-bottom: 2rem;
-    color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    word-break: break-all;
-}
-
-
-
 a {
     color: var(--text-secondary);
     text-decoration: none;
@@ -188,6 +176,16 @@ a {
 
 a:hover {
     color: var(--primary-color);
+}
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    word-break: break-all;
 }
 
 .breadcrumb a,
@@ -200,6 +198,10 @@ a:hover {
 .billing-address a:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
+}
+
+.price {
+    word-break: keep-all;
 }
 
 .pricing-row {

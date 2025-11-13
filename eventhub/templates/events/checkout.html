@@ -96,27 +96,29 @@
                         </div>
                     </div>
                     <div class="tickets-summary">
+                        {% for ticket in selected_tickets %}
                         <div class="ticket-line">
-                            <span>2x Premium Section (C5, C6)</span>
-                            <span>$150.00</span>
+                            <span>{{ticket.quantity}} x {{ticket.name}}</span>
+                            <span class="price">${{ticket.total}}</span>
                         </div>
+                        {% endfor %}
                     </div>
                     <div class="pricing-breakdown">
                         <div class="pricing-row">
                             <span>Subtotal</span>
-                            <span>$150.00</span>
+                            <span class="price">${{subtotal}}</span>
                         </div>
                         <div class="pricing-row">
                             <span>Service Fee</span>
-                            <span>$12.00</span>
+                            <span class="price">${{service_fee}}</span>
                         </div>
                         <div class="pricing-row">
                             <span>Tax (HST 13%)</span>
-                            <span>$13.31</span>
+                            <span class="price">${{tax}}</span>
                         </div>
                         <div class="pricing-row total">
                             <span>Total (USD)</span>
-                            <span>$175.31</span>
+                            <span class="price">${{total}}</span>
                         </div>
                     </div>
                 </div>

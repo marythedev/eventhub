@@ -1,5 +1,6 @@
 import os
 import json
+from decimal import Decimal, ROUND_HALF_UP
 from dotenv import load_dotenv
 from django.conf import settings
 
@@ -8,10 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 
 from .models import *
-from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet
+from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator, CheckoutForm
 from users.utils import cloud_upload_img
 
 load_dotenv()
+
+def _round(number):
+    return Decimal(number).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
 
 @login_required
 def create_event(request):
@@ -99,8 +104,23 @@ def view_event(request, event_id):
     images = event.images.all()
     for image in images:
         image_urls.append(image.url)
+        
+    if request.method == "POST":
+        form = OrderFormValidator(request.POST)
+        
+        if form.is_valid():
+            selected_tickets = form.cleaned_data.get('price_zones', [])
+            request.session['selected_tickets'] = selected_tickets
+            return redirect('events:checkout', event_id=event.id)
+    else:
+        form = OrderFormValidator()
     
-    return render(request, 'events/view-event.html', {'event': event, 'imgs': image_urls, 'price_zones': event.price_zones.all()})
+    return render(request, 'events/view-event.html', {
+        'event': event, 
+        'imgs': image_urls, 
+        'price_zones': event.price_zones.all(),
+        'form': form
+    })
 
 # TODO: dynamic event rendering + filtering
 def view_events(request):
@@ -112,4 +132,34 @@ def view_events(request):
 @login_required
 def checkout(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    return render(request, 'events/checkout.html', {'event': event})
+    selected_tickets = request.session.get('selected_tickets')
+    
+    if not selected_tickets:
+        return redirect('events:view_event', event_id=event.id)
+    
+    # accumulate the price summary for selected tickets
+    subtotal = Decimal(0)
+    for ticket in selected_tickets:
+        subtotal += Decimal(ticket.get("total"))
+    
+    subtotal = _round(subtotal)
+    service_fee = _round( subtotal * Decimal(os.getenv('SERVICE_FEE')) )
+    tax = _round( subtotal * Decimal(os.getenv('TAX')) )
+    total = _round( subtotal + service_fee + tax )
+    
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        #pop tickets info from session once checkout complete
+        pass
+    else:
+        form = CheckoutForm()
+    
+    return render(request, 'events/checkout.html', {
+        'event': event,
+        'selected_tickets': selected_tickets,
+        'subtotal': subtotal,
+        'service_fee': service_fee,
+        'tax': tax,
+        'total': total,
+        'form': form
+    })

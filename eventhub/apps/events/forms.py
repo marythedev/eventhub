@@ -1,10 +1,10 @@
 
 from django import forms
-from django.forms import formset_factory
+from django.forms import JSONField, formset_factory
 from django.core.exceptions import ValidationError
 from datetime import date as d, datetime
 
-from .models import Event
+from .models import Event, EventPriceZone
 from users.utils import validate_location, is_valid_image_format, MAX_FILE_SIZE_MB
 
 
@@ -213,3 +213,52 @@ class PriceZoneValidator(forms.Form):
 
 # formset to handle multiple PriceZoneValidator forms (user can add as many price zones for the new event as needed)
 PriceZoneFormSet = formset_factory(PriceZoneValidator, extra=0, min_num=1, validate_min=True, can_delete=True)
+
+class OrderFormValidator(forms.Form):
+    """
+    Validate user selected price zones (tickets).
+    
+    - Confirm that at least 1 ticket is selected before checkout.
+    - Check that selected quantity is <= than total seats for that price zone.
+    """
+    price_zones = JSONField(
+        required=True,
+        error_messages={
+            'required': 'Select a ticket.',
+            'invalid': 'Something is wrong. Try to refresh the page.'
+        }
+    )
+    
+    def clean_price_zones(self):
+        price_zones = self.cleaned_data.get('price_zones')
+        selected_tickets = []
+        
+        for zone in price_zones:
+            quantity = zone.get("quantity") 
+            
+            # don't include the price zones that were not selected
+            if (quantity <= 0):
+                continue
+            
+            try:
+                zone = EventPriceZone.objects.get(id = zone.get("id"))
+            except EventPriceZone.DoesNotExist:
+                self.add_error('price_zones', "Could not find selected tickets. Try to refresh the page.")
+                continue
+            
+            if zone.seats < quantity:
+                self.add_error('price_zones', f"Selected quantity exceeds available tickets {zone.name}.")
+                continue
+            
+            selected_tickets.append({
+                "id": zone.id,
+                "name": zone.name,
+                "price": str(zone.price),
+                "quantity": quantity,
+                "total": str(zone.price * quantity)
+            })
+        
+        return selected_tickets
+
+class CheckoutForm(forms.Form):
+    pass

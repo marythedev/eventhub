@@ -27,8 +27,10 @@
                             </div>
                             {% endfor %}
                         </div>
+                        {% if imgs|length > 1 %}
                         <button class="carousel-btn prev" id="prevBtn">&#10094;</button>
                         <button class="carousel-btn next" id="nextBtn">&#10095;</button>
+                        {% endif %}
                     </div>
 
                     <div class="v-event-info">

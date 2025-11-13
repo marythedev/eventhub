@@ -175,7 +175,10 @@ section {
     align-items: center;
     gap: 0.5rem;
     flex-wrap: wrap;
+    word-break: break-all;
 }
+
+
 
 a {
     color: var(--text-secondary);

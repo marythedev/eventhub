@@ -42,7 +42,7 @@ function updateOrderSummary() {
             const totalForType = quantity * price;
             subtotal += totalForType;
             summaryHTML += `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
                     <span>${quantity} × ${name}</span>
                     <span>$${totalForType.toFixed(2)}</span>
                 </div>

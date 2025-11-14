@@ -1,4 +1,3 @@
-import { getStripeInputColors } from './theme.js';
 const script = document.getElementById('checkout-script');
 
 // stripe setup
@@ -31,6 +30,13 @@ cardCvc.on('change', e => {
 });
 
 // update stripe colors (for theme switch)
+export function getStripeInputColors() {
+    return {
+        inputColor: getComputedStyle(document.body).getPropertyValue('--text-primary').trim(),
+        errorColor: getComputedStyle(document.body).getPropertyValue('--error-color').trim()
+    };
+}
+
 export function updateStripeColors(newInputColor, newErrorColor) {
     style = {
         base: { color: newInputColor },

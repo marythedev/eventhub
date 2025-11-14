@@ -18,6 +18,13 @@ ALLOWED_HOSTS = []
 WSGI_APPLICATION = 'eventhub.wsgi.application'
 
 
+# env load
+SERVICE_FEE = os.getenv('SERVICE_FEE')
+TAX = os.getenv('TAX')
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+DOMAIN_URL = os.getenv("DOMAIN_URL")
+
 # Application definition
 ROOT_URLCONF = 'eventhub.urls'
 

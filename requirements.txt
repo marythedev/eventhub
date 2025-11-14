@@ -5,5 +5,8 @@ python-dotenv ~= 1.0.0
 requests>=2.3
 
 # for images
-Pillow ~= 10.0.0
+Pillow >= 10.3.0
 pyuploadcare[django] ~= 6.2.1
+
+# for payment
+stripe~=13.2.0

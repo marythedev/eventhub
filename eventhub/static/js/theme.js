@@ -3,6 +3,15 @@ const themeToggle = document.getElementById('themeToggle');
 const savedTheme = localStorage.getItem('theme');
 const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+import { updateStripeColors } from "./checkout.js";
+
+export function getStripeInputColors() {
+    return {
+        inputColor: getComputedStyle(document.body).getPropertyValue('--text-primary').trim(),
+        errorColor: getComputedStyle(document.body).getPropertyValue('--error-color').trim()
+    };
+}
+
 function setTheme(theme) {
     if (theme === 'light') {
         body.classList.add('light-theme');
@@ -24,6 +33,13 @@ themeToggle.addEventListener('click', function () {
     const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
+
+    // if user is on checkout page
+    // checkout form stripe input color update
+    if (document.getElementById('checkout-form')) {
+        const { inputColor, errorColor } = getStripeInputColors();
+        updateStripeColors(inputColor, errorColor);
+    }
 });
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {

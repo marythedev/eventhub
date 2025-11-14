@@ -77,7 +77,10 @@
 
 .form-group input,
 .form-group textarea,
-.form-group select {
+.form-group select,
+.card-input-wrapper,
+.card-expiry-wrapper,
+.card-cvc-wrapper {
     padding: 0.875rem 1.25rem;
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-color);
@@ -85,11 +88,20 @@
     color: var(--text-primary);
     font-size: 1rem;
     transition: var(--transition);
+    outline: none;
 }
 
-.form-group input:focus,
+#card-number * {
+    color: yellow !important;
+}
+
+.form-group input:focus:not(#cardholderName),
+input#cardholderName:hover,
 .form-group textarea:focus,
-.form-group select:focus {
+.form-group select:focus,
+.card-input-wrapper:hover,
+.card-expiry-wrapper:hover,
+.card-cvc-wrapper:hover {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);

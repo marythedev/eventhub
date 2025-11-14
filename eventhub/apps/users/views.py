@@ -18,8 +18,10 @@ def register(request):
 
     POST:
         - Register user with fullname, email, password and confirm password.
-        - Return register form with errors or redirect to home on success.
+        - Return register form with errors or redirect to home or the flow they have browsed before on success.
     """
+    
+    next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     
     if request.method == "POST":
         form = RegisterValidator(request.POST)
@@ -42,13 +44,13 @@ def register(request):
             if user is not None:
                 set_default_avatar(user)
                 auth_login(request, user)
-                return redirect('core:home')
+                return redirect(next_url or 'core:home')
             else:
                 return redirect('users:login')
     else:
         form = RegisterValidator()
         
-    return render(request, 'users/register.html', {'form': form})
+    return render(request, 'users/register.html', {'form': form, 'next': next_url})
 
 
 def login(request):
@@ -60,19 +62,21 @@ def login(request):
 
     POST:
         - Authenticate user with email and password.
-        - Return login form with errors or redirect to home on success.
+        - Return login form with errors or redirect to home or the flow they have browsed before on success.
     """
+    next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     
     if request.method == "POST":
         form = LoginValidator(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             auth_login(request, user)
-            return redirect('core:home')
+            return redirect(next_url or 'core:home')
     else:
+        next_url = request.GET.get('next')
         form = LoginValidator()
 
-    return render(request, 'users/login.html', {'form': form})
+    return render(request, 'users/login.html', {'form': form, 'next': next_url})
 
 
 @login_required

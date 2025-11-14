@@ -45,11 +45,16 @@
                     <a href="#" class="link-text">Forgot password?</a>
                 </div>
 
+                <input type="hidden" name="next" value="{{ next }}">
                 <button type="submit" class="btn-primary btn-full">Log In</button>
             </form>
 
             <div class="auth-footer">
-                <p>Don't have an account? <a href="{% url 'users:register' %}" class="link-text">Sign&nbsp;up</a></p>
+                <p>Don't have an account?
+                    <a href="{% url 'users:register' %}?next={{ next }}" class="link-text">
+                        Sign&nbsp;up
+                    </a>
+                </p>
             </div>
         </div>
     </div>

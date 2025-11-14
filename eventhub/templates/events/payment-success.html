@@ -1,1 +1,72 @@
-<h1>Payment Successful</h1>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Payment Success {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/payment-result.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="purchase" class="purchase-section">
+    <div class="container-small">
+        <div class="purchase-result">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h1>Purchase Successful</h1>
+            <p class="result-message">Your tickets have been confirmed</p>
+        </div>
+        <div class="confirmation-details">
+            <div class="event-card">
+                <div class="event-image">
+                    <img src="{{ event.images.first.url }}" alt="{{ event.name }}" width="400" height="320">
+                </div>
+
+                <div class="event-content">
+                    <div class="event-description">
+                        <div class="event-date">
+                            <span class="date-day">{{event.date|date:"j"}}</span>
+                            <span class="date-month">{{event.date|date:"M"}}</span>
+                        </div>
+
+                        <div class="event-info">
+                            <h3>{{ event.title }}</h3>
+                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                            </p>
+                            <p class="event-category"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="confirmation-box">
+                <h3>Order Confirmation</h3>
+
+                <p><strong>Order Number:</strong> #EH-2025-1</p>
+                <p><strong>Date:</strong> today</p>
+                <p><strong>Total Paid:</strong> $175.31 USD</p>
+
+                <br>
+
+                {% for ticket in purchased_tickets %}
+                <p><i class="fas fa-ticket-alt"></i> {{ticket.quantity}} ticket{% if ticket.quantity > 1 %}s{% endif %}
+                    - {{ticket.name}}</p>
+                {% endfor %}
+            </div>
+
+            <div class="next-actions">
+                <a href="#">
+                    <button class="btn-primary btn-full">View Tickets</button>
+                </a>
+                <a href="{% url 'events:view_events' %}">
+                    <button class="btn-secondary btn-full">Browse More Events</button>
+                </a>
+            </div>
+        </div>
+    </div>
+    </div>
+</section>
+
+{% endblock %}

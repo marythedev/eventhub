@@ -1,0 +1,96 @@
+.purchase-section {
+    padding: 4rem 0;
+    display: flex;
+    align-items: start;
+    justify-content: center;
+}
+
+.purchase-result {
+    text-align: center;
+}
+
+.success-icon,
+.fail-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: successPop 0.5s ease;
+}
+
+.success-icon {
+    color: var(--success-color);
+}
+
+.fail-icon {
+    color: var(--error-color);
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.purchase-success h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.result-message {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
+.confirmation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.confirmation-box {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: left;
+}
+
+.confirmation-box h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.confirmation-box p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.next-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+@media(max-width: 700px) {
+    .event-confirmation {
+        flex-wrap: wrap;
+    }
+}
+
+@media(max-width: 400px) {
+    .next-actions {
+        flex-wrap: wrap;
+    }
+
+    .next-actions a {
+        width: 100%;
+    }
+}

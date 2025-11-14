@@ -177,7 +177,6 @@ def checkout(request, event_id):
             print(confirmed_intent.status)
             request.session["payment_status"] = confirmed_intent.status
             if confirmed_intent.status == "succeeded":
-                request.session.pop("selected_tickets", None)
                 # update ticket quantity here, make tickets assiciated with user
                 # send money to the event owner
                 print("success")
@@ -232,8 +231,9 @@ def payment_success(request, event_id):
     if payment_status != 'succeeded':
         return redirect('events:payment_fail', event_id=event.id)
     
-    request.session.pop("payment_status", None)
-    return render(request, 'events/payment-success.html')
+    purchased_tickets = request.session.pop("selected_tickets", None)
+    # request.session.pop("payment_status", None)
+    return render(request, 'events/payment-success.html', { 'event': event, 'purchased_tickets': purchased_tickets } )
 
 @login_required
 def payment_fail(request, event_id):
@@ -257,5 +257,6 @@ def payment_fail(request, event_id):
     if payment_status == 'succeeded':
         return redirect('events:payment_success', event_id=event.id)
     
-    request.session.pop("payment_status", None)
+    request.session.pop("selected_tickets", None)
+    # request.session.pop("payment_status", None)
     return render(request, 'events/payment-fail.html')

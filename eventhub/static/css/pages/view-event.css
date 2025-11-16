@@ -9,6 +9,7 @@
 
 .v-event-main {
     flex: 1;
+    min-width: 0;
 }
 
 .v-event-header {
@@ -117,6 +118,7 @@
     border-radius: 16px;
     padding: 2rem;
     margin-bottom: 3rem;
+    overflow-wrap: break-word;
 }
 
 .v-event-desc h2 {
@@ -196,6 +198,11 @@ p.ticket-price {
 
 .ticket-type-seats small {
     color: var(--text-secondary);
+}
+
+.ticket-type.sold-out small {
+    font-weight: 750;
+    color: var(--error-color)
 }
 
 .quantity-controls {

@@ -22,6 +22,8 @@ def register(request):
     """
     
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
+    if next_url in [None, "", "None"]:
+        next_url = None
     
     if request.method == "POST":
         form = RegisterValidator(request.POST)
@@ -65,6 +67,8 @@ def login(request):
         - Return login form with errors or redirect to home or the flow they have browsed before on success.
     """
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
+    if next_url in [None, "", "None"]:
+        next_url = None
     
     if request.method == "POST":
         form = LoginValidator(request.POST)

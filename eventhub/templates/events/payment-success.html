@@ -44,15 +44,15 @@
             <div class="confirmation-box">
                 <h3>Order Confirmation</h3>
 
-                <p><strong>Order Number:</strong> #EH-2025-1</p>
-                <p><strong>Date:</strong> today</p>
-                <p><strong>Total Paid:</strong> $175.31 USD</p>
+                <p style="display: flex; flex-wrap: wrap;"><strong>Order Number:</strong>&nbsp;<span>{{order.number}}</span></p>
+                <p><strong>Date:</strong> {{ order.date|date:"F j, Y \a\\t g:i A" }}</p>
+                <p><strong>Total Paid:</strong> ${{order.total}} USD</p>
 
                 <br>
 
                 {% for ticket in purchased_tickets %}
                 <p><i class="fas fa-ticket-alt"></i> {{ticket.quantity}} ticket{% if ticket.quantity > 1 %}s{% endif %}
-                    - {{ticket.name}}</p>
+                    - {{ticket.price_zone__name}}</p>
                 {% endfor %}
             </div>
 

@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 
+from django.db.models import Count
+
 from .models import *
 from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator, CheckoutForm
 from users.utils import cloud_upload_img
@@ -19,9 +21,57 @@ TAX = settings.TAX
 STRIPE_PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
 STRIPE_SECRET_KEY = settings.STRIPE_SECRET_KEY
 
-# helper functions
+
+# round decimal number up if it is more than 0.5
 def _round(number):
     return Decimal(number).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+# accumulate the price summary for selected tickets
+def _calculate_order_totals(selected_tickets):
+    subtotal = Decimal(0)
+    for ticket in selected_tickets:
+        subtotal += Decimal(ticket.get("total"))
+    
+    subtotal = _round(subtotal)
+    service_fee = _round( subtotal * Decimal(SERVICE_FEE) )
+    tax = _round( subtotal * Decimal(TAX) )
+    total = _round( subtotal + service_fee + tax )
+    return subtotal, service_fee, tax, total
+
+# payment from customer to Eventhub via Stripe
+def _create_and_confirm_payment(total, payment_method_id):
+    # payment intent based on received payment_method_id from frontend
+    stripe.api_key = STRIPE_SECRET_KEY
+    payment_intent = stripe.PaymentIntent.create(
+        amount=int(total * 100),
+        currency="usd",
+        payment_method=payment_method_id,
+        automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
+    )
+                
+    # payment confirmation
+    confirmed_intent = stripe.PaymentIntent.confirm(
+        payment_intent.id,
+        payment_method=payment_method_id
+    )
+    return confirmed_intent
+
+# save tickets to db and associate them with order
+# update ticket quantity for the event (tickets have been purchased)
+def _save_tickets(purchased_tickets, order):
+    for t in purchased_tickets:
+        price_zone = EventPriceZone.objects.filter(id=t.get("id")).first()                 
+        if price_zone:
+            for _ in range(t.get('quantity')):
+                Ticket.objects.create(
+                    price_zone = price_zone,
+                    order = order
+                )
+
+        # update event's seat zone quantity
+        price_zone.seats -= t.get('quantity')
+        price_zone.save()
+
 
 
 # views
@@ -141,62 +191,44 @@ def checkout(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     
     selected_tickets = request.session.get('selected_tickets')
-    
     if not selected_tickets:
         return redirect('events:view_event', event_id=event.id)
     
-    # accumulate the price summary for selected tickets
-    subtotal = Decimal(0)
-    for ticket in selected_tickets:
-        subtotal += Decimal(ticket.get("total"))
-    
-    subtotal = _round(subtotal)
-    service_fee = _round( subtotal * Decimal(SERVICE_FEE) )
-    tax = _round( subtotal * Decimal(TAX) )
-    total = _round( subtotal + service_fee + tax )
+    subtotal, service_fee, tax, total = _calculate_order_totals(selected_tickets)
 
     if request.method == "POST":
         payment_method_id = request.POST.get("payment_method_id")
 
-        try:
-            # payment intent based on received payment_method_id from frontend
-            stripe.api_key = STRIPE_SECRET_KEY
-            payment_intent = stripe.PaymentIntent.create(
-                amount=int(total * 100),
-                currency="usd",
-                payment_method=payment_method_id,
-                automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
-            )
-                        
-            # payment confirmation
-            confirmed_intent = stripe.PaymentIntent.confirm(
-                payment_intent.id,
-                payment_method=payment_method_id
+        try:   
+            confirmed_intent = _create_and_confirm_payment(total, payment_method_id)
+            
+            # save order to db
+            order = Order.objects.create(
+                status = confirmed_intent.status,
+                stripePaymentId = confirmed_intent.id,
+                acquirer = request.user,
+                subtotal = subtotal,
+                tax = tax,
+                service_fee = service_fee,
+                total = total
             )
             
-            print(confirmed_intent.status)
-            request.session["payment_status"] = confirmed_intent.status
             if confirmed_intent.status == "succeeded":
-                # update ticket quantity here, make tickets assiciated with user
-                # send money to the event owner
-                print("success")
-                return redirect("events:payment_success", event_id=event.id)
-            else:
-                print('failed')
-                return redirect("events:payment_fail", event_id=event.id)
-        
-        except stripe.StripeError as e:
-            # Generic Stripe error
-            print("Stripe error:", e)
-            return redirect("events:payment_fail", event_id=event.id)
-        
-        except Exception as e:
-            print("Other error:", e)
-            return redirect("events:payment_fail", event_id=event.id)
+                # TODO send money to the event owner
 
+                # save tickets in db
+                purchased_tickets = request.session.pop("selected_tickets")
+                _save_tickets(purchased_tickets, order)
+                
+                return redirect("events:payment_success", event_id=event.id, order_id=order.id)
+            else:
+                return redirect("events:payment_fail", event_id=event.id, order_id=order.id)
         
+        except (stripe.StripeError, Exception):
+            return redirect("events:payment_fail", event_id=event.id, order_id=order.id)
+
     else:
-        form = CheckoutForm()
+        form = CheckoutForm() # TODO
     
     return render(request, 'events/checkout.html', {
         'event': event,
@@ -208,55 +240,60 @@ def checkout(request, event_id):
         'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY,
         'form': form
     })
-    
+
 @login_required
-def payment_success(request, event_id):
+def payment_success(request, event_id, order_id):
     """
     Display the payment success page.
 
     Validates:
-        - payment_status: to make sure user did not just typed in the url; otherwise redirects to event page
-            - payment_status is generated by system on checkout
+        - order_id: belongs to the logged in user
         - payment succeeded: otherwise redirects to payment fail page
     
     Redirects to the event page or payment fail page if the check fails otherwise displays payment success page.
     """
     
     event = get_object_or_404(Event, id=event_id)
+    order = get_object_or_404(Order, id=order_id)
     
-    payment_status = request.session.get("payment_status", None)
-    if not payment_status:
-        return redirect('events:view_event', event_id=event.id)
+    # users cannot see orders that are not their own
+    if order.acquirer != request.user:
+        return redirect("events:view_event", event_id=event.id)
     
-    if payment_status != 'succeeded':
-        return redirect('events:payment_fail', event_id=event.id)
+    if order.status != 'succeeded':
+        return redirect('events:payment_fail', event_id=event.id, order_id=order.id)
+
+    purchased_tickets = (
+        order.tickets
+        .values("price_zone__name")
+        .annotate(quantity=Count("id"))
+    )
     
-    purchased_tickets = request.session.pop("selected_tickets", None)
-    # request.session.pop("payment_status", None)
-    return render(request, 'events/payment-success.html', { 'event': event, 'purchased_tickets': purchased_tickets } )
+    return render(request, 'events/payment-success.html', {
+        'event': event, 
+        'order': order,
+        'purchased_tickets': purchased_tickets
+    })
 
 @login_required
-def payment_fail(request, event_id):
+def payment_fail(request, event_id, order_id):
     """
     Display the payment fail page.
 
     Validates:
-        - payment_status: to make sure user did not just typed in the url; otherwise redirects to event page
-            - payment_status is generated by system on checkout
+        - order_id: belongs to the logged in user
         - payment did not succeed: otherwise redirects to payment success page
     
     Redirects to the event page or payment success page if the check approves otherwise displays payment fail page.
     """
     
     event = get_object_or_404(Event, id=event_id)
+    order = get_object_or_404(Order, id=order_id)
     
-    payment_status = request.session.get("payment_status", None)
-    if not payment_status:
-        return redirect('events:view_event', event_id=event.id)
+    # users cannot see orders that are not their own
+    if order.acquirer != request.user:
+        return redirect("events:view_event", event_id=event.id)
     
-    if payment_status == 'succeeded':
-        return redirect('events:payment_success', event_id=event.id)
-    
-    request.session.pop("selected_tickets", None)
-    # request.session.pop("payment_status", None)
+    if order.status == 'succeeded':
+        return redirect('events:payment_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')

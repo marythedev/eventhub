@@ -63,7 +63,7 @@
 
                     <div class="price-zones">
                         {% for zone in price_zones %}
-                        <div class="ticket-type" data-ticket-name="{{zone.name}}" data-price="{{zone.price}}"
+                        <div class="ticket-type {% if zone.seats == 0 %}sold-out{% endif %}" data-ticket-name="{{zone.name}}" data-price="{{zone.price}}"
                             data-zone-id="{{zone.id}}">
                             <div class="ticket-type-info">
                                 <h4>{{zone.name}}</h4>
@@ -71,14 +71,16 @@
                                 <p class="ticket-price price">${{zone.price}}</p>
                             </div>
                             <div class="ticket-type-seats">
-
                                 <div class="quantity-controls">
                                     <button class="qty-btn" data-action="decrease">-</button>
                                     <input type="number" class="qty-input" value="0" min="0" max="{{zone.seats}}"
                                         readonly>
                                     <button class="qty-btn" data-action="increase">+</button>
                                 </div>
-                                <small>{{zone.seats}} available</small>
+                                <small>
+                                    {% if zone.seats > 0 %} {{zone.seats}} available
+                                    {% else %} Sold out {% endif %}
+                                </small>
                             </div>
                         </div>
                         {% endfor %}

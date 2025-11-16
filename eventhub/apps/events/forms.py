@@ -247,7 +247,7 @@ class OrderFormValidator(forms.Form):
                 continue
             
             if zone.seats < quantity:
-                self.add_error('price_zones', f"Selected quantity exceeds available tickets {zone.name}.")
+                self.add_error('price_zones', f"Selected quantity exceeds available {zone.name} tickets.")
                 continue
             
             selected_tickets.append({

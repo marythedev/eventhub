@@ -42,13 +42,14 @@ def _calculate_order_totals(selected_tickets):
     return subtotal, service_fee, tax, total
 
 # payment from customer to Eventhub via Stripe
-def _create_and_confirm_payment(total, payment_method_id):
+def _create_and_confirm_payment(total, payment_method_id, user_email):
     # payment intent based on received payment_method_id from frontend
     stripe.api_key = STRIPE_SECRET_KEY
     payment_intent = stripe.PaymentIntent.create(
         amount=int(total * 100),
         currency="usd",
         payment_method=payment_method_id,
+        receipt_email=user_email,
         automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
     )
                 
@@ -221,8 +222,8 @@ def checkout(request, event_id):
         payment_method_id = request.POST.get("payment_method_id")
 
         try:   
-            confirmed_intent = _create_and_confirm_payment(total, payment_method_id)
-            
+            confirmed_intent = _create_and_confirm_payment(total, payment_method_id, request.user.email)
+
             # save order to db
             order = Order.objects.create(
                 status = confirmed_intent.status,

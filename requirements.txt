@@ -11,3 +11,4 @@ python-barcode >= 0.16.1
 
 # for payment
 stripe~=13.2.0
+reportlab >= 4.4.5 # for receipt generation

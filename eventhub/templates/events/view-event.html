@@ -78,7 +78,7 @@
                                     <button class="qty-btn" data-action="increase">+</button>
                                 </div>
                                 <small>
-                                    {% if zone.seats > 0 %} {{zone.seats}} available
+                                    {% if zone.remaining_seats > 0 %} {{zone.remaining_seats}} available
                                     {% else %} Sold out {% endif %}
                                 </small>
                             </div>

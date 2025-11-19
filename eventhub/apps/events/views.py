@@ -12,6 +12,8 @@ from django.core.files.storage import FileSystemStorage
 from django.db.models import Count
 
 from .models import *
+from tickets.models import *
+
 from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator, CheckoutForm
 from users.utils import cloud_upload_img
 
@@ -68,10 +70,6 @@ def _save_tickets(purchased_tickets, order):
                     price_zone = price_zone,
                     order = order
                 )
-
-        # update event's seat zone quantity
-        price_zone.seats -= t.get('quantity')
-        price_zone.save()
 
 
 
@@ -320,3 +318,11 @@ def checkout_fail(request, event_id, order_id):
     if order.status == 'succeeded':
         return redirect('events:checkout_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')
+
+@login_required
+def my_events(request):
+    """View events created by the user."""
+    
+    all_events = request.user.events.all()
+    
+    return render(request, 'events/my-events.html', { 'events': all_events })

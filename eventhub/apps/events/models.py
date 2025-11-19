@@ -55,6 +55,30 @@ class Event(models.Model):
         now = timezone.localtime().date()
         event_day = timezone.localtime(self.date).date()
         return (event_day - now).days
+    
+    @property
+    def total_seats(self):
+        """Total seats for the event."""
+        total_seats = 0
+        for zone in self.price_zones.all():
+            total_seats += zone.seats
+        return total_seats
+    
+    @property
+    def total_seats_sold(self):
+        """Total sold seats for the event."""
+        total_seats_sold = 0
+        for zone in self.price_zones.all():
+            total_seats_sold += zone.seats_sold
+        return total_seats_sold
+    
+    @property
+    def revenue(self):
+        """Total revenue for the event."""
+        revenue = 0
+        for zone in self.price_zones.all():
+            revenue += zone.revenue
+        return revenue
 
 
 class EventImage(models.Model):
@@ -86,7 +110,7 @@ class EventPriceZone(models.Model):
         name (str): The name of the price zone.
         desc (str): Brief description of the price zone.
         price (float): The price of the price zone in USD.
-        seats (int): The capacity of seats of the price zone.
+        seats (int): The total capacity of seats of the price zone.
     """
     
     event = models.ForeignKey(
@@ -103,10 +127,15 @@ class EventPriceZone(models.Model):
     )
 
     seats = models.PositiveBigIntegerField()
+    seats_sold = models.PositiveIntegerField(default=0)
+    revenue = models.DecimalField(max_digits=20, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Price Zone {self.name} for {self.event.name} event"
 
+    @property
+    def remaining_seats(self):
+        return self.seats - self.seats_sold
 
 class Order(models.Model):
     """
@@ -169,39 +198,3 @@ class Order(models.Model):
     def event(self):
         first_ticket = self.tickets.first()
         return first_ticket.price_zone.event if first_ticket else None
-
-
-class Ticket(models.Model):
-    """
-    Ticket that was purchased.
-    
-    Attributes:
-        number (str): Unique ticket identifier (auto generated).
-        price_zone (EventPriceZone): EventPriceZone which ticket is associated with.
-        order (Order): Order at which ticket was purchased.
-    """
-    
-    number = models.CharField(max_length=50, unique=True, blank=False)
-    price_zone = models.ForeignKey(
-        EventPriceZone,
-        on_delete=models.CASCADE,
-        related_name='tickets'
-    )
-    order = models.ForeignKey(
-        Order,
-        on_delete=models.CASCADE,
-        related_name='tickets'
-    )
-    
-    def save(self, *args, **kwargs):
-        initial = self.pk is None
-        super().save(*args, **kwargs)
-        
-        # ticket number auto generation on initial save
-        if initial:
-            year = timezone.now().year
-            self.number = f"EH-TCK-{year}-{self.id}"
-            super().save(update_fields=['number'])
-    
-    def __str__(self):
-        return f"Ticket {self.number} owned by {self.order.acquirer}"

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} My events {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/my-events.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="my-events" class="my-events-section">
+    <div class="container">
+        <div class="section-header-large">
+            <h1>My Events</h1>
+            <a href="{% url 'events:create_event' %}" id="addEventBtn">
+                <button class="btn-primary"><i class="fas fa-plus"></i> Create Event</button>
+            </a>
+        </div>
+
+        <div class="history-filters">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Events</button>
+                <button class="filter-tab" data-filter="upcoming">Upcoming Events</button>
+                <button class="filter-tab" data-filter="past">Past Events</button>
+            </div>
+            <div class="search-history">
+                <input type="text" placeholder="Search events...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="events-list">
+            {% for event in events %}
+            <div class="event-list-item">
+                <div class="event-list-image">
+                    <img src="{{ event.images.first.url }}" alt="{{event.name}} event thumbnail" width="200"
+                        height="160">
+                </div>
+                <div class="event-list-content">
+                    <h3>{{event.name}}</h3>
+                    <div class="event-meta">
+                        <span>
+                            <i class="fas fa-calendar"></i> {{ event.date|date:"F j, Y \a\\t g:i A" }}
+                        </span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{event.location}}</span>
+                        <div class="event-stats">
+                            <span><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} / {{event.total_seats}} sold</span>
+                            &#183;
+                            <span><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="event-list-actions">
+                    <button class="btn-secondary btn-small"><i class="fas fa-edit"></i> Edit</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="pagination">
+            <button class="pagination-btn" disabled=""><i class="fas fa-chevron-left"></i> Previous</button>
+            <div class="pagination-pages">
+                <button class="pagination-page active">1</button>
+                <button class="pagination-page">2</button>
+                <button class="pagination-page">3</button>
+                <span class="pagination-ellipsis">...</span>
+                <button class="pagination-page">8</button>
+            </div>
+            <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -5,7 +5,7 @@ from barcode.writer import ImageWriter
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
-from events.models import Ticket
+from tickets.models import Ticket
 
 def ticket_barcode(request, ticket_id):
     """Generate barcode for ticket"""

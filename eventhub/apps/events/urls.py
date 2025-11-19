@@ -12,4 +12,8 @@ urlpatterns = [
     # TODO move from order id to slug:order_number in url for better comprehensiveness on checkout
     path('<int:event_id>/checkout/success/<int:order_id>', views.checkout_success, name="checkout_success"),
     path('<int:event_id>/checkout/fail/<int:order_id>', views.checkout_fail, name="checkout_fail"),
+    
+    # user-owned events
+    path('my-events/', views.my_events, name="my_events"),
+    # TODO edit event
 ]

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} My Orders {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/order-history.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="order-history" class="order-history-section">
+    <div class="container">
+        <div class="section-header-large">
+            <h1>My Orders</h1>
+            <p>View your ticket purchases</p>
+        </div>
+
+        <div class="history-filters">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">All Orders</button>
+                <button class="filter-tab" data-filter="upcoming">Upcoming Events</button>
+                <button class="filter-tab" data-filter="past">Past Events</button>
+            </div>
+            <div class="search-history">
+                <input type="text" placeholder="Search events...">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div class="order-history-list">
+
+            {% for order in orders %}
+
+            <div class="order-item {% if order.event.is_past %} past {% endif %}">
+                <div class="order-header">
+                    <div class="order-event-date-badge {% if order.event.is_past %} past {% endif %}">
+                        <span class="badge-month">{{order.event.date|date:"M"}}</span>
+                        <span class="badge-day">{{order.event.date|date:"d"}}</span>
+                    </div>
+                    <div class="order-event-info">
+                        <h3>{{order.event.name}}</h3>
+                        <p class="order-meta">
+                            <span>
+                                <i class="fas fa-calendar"></i> {{ order.event.date|date:"F j, Y \a\\t g:i A" }}
+                            </span>
+                            <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
+                        </p>
+                    </div>
+                    <div class="order-status upcoming {% if order.event.is_past %} past {% endif %}">
+                        {% if order.event.is_past %} Past Event {% else %} 
+                        In {{order.event.days_until}} day{{ order.event.days_until|pluralize }} {% endif %}
+                    </div>
+                </div>
+                <div class="order-details">
+                    <div class="order-info">
+                        <p><strong>Order #:</strong> {{order.number}}</p>
+                        <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y \a\\t g:i A" }}</p>
+                    </div>
+                    <div class="order-amount">
+                        <span class="amount-label">Total Paid</span>
+                        {% if order.total > 0 %}
+                        <span class="amount-value">${{order.total}}</span>
+                        {% else %}
+                        <span class="amount-value free">Free</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <button class="btn-primary btn-small">View Tickets</button>
+                    {% if order.total > 0 %}
+                    <button class="btn-secondary btn-small"><i class="fas fa-receipt"></i> Receipt</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="pagination">
+            <button class="pagination-btn" disabled=""><i class="fas fa-chevron-left"></i> Previous</button>
+            <div class="pagination-pages">
+                <button class="pagination-page active">1</button>
+                <button class="pagination-page">2</button>
+                <button class="pagination-page">3</button>
+                <span class="pagination-ellipsis">...</span>
+                <button class="pagination-page">8</button>
+            </div>
+            <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

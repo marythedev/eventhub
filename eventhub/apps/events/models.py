@@ -29,8 +29,8 @@ class Event(models.Model):
     ]
     
     name = models.CharField(max_length=50)
-    date = models.DateField()
-    time = models.TimeField()
+    # TODO translate users local time to UTC while saving
+    date = models.DateTimeField()
     location = models.CharField(max_length=255)
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
@@ -43,6 +43,18 @@ class Event(models.Model):
     
     def __str__(self):
         return self.name
+    
+    @property
+    def is_past(self):
+        """Checks if event date is in the past."""
+        return self.date < timezone.now()
+
+    @property
+    def days_until(self):
+        """Integer days until event (negative for past events)."""
+        now = timezone.localtime().date()
+        event_day = timezone.localtime(self.date).date()
+        return (event_day - now).days
 
 
 class EventImage(models.Model):
@@ -113,7 +125,7 @@ class Order(models.Model):
     number = models.CharField(max_length=50, unique=True, blank=True)
     status = models.CharField(max_length=150, blank=False)
     date = models.DateTimeField(blank=True, null=True)
-    stripePaymentId = models.CharField(max_length=50, unique=True, blank=False)
+    stripePaymentId = models.CharField(max_length=50, unique=True, null=True, blank=True)
     acquirer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -140,6 +152,9 @@ class Order(models.Model):
         ]
     )
     
+    def __str__(self):
+        return f"Order {self.number} made by {self.acquirer}"
+    
     def save(self, *args, **kwargs):
         initial = self.pk is None
         super().save(*args, **kwargs)
@@ -150,8 +165,10 @@ class Order(models.Model):
             self.number = f"EH-ODR-{self.date.year}-{self.id}"
             super().save(update_fields=['number', 'date'])
 
-    def __str__(self):
-        return f"Order {self.number} made by {self.acquirer}"
+    @property
+    def event(self):
+        first_ticket = self.tickets.first()
+        return first_ticket.price_zone.event if first_ticket else None
 
 
 class Ticket(models.Model):

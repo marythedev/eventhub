@@ -3,6 +3,8 @@ import json
 import stripe
 from decimal import Decimal, ROUND_HALF_UP
 from django.conf import settings
+from django.utils import timezone
+from datetime import datetime
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -102,11 +104,19 @@ def create_event(request):
         
         if ( event_form.is_valid() and image_form.is_valid() and price_zone_forms.is_valid() ):
             
+            # concatenate date and time
+            event_datetime = timezone.make_aware(
+                datetime.combine(
+                    event_form.cleaned_data['date'], 
+                    event_form.cleaned_data['time']
+                ),
+                timezone.get_current_timezone()
+            )
+            
             # create event object
             event = Event.objects.create(
                 name=event_form.cleaned_data['name'],
-                date=event_form.cleaned_data['date'],
-                time=event_form.cleaned_data['time'],
+                date=event_datetime,
                 location=event_form.cleaned_data['location'],
                 category=event_form.cleaned_data['category'],
                 description=event_form.cleaned_data['description'],
@@ -195,6 +205,20 @@ def checkout(request, event_id):
         return redirect('events:view_event', event_id=event.id)
     
     subtotal, service_fee, tax, total = _calculate_order_totals(selected_tickets)
+    
+    if total == 0:
+            order = Order.objects.create(
+                status="succeeded",
+                stripePaymentId=None,
+                acquirer=request.user,
+                subtotal=subtotal,
+                tax=tax,
+                service_fee=service_fee,
+                total=total
+            )
+            _save_tickets(selected_tickets, order)
+            request.session.pop("selected_tickets")
+            return redirect("events:payment_success", event_id=event.id, order_id=order.id)
 
     if request.method == "POST":
         payment_method_id = request.POST.get("payment_method_id")
@@ -297,3 +321,15 @@ def payment_fail(request, event_id, order_id):
     if order.status == 'succeeded':
         return redirect('events:payment_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')
+
+@login_required
+def my_orders(request):
+    """
+    The page where user can view orders.
+    """
+    
+    # TODO implement filtering, pagination & display only successfully paid orders (failed only for inner records in case of disputes)
+    # TODO display time in local timezone (utc convert) + check other date displays
+    all_orders = request.user.orders.all()
+    
+    return render(request, 'events/order-history.html', { 'orders': all_orders })

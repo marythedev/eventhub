@@ -1,0 +1,115 @@
+.order-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--card-shadow);
+}
+
+.order-item.past {
+    opacity: 0.8;
+}
+
+.order-header {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.order-event-date-badge {
+    background-color: var(--bg-tertiary);
+    border: 2px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+    min-width: 80px;
+}
+
+.order-event-date-badge.past {
+    border-color: var(--text-secondary);
+}
+
+.badge-month {
+    display: block;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+}
+
+.badge-day {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.order-event-date-badge.past .badge-day {
+    color: var(--text-secondary);
+}
+
+.order-event-info {
+    flex: 1;
+}
+
+.order-event-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.order-meta {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    color: var(--text-secondary);
+}
+
+.order-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.order-status.upcoming {
+    background-color: rgba(108, 99, 255, 0.2);
+    color: var(--primary-color);
+}
+
+.order-status.past {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.order-details {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.5rem;
+    background-color: var(--bg-tertiary);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.order-info p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.order-amount {
+    text-align: right;
+}
+
+.amount-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.amount-value {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.amount-value.free {
+    color: var(--success-color);
+}

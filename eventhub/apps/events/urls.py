@@ -9,5 +9,6 @@ urlpatterns = [
     path('view/<int:event_id>/', views.view_event, name="view_event"),
     path('checkout/<int:event_id>/', views.checkout, name="checkout"),
     path('checkout/<int:event_id>/success/<int:order_id>', views.payment_success, name="payment_success"),
-    path('checkout/<int:event_id>/fail/<int:order_id>', views.payment_fail, name="payment_fail")
+    path('checkout/<int:event_id>/fail/<int:order_id>', views.payment_fail, name="payment_fail"),
+    path('my-orders/', views.my_orders, name="my_orders")
 ]

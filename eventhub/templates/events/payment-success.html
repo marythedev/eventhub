@@ -51,7 +51,7 @@
                 <br>
 
                 {% for ticket in purchased_tickets %}
-                <p><i class="fas fa-ticket-alt"></i> {{ticket.quantity}} ticket{% if ticket.quantity > 1 %}s{% endif %}
+                <p><i class="fas fa-ticket-alt"></i> {{ticket.quantity}} ticket{{ ticket.quantity|pluralize }}
                     - {{ticket.price_zone__name}}</p>
                 {% endfor %}
             </div>

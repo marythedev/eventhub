@@ -68,7 +68,7 @@ def order_receipt(request, order_id):
 
     # Event Info
     elements.append(Paragraph("Event Details", header_style))
-    elements.append(Paragraph(f"<b>{order.event.name}</b>", normal))
+    elements.append(Paragraph(f"Event Name: <b>{order.event.name}</b>", normal))
     elements.append(Paragraph(f"Location: {order.event.location}", normal))
     elements.append(Paragraph(f"Date: {order.event.date.strftime('%B %d, %Y at %I:%M %p')}", normal))
     elements.append(Spacer(1, 12))
@@ -76,26 +76,29 @@ def order_receipt(request, order_id):
     # Tickets Table
     elements.append(Paragraph("Tickets Purchased", header_style))
 
-    ticket_data = [["Ticket", "", "Total"]]
-
+    ticket_data = [["Ticket Type", "Quantity", "Total Price"]]
     for t in tickets:
-        name_qty = f"{t['price_zone__name']} (x{t['quantity']})"
-        price = f"${t['price_zone__price'] * t['quantity']:.2f}"
-        ticket_data.append([name_qty, '.'*48 + ' ', price])
+        ticket_data.append([
+            t['price_zone__name'],
+            str(t['quantity']),
+            f"${t['price_zone__price'] * t['quantity']:.2f}"
+        ])
 
-    ticket_table = Table(ticket_data, colWidths=[250, 100, 80])
+    ticket_table = Table(ticket_data, colWidths=[240, 80, 100])
     ticket_table.setStyle(TableStyle([
-        ("ALIGN", (0,0), (-2,-1), "LEFT"),
-        ("ALIGN", (2,0), (2,-1), "RIGHT"),
+        ("BACKGROUND", (0,0), (-1,0), "#d3d3d3"),
+        ("TEXTCOLOR", (0,0), (-1,0), "#000000"),
+        ("ALIGN", (1,1), (-1,-1), "CENTER"),
+        ("ALIGN", (0,0), (0,-1), "LEFT"),
         ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("ALIGN", (2,0), (2,0), "RIGHT"),
-        ("TOPPADDING", (0,0), (-1,-1), 2),
-        ("BOTTOMPADDING", (0,0), (-1,-1), 2),
+        ("BOTTOMPADDING", (0,0), (-1,0), 6),
+        ("TOPPADDING", (0,0), (-1,0), 6),
+        ("GRID", (0,0), (-1,-1), 0.5, "#888888")
     ]))
 
-    
     elements.append(ticket_table)
     elements.append(Spacer(1, 20))
+
 
     # Totals Table
     elements.append(Paragraph("Payment Summary", header_style))
@@ -109,11 +112,11 @@ def order_receipt(request, order_id):
 
     totals_table = Table(totals_data, colWidths=[340, 80])
     totals_table.setStyle(TableStyle([
-        ("FONTNAME", (0, 0), (-1, -2), "Helvetica"),
-        ("FONTNAME", (0, -1), (-1, -1), "Helvetica-Bold"),
-        ("ALIGN", (1, 0), (-1, -1), "RIGHT"),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("FONTNAME", (0,0), (-1,-2), "Helvetica"),
+        ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+        ("ALIGN", (1,0), (-1,-1), "RIGHT"),
+        ("BOTTOMPADDING", (0,0), (-1,-1), 6),
+        ("TOPPADDING", (0,0), (-1,-1), 6),
     ]))
     elements.append(totals_table)
     elements.append(Spacer(1, 25))

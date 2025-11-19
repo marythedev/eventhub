@@ -219,7 +219,7 @@ class OrderFormValidator(forms.Form):
     Validate user selected price zones (tickets).
     
     - Confirm that at least 1 ticket is selected before checkout.
-    - Check that selected quantity is <= than total seats for that price zone.
+    - Check that selected quantity is <= than remaining seats for that price zone.
     """
     price_zones = JSONField(
         required=True,
@@ -246,7 +246,7 @@ class OrderFormValidator(forms.Form):
                 self.add_error('price_zones', "Could not find selected tickets. Try to refresh the page.")
                 continue
             
-            if zone.seats < quantity:
+            if zone.remaining_seats < quantity:
                 self.add_error('price_zones', f"Selected quantity exceeds available {zone.name} tickets.")
                 continue
             

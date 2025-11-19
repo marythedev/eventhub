@@ -261,4 +261,4 @@ class OrderFormValidator(forms.Form):
         return selected_tickets
 
 class CheckoutForm(forms.Form):
-    pass
+    pass # TODO

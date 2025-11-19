@@ -3,6 +3,7 @@ import requests
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
+from django.contrib.auth.decorators import user_passes_test
 from pyuploadcare import Uploadcare
 from PIL import Image
 
@@ -11,6 +12,16 @@ TARGET_SIZE = (300, 300)
 
 uploadcare = Uploadcare(public_key=settings.UPLOADCARE['pub_key'], secret_key=settings.UPLOADCARE['secret'])
 
+def anonymous_required(redirect_url='core:home'):
+    """
+    Checks that user is not authenticated in the system.
+    Otherwise redirects user to the home page (or provided redirect_url).
+    """
+    return user_passes_test(
+        lambda u: not u.is_authenticated,
+        login_url=redirect_url,
+        redirect_field_name=''
+    )
 
 def is_valid_image_format(file):
     """

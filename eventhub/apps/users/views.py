@@ -9,6 +9,7 @@ from .forms import RegisterValidator, LoginValidator, ProfileValidator, Security
 from .models import Profile
 
 
+@anonymous_required()
 def register(request):
     """
     Handle user registration.
@@ -55,6 +56,7 @@ def register(request):
     return render(request, 'users/register.html', {'form': form, 'next': next_url})
 
 
+@anonymous_required()
 def login(request):
     """
     Handle user login.

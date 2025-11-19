@@ -1,15 +1,18 @@
 import os
+import io
 import json
 import stripe
 from decimal import Decimal, ROUND_HALF_UP
 from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
+from barcode import Code128
+from barcode.writer import ImageWriter
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-
+from django.http import HttpResponse
 from django.db.models import Count
 
 from .models import *
@@ -323,7 +326,7 @@ def payment_fail(request, event_id, order_id):
     return render(request, 'events/payment-fail.html')
 
 @login_required
-def my_orders(request):
+def view_orders(request):
     """
     The page where user can view orders.
     """
@@ -332,4 +335,25 @@ def my_orders(request):
     # TODO display time in local timezone (utc convert) + check other date displays
     all_orders = request.user.orders.all()
     
-    return render(request, 'events/order-history.html', { 'orders': all_orders })
+    return render(request, 'events/view-orders.html', { 'orders': all_orders })
+
+
+def ticket_barcode(request, ticket_id):
+    """Generate barcode for ticket"""
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+
+    buffer = io.BytesIO()
+    barcode = Code128(ticket.number, writer=ImageWriter())
+    barcode.write(buffer)
+
+    return HttpResponse(buffer.getvalue(), content_type="image/png")
+
+@login_required
+def view_tickets(request, order_id):
+    """
+    The page where user can view tickets for specific order.
+    """
+    
+    order = get_object_or_404(Order, id=order_id)
+        
+    return render(request, 'events/view-tickets.html', { 'order': order })

@@ -1,4 +1,4 @@
-.order-history-section {
+.view-orders-section {
     padding: 4rem 0;
 }
 
@@ -58,7 +58,7 @@
     color: var(--text-secondary);
 }
 
-.order-history-list {
+.view-orders-list {
     display: flex;
     flex-direction: column;
     gap: 2rem;

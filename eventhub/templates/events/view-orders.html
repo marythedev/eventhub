@@ -4,12 +4,12 @@
 {% block title %} My Orders {% endblock %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{% static 'css/pages/order-history.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/pages/view-orders.css' %}" type="text/css">
 {% endblock %}
 
 {% block content %}
 
-<section id="order-history" class="order-history-section">
+<section id="view-orders" class="view-orders-section">
     <div class="container">
         <div class="section-header-large">
             <h1>My Orders</h1>
@@ -28,7 +28,7 @@
             </div>
         </div>
 
-        <div class="order-history-list">
+        <div class="view-orders-list">
 
             {% for order in orders %}
 
@@ -55,7 +55,7 @@
                 <div class="order-details">
                     <div class="order-info">
                         <p><strong>Order #:</strong> {{order.number}}</p>
-                        <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y \a\\t g:i A" }}</p>
+                        <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y" }}</p>
                     </div>
                     <div class="order-amount">
                         <span class="amount-label">Total Paid</span>

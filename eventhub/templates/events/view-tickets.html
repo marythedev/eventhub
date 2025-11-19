@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Order Tickets {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/view-tickets.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section id="view-tickets" class="view-tickets-section">
+    <div class="container">
+        <div class="section-header-large">
+            <div>
+                <h1>Order Tickets</h1>
+                <p>Order Number: {{order.number}}</p>
+            </div>
+        </div>
+
+        <div class="tickets-list">
+            {% for ticket in order.tickets.all %}
+            <div class="ticket-list-item">
+                <div class="ticket-barcode">
+                    <img src="{% url 'events:ticket_barcode' ticket.id %}" alt="Ticket {{ticket.number}} barcode"
+                        width="200" height="160">
+                </div>
+                <div class="ticket-list-content">
+                    <h3>{{order.event.name}}</h3>
+                    <p class="ticket-meta">
+                        <span><i class="fas fa-ticket-alt"></i> {{ticket.price_zone.name}}</span>
+                        <span>
+                            <i class="fas fa-calendar"></i> {{ order.event.date|date:"F j, Y \a\\t g:i A" }}
+                        </span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

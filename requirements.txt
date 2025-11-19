@@ -7,6 +7,7 @@ requests>=2.3
 # for images
 Pillow >= 10.3.0
 pyuploadcare[django] ~= 6.2.1
+python-barcode >= 0.16.1
 
 # for payment
 stripe~=13.2.0

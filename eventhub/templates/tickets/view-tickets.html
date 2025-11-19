@@ -22,7 +22,7 @@
             {% for ticket in order.tickets.all %}
             <div class="ticket-list-item">
                 <div class="ticket-barcode">
-                    <img src="{% url 'events:ticket_barcode' ticket.id %}" alt="Ticket {{ticket.number}} barcode"
+                    <img src="{% url 'api:ticket_barcode' ticket.id %}" alt="Ticket {{ticket.number}} barcode"
                         width="200" height="160">
                 </div>
                 <div class="ticket-list-content">

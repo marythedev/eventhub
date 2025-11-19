@@ -1,18 +1,14 @@
 import os
-import io
 import json
 import stripe
 from decimal import Decimal, ROUND_HALF_UP
 from django.conf import settings
 from django.utils import timezone
 from datetime import datetime
-from barcode import Code128
-from barcode.writer import ImageWriter
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-from django.http import HttpResponse
 from django.db.models import Count
 
 from .models import *
@@ -221,7 +217,7 @@ def checkout(request, event_id):
             )
             _save_tickets(selected_tickets, order)
             request.session.pop("selected_tickets")
-            return redirect("events:payment_success", event_id=event.id, order_id=order.id)
+            return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
 
     if request.method == "POST":
         payment_method_id = request.POST.get("payment_method_id")
@@ -247,12 +243,12 @@ def checkout(request, event_id):
                 purchased_tickets = request.session.pop("selected_tickets")
                 _save_tickets(purchased_tickets, order)
                 
-                return redirect("events:payment_success", event_id=event.id, order_id=order.id)
+                return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
             else:
-                return redirect("events:payment_fail", event_id=event.id, order_id=order.id)
+                return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
         
         except (stripe.StripeError, Exception):
-            return redirect("events:payment_fail", event_id=event.id, order_id=order.id)
+            return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
 
     else:
         form = CheckoutForm() # TODO
@@ -269,7 +265,7 @@ def checkout(request, event_id):
     })
 
 @login_required
-def payment_success(request, event_id, order_id):
+def checkout_success(request, event_id, order_id):
     """
     Display the payment success page.
 
@@ -288,7 +284,7 @@ def payment_success(request, event_id, order_id):
         return redirect("events:view_event", event_id=event.id)
     
     if order.status != 'succeeded':
-        return redirect('events:payment_fail', event_id=event.id, order_id=order.id)
+        return redirect('events:checkout_fail', event_id=event.id, order_id=order.id)
 
     purchased_tickets = (
         order.tickets
@@ -303,7 +299,7 @@ def payment_success(request, event_id, order_id):
     })
 
 @login_required
-def payment_fail(request, event_id, order_id):
+def checkout_fail(request, event_id, order_id):
     """
     Display the payment fail page.
 
@@ -322,38 +318,5 @@ def payment_fail(request, event_id, order_id):
         return redirect("events:view_event", event_id=event.id)
     
     if order.status == 'succeeded':
-        return redirect('events:payment_success', event_id=event.id, order_id=order.id)
+        return redirect('events:checkout_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')
-
-@login_required
-def view_orders(request):
-    """
-    The page where user can view orders.
-    """
-    
-    # TODO implement filtering, pagination & display only successfully paid orders (failed only for inner records in case of disputes)
-    # TODO display time in local timezone (utc convert) + check other date displays
-    all_orders = request.user.orders.all()
-    
-    return render(request, 'events/view-orders.html', { 'orders': all_orders })
-
-
-def ticket_barcode(request, ticket_id):
-    """Generate barcode for ticket"""
-    ticket = get_object_or_404(Ticket, id=ticket_id)
-
-    buffer = io.BytesIO()
-    barcode = Code128(ticket.number, writer=ImageWriter())
-    barcode.write(buffer)
-
-    return HttpResponse(buffer.getvalue(), content_type="image/png")
-
-@login_required
-def view_tickets(request, order_id):
-    """
-    The page where user can view tickets for specific order.
-    """
-    
-    order = get_object_or_404(Order, id=order_id)
-        
-    return render(request, 'events/view-tickets.html', { 'order': order })

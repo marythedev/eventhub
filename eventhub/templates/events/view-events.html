@@ -137,8 +137,7 @@
                     {% for event in events %}
                     <div class="event-card">
                         <div class="event-image">
-                            <img src="{{CDN_DOMAIN}}/{{ event.image_uuid }}/" alt="{{ event.title }}" width="400"
-                                height="320">
+                            <img src="{{CDN_DOMAIN}}/{{ event.image_uuid }}/" alt="{{ event.title }}">
                             {% if event.badge %}
                             <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
                             {% endif %}

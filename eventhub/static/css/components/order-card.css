@@ -1,10 +1,14 @@
-.order-item:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--card-shadow);
+.order-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: var(--transition);
 }
 
-.order-item.past {
-    opacity: 0.8;
+.order-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--card-shadow);
 }
 
 .order-header {
@@ -14,7 +18,7 @@
     align-items: center;
 }
 
-.order-event-date-badge {
+.order-event-date {
     background-color: var(--bg-tertiary);
     border: 2px solid var(--primary-color);
     border-radius: 12px;
@@ -23,26 +27,18 @@
     min-width: 80px;
 }
 
-.order-event-date-badge.past {
-    border-color: var(--text-secondary);
-}
-
-.badge-month {
+.order-date-month {
     display: block;
     font-size: 0.875rem;
     text-transform: uppercase;
     color: var(--text-secondary);
 }
 
-.badge-day {
+.order-date-day {
     display: block;
     font-size: 2rem;
     font-weight: 700;
     color: var(--primary-color);
-}
-
-.order-event-date-badge.past .badge-day {
-    color: var(--text-secondary);
 }
 
 .order-event-info {
@@ -66,16 +62,8 @@
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
-}
-
-.order-status.upcoming {
     background-color: rgba(108, 99, 255, 0.2);
     color: var(--primary-color);
-}
-
-.order-status.past {
-    background-color: var(--bg-tertiary);
-    color: var(--text-secondary);
 }
 
 .order-details {
@@ -112,4 +100,59 @@
 
 .amount-value.free {
     color: var(--success-color);
+}
+
+.order-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.order-card.past {
+    opacity: 0.8;
+}
+
+.order-card.past .order-event-date {
+    border-color: var(--text-secondary);
+}
+
+.order-card.past .order-event-date .order-date-day {
+    color: var(--text-secondary);
+}
+
+.order-card.past .order-status {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+@media (max-width: 615px) {
+    .order-status {
+        display: none;
+    }
+
+    .order-details {
+        flex-direction: column;
+    }
+
+    .order-amount {
+        text-align: left;
+    }
+
+    .amount-label {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+}
+
+@media (max-width: 465px) {
+    .order-event-date {
+        display: none;
+    }
+}
+
+@media (max-width: 350px) {
+    .order-actions {
+        flex-direction: column;
+        width: 100%;
+    }
 }

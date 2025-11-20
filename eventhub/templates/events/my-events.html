@@ -10,49 +10,73 @@
 {% block content %}
 
 <section id="my-events" class="my-events-section">
-    <div class="container">
+    <div class="container-small">
         <div class="section-header-large">
             <h1>My Events</h1>
-            <a href="{% url 'events:create_event' %}" id="addEventBtn">
-                <button class="btn-primary"><i class="fas fa-plus"></i> Create Event</button>
+            <a href="{% url 'events:create_event' %}" class="addEventBtn" id="addEventBtn">
+                <button class="btn-primary"><i class="fas fa-plus"></i><span> Create Event</span></button>
             </a>
         </div>
 
+        {% if not events %}
+        <p class="empty-state">You have not created any events yet.</p>
+        {% endif %}
+
+        {% if events|length > 0 %}
         <div class="history-filters">
             <div class="filter-tabs">
                 <button class="filter-tab active" data-filter="all">All Events</button>
-                <button class="filter-tab" data-filter="upcoming">Upcoming Events</button>
-                <button class="filter-tab" data-filter="past">Past Events</button>
+                <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+                <button class="filter-tab" data-filter="past">Past</button>
             </div>
             <div class="search-history">
-                <input type="text" placeholder="Search events...">
+                <input type="text" placeholder="Search your events...">
                 <i class="fas fa-search"></i>
             </div>
         </div>
 
         <div class="events-list">
             {% for event in events %}
-            <div class="event-list-item">
-                <div class="event-list-image">
-                    <img src="{{ event.images.first.url }}" alt="{{event.name}} event thumbnail" width="200"
-                        height="160">
+            <div class="event-card {% if event.is_past %} past {% endif %}">
+                <div class="event-image">
+                    <img src="{{ event.images.first.url }}" alt="{{event.name}} event thumbnail">
+                    {% if event.badge and not event.is_past %}
+                    <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
+                    {% endif %}
                 </div>
-                <div class="event-list-content">
-                    <h3>{{event.name}}</h3>
-                    <div class="event-meta">
-                        <span>
-                            <i class="fas fa-calendar"></i> {{ event.date|date:"F j, Y \a\\t g:i A" }}
-                        </span>
-                        <span><i class="fas fa-map-marker-alt"></i> {{event.location}}</span>
-                        <div class="event-stats">
-                            <span><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} / {{event.total_seats}} sold</span>
-                            &#183;
-                            <span><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue</span>
+
+                <div class="event-content">
+                    <div class="event-description">
+                        <div class="event-date">
+                            <span class="date-day">{{ event.date|date:"d" }}</span>
+                            <span class="date-month">{{ event.date|date:"M" }}</span>
+                        </div>
+
+                        <div class="event-info">
+                            <h3>{{ event.name }}</h3>
+                            <p><i class="fas fa-calendar"></i> {{ event.date|date:"F j, Y \a\\t g:i A" }} </p>
+                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }} </p>
+                            <div class="event-stats">
+                                <p><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} / {{event.total_seats}}
+                                    sold
+                                </p>
+                                <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i> {{event.revenue}}
+                                    revenue</p>
+                            </div>
+
                         </div>
                     </div>
-                </div>
-                <div class="event-list-actions">
-                    <button class="btn-secondary btn-small"><i class="fas fa-edit"></i> Edit</button>
+
+                    <div class="event-footer">
+                        <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue</p>
+
+                        <a href="#">
+                            <button class="btn-secondary btn-small">
+                                {% if event.is_past %} Past&nbsp;Event {% else %}
+                                <i class="fas fa-edit"></i> Edit {% endif %}
+                            </button>
+                        </a>
+                    </div>
                 </div>
             </div>
             {% endfor %}
@@ -69,6 +93,7 @@
             </div>
             <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
         </div>
+        {% endif %}
     </div>
 </section>
 

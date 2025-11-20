@@ -63,3 +63,48 @@
     align-items: center;
     color: var(--text-secondary);
 }
+
+@media (max-width: 575px) {
+    .pagination {
+        gap: 0.5rem;
+    }
+
+    .pagination-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .pagination-page {
+        width: 35px;
+        height: 35px;
+    }
+
+    .pagination-pages {
+        justify-content: center;
+    }
+
+    .pagination-pages .pagination-page:nth-of-type(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 425px) {
+    .pagination-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .pagination-pages .pagination-page:nth-of-type(2) {
+        display: none;
+    }
+}
+
+@media (max-width: 375px) {
+    .pagination-pages .pagination-page:nth-of-type(4) {
+        display: none;
+    }
+    
+    .pagination-pages .pagination-ellipsis {
+        display: none;
+    }
+}

@@ -7,6 +7,8 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
 }
 
 .events-list {
@@ -15,62 +17,109 @@
     gap: 1.5rem;
 }
 
-.event-list-item {
-    display: flex;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    transition: var(--transition);
+@media (min-width: 700px) {
+
+    .my-events-section .event-card {
+        display: flex;
+        flex-direction: row;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        transition: var(--transition);
+    }
+
+    .my-events-section .event-card:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--card-shadow);
+    }
+
+    .my-events-section .event-card .event-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border-radius: 12px;
+        height: auto;
+    }
+
+    .my-events-section .event-card .event-image img {
+        width: 200px;
+        height: auto;
+        max-height: 150px;
+        object-fit: cover;
+        border-radius: 12px;
+    }
+
+    .my-events-section .event-card .event-badge {
+        display: none;
+    }
+
+    .my-events-section .event-card .event-content {
+        flex-direction: row;
+        flex: 1;
+    }
+
+    .my-events-section .event-card .event-content h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .my-events-section .event-card .event-date {
+        display: none;
+    }
+
+    .my-events-section .event-card .event-stats {
+        display: flex;
+        flex-direction: row;
+        column-gap: 2rem;
+        margin-top: 1rem;
+    }
+
+    .my-events-section .event-card .event-revenue-desktop {
+        display: block;
+    }
+
+    .my-events-section .event-card .event-revenue-mobile {
+        display: none;
+    }
+
+    .my-events-section .event-card .event-footer {
+        border: none;
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap-reverse;
+        gap: 0.75rem;
+        align-items: end;
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    .my-events-section .event-card .event-footer i {
+        padding: 0;
+    }
+
+    .event-card.past .event-footer button {
+        background: var(--bg-tertiary);
+        color: var(--text-secondary);
+    }
+
+    .event-card.past .event-footer button:hover {
+        border-color: var(--bg-tertiary);
+    }
+
 }
 
-.event-list-item:hover {
-    border-color: var(--primary-color);
-    box-shadow: var(--card-shadow);
-}
+@media (max-width: 475px) {
 
-.event-list-image {
-    border-radius: 12px;
-    overflow: hidden;
-    flex-shrink: 0;
-}
+    .my-events-section .event-location,
+    .addEventBtn span {
+        display: none;
+    }
 
-.event-list-image img {
-    width: 200px;
-    height: 150px;
-    object-fit: cover;
-}
+    .addEventBtn button {
+        padding: 20px;
+    }
 
-.event-list-content {
-    flex: 1;
-}
-
-.event-list-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.event-meta {
-    color: var(--text-secondary);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.event-stats {
-    display: flex;
-    gap: 2rem;
-    margin-top: 1rem;
-}
-
-.event-stats span {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-}
-
-.event-list-actions {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
 }

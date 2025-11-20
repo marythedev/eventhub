@@ -53,3 +53,28 @@
     transform: translateY(-50%);
     color: var(--text-secondary);
 }
+
+@media (max-width: 768px) {
+
+    .history-filters {
+        flex-wrap: wrap-reverse;
+        align-items: stretch;
+    }
+
+    .search-history {
+        width: 100%;
+    }
+
+}
+
+@media (max-width: 450px) {
+
+    .filter-tabs {
+        gap: 0.5rem;
+    }
+
+    .filter-tab {
+        padding: 0.5rem 1rem;
+    }
+    
+}

@@ -43,6 +43,8 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+
+/* buttons */
 button {
     width: fit-content;
 }
@@ -123,6 +125,18 @@ button {
     background-color: var(--bg-tertiary);
 }
 
+
+/* links */
+a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--primary-color);
+}
+
 .link-text {
     color: var(--primary-color);
     text-decoration: none;
@@ -135,6 +149,30 @@ button {
     text-decoration: underline;
 }
 
+.breadcrumb {
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    word-break: break-all;
+}
+
+.breadcrumb a,
+.billing-address a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb a:hover,
+.billing-address a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+
+/* containers */
 main {
     margin-top: 80px;
 }
@@ -168,36 +206,27 @@ section {
     margin-bottom: 3rem;
 }
 
-a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: var(--transition);
+.events-grid-large {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
-a:hover {
-    color: var(--primary-color);
-}
-
-.breadcrumb {
-    margin-bottom: 2rem;
-    color: var(--text-secondary);
+.not-found-section {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    word-break: break-all;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+    min-height: 75vh;
 }
 
-.breadcrumb a,
-.billing-address a {
-    color: var(--primary-color);
-    text-decoration: none;
-}
 
-.breadcrumb a:hover,
-.billing-address a:hover {
-    text-decoration: underline;
-    text-underline-offset: 3px;
+/* multi-page reused classes */
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem 0;
 }
 
 .price {
@@ -220,15 +249,8 @@ a:hover {
     border-top: 2px solid var(--border-color);
 }
 
-.not-found-section {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    gap: 1rem;
-    min-height: 75vh;
-}
 
+/* responsiveness adjustments */
 @media (max-width: 480px) {
 
     .container,

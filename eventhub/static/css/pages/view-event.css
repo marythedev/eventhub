@@ -273,12 +273,6 @@ p.ticket-price {
     word-break: break-all;
 }
 
-.empty-state {
-    text-align: center;
-    color: var(--text-secondary);
-    padding: 2rem 0;
-}
-
 .order-pricing {
     border-top: 1px solid var(--border-color);
     padding-top: 1rem;

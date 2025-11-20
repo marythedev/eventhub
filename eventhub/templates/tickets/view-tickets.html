@@ -10,7 +10,7 @@
 {% block content %}
 
 <section id="view-tickets" class="view-tickets-section">
-    <div class="container">
+    <div class="container-small">
         <div class="section-header-large">
             <div>
                 <h1>Order Tickets</h1>
@@ -22,8 +22,7 @@
             {% for ticket in order.tickets.all %}
             <div class="ticket-list-item">
                 <div class="ticket-barcode">
-                    <img src="{% url 'api:ticket_barcode' ticket.id %}" alt="Ticket {{ticket.number}} barcode"
-                        width="200" height="160">
+                    <img src="{% url 'api:ticket_barcode' ticket.id %}" alt="Ticket {{ticket.number}} barcode">
                 </div>
                 <div class="ticket-list-content">
                     <h3>{{order.event.name}}</h3>

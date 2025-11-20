@@ -96,8 +96,7 @@
     color: var(--text-primary);
 }
 
-.event-location,
-.event-category {
+.event-info p {
     font-size: 0.875rem;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
@@ -106,8 +105,7 @@
     gap: 0.5rem;
 }
 
-.event-location i,
-.event-category i {
+.event-card i {
     padding-top: 4px;
 }
 
@@ -129,4 +127,21 @@
 
 .event-price.free {
     color: var(--success-color);
+}
+
+.event-card.past {
+    opacity: 0.8;
+}
+
+.event-card.past .event-date {
+    border-color: var(--text-secondary);
+}
+
+.event-card.past .event-date .date-day {
+    color: var(--text-secondary);
+}
+
+.event-card.past .event-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
 }

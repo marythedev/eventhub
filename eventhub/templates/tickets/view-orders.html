@@ -10,17 +10,28 @@
 {% block content %}
 
 <section id="view-orders" class="view-orders-section">
-    <div class="container">
+    <div class="container-small">
         <div class="section-header-large">
-            <h1>My Orders</h1>
-            <p>View your ticket purchases</p>
+            <div>
+                <h1>My Orders</h1>
+                <p>View your ticket purchases</p>
+            </div>
+
+            <a href="{% url 'events:view_events' %}" class="exploreEventsBtn">
+                <button class="btn-secondary"><i class="fas fa-compass"></i> Explore Events</button>
+            </a>
         </div>
 
+        {% if not orders %}
+        <p class="empty-state">You have not made any orders yet.</p>
+        {% endif %}
+
+        {% if orders|length > 0 %}
         <div class="history-filters">
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Orders</button>
-                <button class="filter-tab" data-filter="upcoming">Upcoming Events</button>
-                <button class="filter-tab" data-filter="past">Past Events</button>
+                <button class="filter-tab active" data-filter="all">All Events</button>
+                <button class="filter-tab" data-filter="upcoming">Upcoming</button>
+                <button class="filter-tab" data-filter="past">Past</button>
             </div>
             <div class="search-history">
                 <input type="text" placeholder="Search events...">
@@ -32,12 +43,13 @@
 
             {% for order in orders %}
 
-            <div class="order-item {% if order.event.is_past %} past {% endif %}">
+            <div class="order-card {% if order.event.is_past %} past {% endif %}">
                 <div class="order-header">
-                    <div class="order-event-date-badge {% if order.event.is_past %} past {% endif %}">
-                        <span class="badge-month">{{order.event.date|date:"M"}}</span>
-                        <span class="badge-day">{{order.event.date|date:"d"}}</span>
+                    <div class="order-event-date">
+                        <span class="order-date-month">{{order.event.date|date:"M"}}</span>
+                        <span class="order-date-day">{{order.event.date|date:"d"}}</span>
                     </div>
+
                     <div class="order-event-info">
                         <h3>{{order.event.name}}</h3>
                         <p class="order-meta">
@@ -47,7 +59,7 @@
                             <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
                         </p>
                     </div>
-                    <div class="order-status upcoming {% if order.event.is_past %} past {% endif %}">
+                    <div class="order-status">
                         {% if order.event.is_past %} Past Event {% else %}
                         In {{order.event.days_until}} day{{ order.event.days_until|pluralize }} {% endif %}
                     </div>
@@ -68,11 +80,11 @@
                 </div>
                 <div class="order-actions">
                     <a href="{% url 'tickets:order_tickets' order.id %}" id="addEventBtn">
-                        <button class="btn-primary btn-small">View Tickets</button>
+                        <button class="btn-primary btn-small btn-full">View Tickets</button>
                     </a>
                     {% if order.total > 0 %}
                     <a href="{% url 'api:order_receipt' order.id %}" target="_blank">
-                        <button class="btn-secondary btn-small"><i class="fas fa-receipt"></i> Receipt</button>
+                        <button class="btn-secondary btn-small btn-full"><i class="fas fa-receipt"></i> Receipt</button>
                     </a>
                     {% endif %}
                 </div>
@@ -93,6 +105,7 @@
             </div>
             <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
         </div>
+        {% endif %}
     </div>
 </section>
 

@@ -5,7 +5,7 @@ from barcode.writer import ImageWriter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -18,6 +18,9 @@ from tickets.models import Ticket
 def ticket_barcode(request, ticket_id):
     """Generate barcode for ticket."""
     ticket = get_object_or_404(Ticket, id=ticket_id)
+    
+    if (ticket.order.acquirer != request.user):
+        raise Http404("Ticket not found")
 
     buffer = io.BytesIO()
     barcode = Code128(ticket.number, writer=ImageWriter())

@@ -21,6 +21,6 @@ def order_tickets(request, order_id):
     The page where user can view tickets for specific order.
     """
     
-    order = get_object_or_404(Order, id=order_id)
+    order = get_object_or_404(Order, id=order_id, acquirer=request.user)
         
     return render(request, 'tickets/view-tickets.html', { 'order': order })

@@ -75,6 +75,14 @@ def _save_tickets(purchased_tickets, order):
 
 
 # views
+# TODO: dynamic event rendering + filtering
+def view_events(request):
+    file_path = os.path.join(settings.APP_ROOT,'apps', 'events', 'data', 'dummy_data.json')
+    with open(file_path, "r") as f:
+        dummy_data = json.load(f)
+    return render(request, 'events/view-events.html', {'events': dummy_data, 'CDN_DOMAIN': CDN_DOMAIN})
+
+
 @login_required
 def create_event(request):
     """
@@ -86,7 +94,7 @@ def create_event(request):
     POST:
         Validate submitted form.
         - On errors:
-            - Return create event form form with errors
+            - Return create event form form with errors.
         - On success:
             - Create event object (Event) with the validated provided details.
             - Create price zone objects (EventPriceZone) associated with the event.
@@ -187,12 +195,64 @@ def view_event(request, event_id):
         'form': form
     })
 
-# TODO: dynamic event rendering + filtering
-def view_events(request):
-    file_path = os.path.join(settings.APP_ROOT,'apps', 'events', 'data', 'dummy_data.json')
-    with open(file_path, "r") as f:
-        dummy_data = json.load(f)
-    return render(request, 'events/view-events.html', {'events': dummy_data, 'CDN_DOMAIN': CDN_DOMAIN})
+@login_required
+def edit_event(request, event_id):
+    """
+    Handle event update.
+
+    GET:
+        - Serve edit event form page.
+
+    POST:
+        Validate submitted form.
+        - On errors:
+            - Return edit event form form with errors.
+        - On success:
+            - Update event details (Event) with the updated and validated details.
+            - Redirect to event page.
+    """
+    
+    # users can modify details about their upcoming events
+    event = get_object_or_404(Event, id=event_id, organizer=request.user, date__gte=timezone.now())
+
+    if request.method == "POST":
+        event_form = EventInfoValidator(request.POST)
+        
+        if ( event_form.is_valid()):
+            
+            # concatenate date and time
+            event_datetime = timezone.make_aware(
+                datetime.combine(
+                    event_form.cleaned_data['date'], 
+                    event_form.cleaned_data['time']
+                ),
+                timezone.get_current_timezone()
+            )
+            
+            # update event 
+            event.name=event_form.cleaned_data['name']
+            event.date=event_datetime
+            event.location=event_form.cleaned_data['location']
+            event.category=event_form.cleaned_data['category']
+            event.description=event_form.cleaned_data['description']
+            
+            event.save()
+                        
+            return redirect('events:view_event', event_id=event.id)
+    else:
+        event_form = EventInfoValidator(initial={
+            'name': event.name,
+            'date': event.date.date(),
+            'time': event.date.time(),
+            'location': event.location,
+            'category': event.category,
+            'description': event.description,
+        })
+    
+    return render(request, 'events/edit-event.html', {
+            'event': event, 
+            'event_form': event_form
+        })
 
 @login_required
 def checkout(request, event_id):
@@ -276,11 +336,7 @@ def checkout_success(request, event_id, order_id):
     """
     
     event = get_object_or_404(Event, id=event_id)
-    order = get_object_or_404(Order, id=order_id)
-    
-    # users cannot see orders that are not their own
-    if order.acquirer != request.user:
-        return redirect("events:view_event", event_id=event.id)
+    order = get_object_or_404(Order, id=order_id, acquirer=request.user)
     
     if order.status != 'succeeded':
         return redirect('events:checkout_fail', event_id=event.id, order_id=order.id)

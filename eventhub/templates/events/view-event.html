@@ -37,7 +37,7 @@
                         <h1>{{ event.name }}</h1>
                         <div class="v-event-meta">
                             <p><i class="fas fa-calendar-alt"></i>
-                                {{ event.date|date:"l" }}, {{event.date|date:"F j, Y"}} at {{event.time|date:"g:i A"}}
+                                {{ event.date|date:"l" }}, {{event.date|date:"F j, Y"}} at {{event.date|date:"g:i A"}}
                             </p>
                             <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
                             <p><i class="fas fa-tags"></i> {{event.category|capfirst}}</p>

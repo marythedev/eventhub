@@ -44,7 +44,7 @@
     font-weight: 600;
 }
 
-.event-badge.sale {
+.event-badge.hot {
     background: var(--error-color);     /* #FF5252 */
 }
 

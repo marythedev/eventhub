@@ -180,7 +180,7 @@ class PriceZoneValidator(forms.Form):
         required=True,
         min_value=0,
         decimal_places=2,
-        max_digits=8,
+        max_digits=5,
         widget=forms.NumberInput(attrs={
             "required": True,
             "placeholder": "0.00",
@@ -190,7 +190,7 @@ class PriceZoneValidator(forms.Form):
             "inputmode": "numeric"
         }),
         error_messages={
-            'max_digits': 'Price exceeds the allowed system limit.',
+            'max_digits': 'Price system limit exceeded. Contact support.',
             'required': 'Price is required.', 
             'min_value': 'Price cannot be negative.'
         }

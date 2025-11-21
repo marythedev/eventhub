@@ -135,42 +135,48 @@
 
                 <div class="events-grid-large" id="eventsGrid">
                     {% for event in events %}
-                    <div class="event-card">
-                        <div class="event-image">
-                            <img src="{{CDN_DOMAIN}}/{{ event.image_uuid }}/" alt="{{ event.title }}">
-                            {% if event.badge %}
-                            <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
-                            {% endif %}
-                        </div>
-
-                        <div class="event-content">
-                            <div class="event-description">
-                                <div class="event-date">
-                                    <span class="date-day">{{ event.day }}</span>
-                                    <span class="date-month">{{ event.month }}</span>
-                                </div>
-
-                                <div class="event-info">
-                                    <h3>{{ event.title }}</h3>
-                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
-                                    </p>
-                                    <p class="event-category"><i class="fas fa-tags"></i> {{ event.category }}</p>
-                                </div>
+                    <a href="{% url 'events:view_event' event.id %}">
+                        <div class="event-card">
+                            <div class="event-image">
+                                <img src="{{ event.images.first.url }}" alt="{{ event.title }}">
+                                {% if event.badge %}
+                                <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
+                                {% endif %}
                             </div>
 
-                            <div class="event-footer">
-                                <span class="event-price {% if event.badge == 'Free' %}free{% endif %}">
-                                    {% if not event.price == 'Free' %} From ${% endif %}{{ event.price }}
-                                </span>
+                            <div class="event-content">
+                                <div class="event-description">
+                                    <div class="event-date">
+                                        <span class="date-day">{{ event.date|date:'d' }}</span>
+                                        <span class="date-month">{{ event.date|date:'M' }}</span>
+                                    </div>
 
-                                <a href="#">
+                                    <div class="event-info">
+                                        <h3>{{ event.title }}</h3>
+                                        <p class="event-location"><i class="fas fa-map-marker-alt"></i>
+                                            {{ event.location|truncatechars:50 }}
+                                        </p>
+                                        <p class="event-category"><i class="fas fa-tags"></i>
+                                            {{ event.category|capfirst }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="event-footer">
+                                    <span class="event-price {% if event.badge == 'Free' %}free{% endif %}">
+                                        {% if not event.badge == 'Free' %}
+                                        From ${{ event.lowest_price|floatformat:2 }}
+                                        {% else %} Free {% endif %}
+                                    </span>
+
+
                                     <button class="btn-primary btn-small">
                                         {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}
                                     </button>
-                                </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                     {% endfor %}
                 </div>
             </div>

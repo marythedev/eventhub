@@ -1,5 +1,3 @@
-import os
-import json
 import stripe
 from decimal import Decimal, ROUND_HALF_UP
 from django.conf import settings
@@ -9,7 +7,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-from django.db.models import Count
+from django.db.models import Count, Min, Sum, F, ExpressionWrapper, FloatField, Case, When, Value
 
 from .models import *
 from tickets.models import *
@@ -77,10 +75,34 @@ def _save_tickets(purchased_tickets, order):
 # views
 # TODO: dynamic event rendering + filtering
 def view_events(request):
-    file_path = os.path.join(settings.APP_ROOT,'apps', 'events', 'data', 'dummy_data.json')
-    with open(file_path, "r") as f:
-        dummy_data = json.load(f)
-    return render(request, 'events/view-events.html', {'events': dummy_data, 'CDN_DOMAIN': CDN_DOMAIN})
+    """Display upcoming events."""
+    upcoming_events = Event.objects.filter(date__gte=timezone.now()).annotate(
+        lowest_price=ExpressionWrapper(
+            Min('price_zones__price'),
+            output_field=FloatField()
+        ),
+        
+        event_seats=Sum('price_zones__seats'),
+        event_seats_sold=Sum('price_zones__seats_sold')
+    ).annotate(
+        
+        percent_sold=ExpressionWrapper(
+            F('event_seats_sold') * 1.0 / F('event_seats'),
+            output_field=FloatField()
+        ),
+        
+        # "Free" badge if there's any zone that has price of 0
+        # "Hot" badge if event has >70% of seats sold
+        badge=Case(
+            When(price_zones__price=0, then=Value('Free')),
+            When(percent_sold__gt=0.8, then=Value('Hot')),
+            default=Value(''),
+        )
+    ).distinct()
+    
+    # TODO check that events are not fully sold out
+
+    return render(request, 'events/view-events.html', {'events': upcoming_events})
 
 
 @login_required

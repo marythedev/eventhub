@@ -5,6 +5,10 @@
     justify-content: center;
 }
 
+.purchase-section .container-small {
+    max-width: 500px;
+}
+
 .purchase-result {
     text-align: center;
 }

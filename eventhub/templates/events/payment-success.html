@@ -57,7 +57,7 @@
             </div>
 
             <div class="next-actions">
-                <a href="#">
+                <a href="{% url 'tickets:order_tickets' order.id %}">
                     <button class="btn-primary btn-full">View Tickets</button>
                 </a>
                 <a href="{% url 'events:view_events' %}">

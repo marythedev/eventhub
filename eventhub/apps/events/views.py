@@ -16,7 +16,6 @@ from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, Or
 from users.utils import cloud_upload_img
 
 # environmental variables
-CDN_DOMAIN = settings.CDN_DOMAIN
 SERVICE_FEE = settings.SERVICE_FEE
 TAX = settings.TAX
 STRIPE_PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
@@ -73,7 +72,7 @@ def _save_tickets(purchased_tickets, order):
 
 
 # views
-# TODO: dynamic event rendering + filtering
+# TODO: filtering
 def view_events(request):
     """Display upcoming events."""
     upcoming_events = Event.objects.filter(date__gte=timezone.now()).annotate(
@@ -91,16 +90,13 @@ def view_events(request):
             output_field=FloatField()
         ),
         
-        # "Free" badge if there's any zone that has price of 0
-        # "Hot" badge if event has >70% of seats sold
+        # "Hot" if event has >70% of seats sold
         badge=Case(
-            When(price_zones__price=0, then=Value('Free')),
             When(percent_sold__gt=0.8, then=Value('Hot')),
             default=Value(''),
         )
-    ).distinct()
+    ).filter(event_seats_sold__lt=F('event_seats')).distinct()  # exclude sold out events
     
-    # TODO check that events are not fully sold out
 
     return render(request, 'events/view-events.html', {'events': upcoming_events})
 

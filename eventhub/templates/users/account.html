@@ -21,6 +21,12 @@
                     <a href="#security" class="account-nav-link">
                         <i class="fas fa-lock"></i> Security
                     </a>
+                    <a href="#my-events" class="account-nav-link">
+                        <i class="fas fa-calendar-check"></i> My Events
+                    </a>
+                    <a href="#my-orders" class="account-nav-link">
+                        <i class="fas fa-receipt"></i> Orders & Tickets
+                    </a>
                 </nav>
             </aside>
 
@@ -107,7 +113,7 @@
                     <div class="section-header-account">
                         <h2>Security Settings</h2>
                         <p>Manage your password and security preferences</p>
-                        
+
                         {% if success_password_update %}
                         <small class="form-success">{{ success_password_update }}</small>
                         {% endif %}
@@ -139,6 +145,142 @@
                         </div>
                         <button type="submit" class="btn-primary">Update Password</button>
                     </form>
+                </div>
+
+                <div class="account-section-divider"></div>
+
+                <div class="account-section-content" id="my-events">
+                    <div class="section-header-account row">
+                        <h2>My Events</h2>
+                        <a href="{% url 'events:my_events' %}">
+                            <button class="btn-primary">View All Events</button>
+                        </a>
+                    </div>
+                    <div class="events-list">
+                        {% for event in events %}
+                        <a href="{% url 'events:view_event' event.id %}">
+                            <div class="event-card {% if event.is_past %} past {% endif %}">
+                                <div class="event-image">
+                                    <img src="{{ event.images.first.url }}" alt="{{event.name}} event thumbnail">
+                                </div>
+
+                                <div class="event-content">
+                                    <div class="event-description">
+                                        <div class="event-date">
+                                            <span class="date-day">{{ event.date|date:"d" }}</span>
+                                            <span class="date-month">{{ event.date|date:"M" }}</span>
+                                        </div>
+
+                                        <div class="event-info">
+                                            <h3>{{ event.name }}</h3>
+                                            <p><i class="fas fa-calendar"></i>
+                                                {{ event.date|date:"F j, Y" }} </p>
+                                            <div class="event-stats">
+                                                <p><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} /
+                                                    {{event.total_seats}}
+                                                    sold
+                                                </p>
+                                                <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
+                                                    {{event.revenue}} revenue</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="event-footer">
+                                        <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i>
+                                            {{event.revenue}} revenue
+                                        </p>
+
+                                        <script>
+                                            function redirectToEdit(e) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                const editUrl = "{% url 'events:edit_event' event.id %}";
+                                                window.location.href = editUrl
+                                            }
+                                        </script>
+
+                                        {% if event.is_past %}
+                                        <button class="btn-secondary btn-small">Past&nbsp;Event</button>
+                                        {% else %}
+                                        <button class="btn-secondary btn-small" onclick="redirectToEdit(event)">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                        {% if events_more > 0 %}
+                        <a href="{% url 'events:my_events' %}"">
+                            <p class=" remaining-count">+{{events_more}} more event{{events_more|pluralize}}</p>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="account-section-divider"></div>
+
+                <div class="account-section-content" id="my-orders">
+                    <div class="section-header-account row">
+                        <h2>My Orders</h2>
+                        <a href="{% url 'tickets:view_orders' %}">
+                            <button class="btn-primary">View All Orders</button>
+                        </a>
+                    </div>
+                    <div class="orders-list">
+                        {% for order in orders %}
+                        <div class="order-card {% if order.event.is_past %} past {% endif %}">
+                            <div class="order-header">
+                                <div class="order-event-date">
+                                    <span class="order-date-month">{{order.event.date|date:"M"}}</span>
+                                    <span class="order-date-day">{{order.event.date|date:"d"}}</span>
+                                </div>
+
+                                <div class="order-event-info">
+                                    <h3>{{order.event.name}}</h3>
+                                    <p class="order-meta">
+                                        <span>
+                                            <i class="fas fa-calendar"></i>
+                                            {{ order.event.date|date:"F j, Y" }}
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="order-details">
+                                <div class="order-info">
+                                    <p><strong>Order #:</strong> {{order.number}}</p>
+                                    <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y" }}</p>
+                                </div>
+                                <div class="order-amount">
+                                    <span class="amount-label">Total Paid</span>
+                                    {% if order.total > 0 %}
+                                    <span class="amount-value">${{order.total}}</span>
+                                    {% else %}
+                                    <span class="amount-value free">Free</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="order-actions">
+                                <a href="{% url 'tickets:order_tickets' order.id %}" id="addEventBtn">
+                                    <button class="btn-primary btn-small btn-full">View Tickets</button>
+                                </a>
+                                {% if order.total > 0 %}
+                                <a href="{% url 'api:order_receipt' order.id %}" target="_blank">
+                                    <button class="btn-secondary btn-small btn-full"><i class="fas fa-receipt"></i>
+                                        Receipt</button>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if orders_more > 0 %}
+                        <a href="{% url 'tickets:view_orders' %}"">
+                            <p class=" remaining-count">+{{orders_more}} more order{{orders_more|pluralize}}</p>
+                        </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

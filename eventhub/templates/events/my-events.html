@@ -41,9 +41,6 @@
                 <div class="event-card {% if event.is_past %} past {% endif %}">
                     <div class="event-image">
                         <img src="{{ event.images.first.url }}" alt="{{event.name}} event thumbnail">
-                        {% if event.badge and not event.is_past %}
-                        <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
-                        {% endif %}
                     </div>
 
                     <div class="event-content">
@@ -64,8 +61,7 @@
                                         sold
                                     </p>
                                     <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
-                                        {{event.revenue}}
-                                        revenue</p>
+                                        {{event.revenue}} revenue</p>
                                 </div>
 
                             </div>

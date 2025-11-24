@@ -95,7 +95,7 @@
                             height="80">
                         <div>
                             <h4>{{event.name}}</h4>
-                            <p>{{event.date|date:"F j, Y"}}</p>
+                            <p class="regular-date" data-utc="{{ event.date|date:'c' }}"></p>
                         </div>
                     </div>
                     <div class="tickets-summary">

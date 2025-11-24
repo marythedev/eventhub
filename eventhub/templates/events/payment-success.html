@@ -27,8 +27,8 @@
                 <div class="event-content">
                     <div class="event-description">
                         <div class="event-date">
-                            <span class="date-day">{{event.date|date:"j"}}</span>
-                            <span class="date-month">{{event.date|date:"M"}}</span>
+                            <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                            <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
                         </div>
 
                         <div class="event-info">
@@ -44,8 +44,9 @@
             <div class="confirmation-box">
                 <h3>Order Confirmation</h3>
 
-                <p style="display: flex; flex-wrap: wrap;"><strong>Order Number:</strong>&nbsp;<span>{{order.number}}</span></p>
-                <p><strong>Date:</strong> {{ order.date|date:"F j, Y \a\\t g:i A" }}</p>
+                <p style="display: flex; flex-wrap: wrap;"><strong>Order
+                        Number:</strong>&nbsp;<span>{{order.number}}</span></p>
+                <p><strong>Date:</strong> <span class="full-date" data-utc="{{ order.date|date:'c' }}"></span></p>
                 <p><strong>Total Paid:</strong> ${{order.total}} USD</p>
 
                 <br>

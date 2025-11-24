@@ -1,8 +1,10 @@
 import stripe
 from decimal import Decimal, ROUND_HALF_UP
 from django.conf import settings
+
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone
+from zoneinfo import ZoneInfo
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -129,18 +131,20 @@ def create_event(request):
         if ( event_form.is_valid() and image_form.is_valid() and price_zone_forms.is_valid() ):
             
             # concatenate date and time
-            event_datetime = timezone.make_aware(
+            user_tz = ZoneInfo(event_form.cleaned_data['timezone'])
+            event_user_local_datetime = timezone.make_aware(
                 datetime.combine(
                     event_form.cleaned_data['date'], 
                     event_form.cleaned_data['time']
                 ),
-                timezone.get_current_timezone()
+                user_tz
             )
+            event_utc_datetime = event_user_local_datetime.astimezone(dt_timezone.utc)
             
             # create event object
             event = Event.objects.create(
                 name=event_form.cleaned_data['name'],
-                date=event_datetime,
+                date=event_utc_datetime,
                 location=event_form.cleaned_data['location'],
                 category=event_form.cleaned_data['category'],
                 description=event_form.cleaned_data['description'],
@@ -239,17 +243,19 @@ def edit_event(request, event_id):
         if ( event_form.is_valid()):
             
             # concatenate date and time
-            event_datetime = timezone.make_aware(
+            user_tz = ZoneInfo(event_form.cleaned_data['timezone'])
+            event_user_local_datetime = timezone.make_aware(
                 datetime.combine(
                     event_form.cleaned_data['date'], 
                     event_form.cleaned_data['time']
                 ),
-                timezone.get_current_timezone()
+                user_tz
             )
+            event_utc_datetime = event_user_local_datetime.astimezone(dt_timezone.utc)
             
             # update event 
             event.name=event_form.cleaned_data['name']
-            event.date=event_datetime
+            event.date=event_utc_datetime
             event.location=event_form.cleaned_data['location']
             event.category=event_form.cleaned_data['category']
             event.description=event_form.cleaned_data['description']

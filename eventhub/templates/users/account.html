@@ -240,14 +240,14 @@
                                 <div class="event-content">
                                     <div class="event-description">
                                         <div class="event-date">
-                                            <span class="date-day">{{ event.date|date:"d" }}</span>
-                                            <span class="date-month">{{ event.date|date:"M" }}</span>
+                                            <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                                            <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
                                         </div>
 
                                         <div class="event-info">
                                             <h3>{{ event.name }}</h3>
-                                            <p><i class="fas fa-calendar"></i>
-                                                {{ event.date|date:"F j, Y" }} </p>
+                                            <p><i class="fas fa-calendar"></i> <span class="regular-date"
+                                                    data-utc="{{ event.date|date:'c' }}"></span></p>
                                             <div class="event-stats">
                                                 <p><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} /
                                                     {{event.total_seats}}
@@ -310,9 +310,9 @@
                         {% for order in orders %}
                         <div class="order-card {% if order.event.is_past %} past {% endif %}">
                             <div class="order-header">
-                                <div class="order-event-date">
-                                    <span class="order-date-month">{{order.event.date|date:"M"}}</span>
-                                    <span class="order-date-day">{{order.event.date|date:"d"}}</span>
+                                <div class="event-date">
+                                    <span class="date-day" data-utc="{{ order.event.date|date:'c' }}"></span>
+                                    <span class="date-month" data-utc="{{ order.event.date|date:'c' }}"></span>
                                 </div>
 
                                 <div class="order-event-info">
@@ -320,7 +320,7 @@
                                     <p class="order-meta">
                                         <span>
                                             <i class="fas fa-calendar"></i>
-                                            {{ order.event.date|date:"F j, Y" }}
+                                            <span class="regular-date" data-utc="{{ order.event.date|date:'c' }}"></span>
                                         </span>
                                     </p>
                                 </div>
@@ -328,7 +328,8 @@
                             <div class="order-details">
                                 <div class="order-info">
                                     <p><strong>Order #:</strong> {{order.number}}</p>
-                                    <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y" }}</p>
+                                    <p><strong>Purchase Date:</strong> <span class="regular-date-short-month"
+                                            data-utc="{{ order.date|date:'c' }}"></span></p>
                                 </div>
                                 <div class="order-amount">
                                     <span class="amount-label">Total Paid</span>

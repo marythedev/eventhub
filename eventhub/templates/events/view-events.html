@@ -147,12 +147,12 @@
                             <div class="event-content">
                                 <div class="event-description">
                                     <div class="event-date">
-                                        <span class="date-day">{{ event.date|date:'d' }}</span>
-                                        <span class="date-month">{{ event.date|date:'M' }}</span>
+                                        <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                                        <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
                                     </div>
 
                                     <div class="event-info">
-                                        <h3>{{ event.title }}</h3>
+                                        <h3>{{ event.name }}</h3>
                                         <p class="event-location"><i class="fas fa-map-marker-alt"></i>
                                             {{ event.location|truncatechars:50 }}
                                         </p>

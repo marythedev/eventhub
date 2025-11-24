@@ -3,6 +3,7 @@ from django import forms
 from django.forms import JSONField, formset_factory
 from django.core.exceptions import ValidationError
 from datetime import date as d, datetime
+from zoneinfo import available_timezones
 
 from .models import Event, EventPriceZone
 from users.utils import validate_location, is_valid_image_format, MAX_FILE_SIZE_MB
@@ -40,6 +41,7 @@ class EventInfoValidator(forms.Form):
         required=True,
         error_messages={'required': 'Event time is required.'}
     )
+    timezone = forms.CharField(required=True)
     location = forms.CharField(
         required=True,
         max_length=255,
@@ -70,6 +72,16 @@ class EventInfoValidator(forms.Form):
         if date and date < d.today():
             raise ValidationError("Event date cannot be in the past.")
         return date
+    
+    # check that timezone sent with the form is valid
+    # protection from frontend dev tools manipulation
+    def clean_timezone(self):
+        timezone  = self.cleaned_data["timezone"]
+
+        if timezone not in available_timezones():
+            self.add_error('timezone', "Something went wrong. Refresh the page and try to submit the form again.")
+
+        return timezone
 
     def clean_location(self):
         location = self.cleaned_data.get('location')

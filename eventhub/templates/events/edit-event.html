@@ -36,16 +36,16 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="eventDate">Event Date</label>
-                        <input type="date" id="eventDate" name="date"
-                            value="{{ event_form.date.value|date:'Y-m-d'|default_if_none:'' }}" required>
+                        <input type="date" id="eventDate" name="date" data-utc="{{ event.date|date:'c' }}"
+                            class="input-date" value="" required>
                         {% if event_form.date.errors %}
                         <small class="form-error">{{ event_form.date.errors.0 }}</small>
                         {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="eventTime">Start Time</label>
-                        <input type="time" id="eventTime" name="time"
-                            value="{{ event_form.time.value|date:'H:i'|default_if_none:'' }}" required>
+                        <input type="time" id="eventTime" name="time" data-utc="{{ event.date|date:'c' }}"
+                            class="input-time" value="" required>
                         {% if event_form.time.errors %}
                         <small class="form-error">{{ event_form.time.errors.0 }}</small>
                         {% endif %}
@@ -87,6 +87,11 @@
                     <small class="form-error">{{ event_form.description.errors.0 }}</small>
                     {% endif %}
                 </div>
+
+                <input type="hidden" class="userTimezone" name="timezone">
+                {% if event_form.timezone.errors %}
+                <small class="form-error">{{ event_form.timezone.errors.0 }}</small>
+                {% endif %}
             </div>
 
             <div class="form-actions">

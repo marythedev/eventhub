@@ -68,14 +68,14 @@ def order_receipt(request, order_id):
     # Header
     elements.append(Paragraph("EVENTHUB RECEIPT", title_style))
     elements.append(Paragraph(f"Order #: <b>{order.number}</b>", normal))
-    elements.append(Paragraph(f"Purchase Date: <b>{order.date.strftime('%Y-%m-%d %H:%M')}</b>", normal))
+    elements.append(Paragraph(f"Purchase Date: <b>{order.date.strftime('%Y-%m-%d %H:%M %Z')}</b>", normal))
     elements.append(Spacer(1, 20))
 
     # Event Info
     elements.append(Paragraph("Event Details", header_style))
     elements.append(Paragraph(f"Event Name: <b>{order.event.name}</b>", normal))
     elements.append(Paragraph(f"Location: {order.event.location}", normal))
-    elements.append(Paragraph(f"Date: {order.event.date.strftime('%B %d, %Y at %I:%M %p')}", normal))
+    elements.append(Paragraph(f"Date: {order.event.date.strftime('%B %d, %Y at %I:%M %p %Z')}", normal))
     elements.append(Spacer(1, 12))
 
     # Tickets Table

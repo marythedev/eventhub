@@ -29,7 +29,8 @@
                     <p class="ticket-meta">
                         <span><i class="fas fa-ticket-alt"></i> {{ticket.price_zone.name}}</span>
                         <span>
-                            <i class="fas fa-calendar"></i> {{ order.event.date|date:"F j, Y \a\\t g:i A" }}
+                            <i class="fas fa-calendar"></i> 
+                            <span class="full-date-no-week-day" data-utc="{{ order.event.date|date:'c' }}"></span>
                         </span>
                         <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
                     </p>

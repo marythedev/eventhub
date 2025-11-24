@@ -88,6 +88,11 @@
                     <small class="form-error">{{ event_form.description.errors.0 }}</small>
                     {% endif %}
                 </div>
+
+                <input type="hidden" class="userTimezone" name="timezone">
+                {% if event_form.timezone.errors %}
+                <small class="form-error">{{ event_form.timezone.errors.0 }}</small>
+                {% endif %}
             </div>
 
             <div class="form-section">

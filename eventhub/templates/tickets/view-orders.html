@@ -45,16 +45,17 @@
 
             <div class="order-card {% if order.event.is_past %} past {% endif %}">
                 <div class="order-header">
-                    <div class="order-event-date">
-                        <span class="order-date-month">{{order.event.date|date:"M"}}</span>
-                        <span class="order-date-day">{{order.event.date|date:"d"}}</span>
+                    <div class="event-date">
+                        <span class="date-day" data-utc="{{ order.event.date|date:'c' }}"></span>
+                        <span class="date-month" data-utc="{{ order.event.date|date:'c' }}"></span>
                     </div>
 
                     <div class="order-event-info">
                         <h3>{{order.event.name}}</h3>
                         <p class="order-meta">
                             <span>
-                                <i class="fas fa-calendar"></i> {{ order.event.date|date:"F j, Y \a\\t g:i A" }}
+                                <i class="fas fa-calendar"></i> 
+                                <span class="full-date-no-week-day" data-utc="{{ order.event.date|date:'c' }}"></span>
                             </span>
                             <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
                         </p>
@@ -67,7 +68,7 @@
                 <div class="order-details">
                     <div class="order-info">
                         <p><strong>Order #:</strong> {{order.number}}</p>
-                        <p><strong>Purchase Date:</strong> {{ order.date|date:"M j, Y" }}</p>
+                        <p><strong>Purchase Date:</strong> <span class="regular-date-short-month" data-utc="{{ order.date|date:'c' }}"></span></p>
                     </div>
                     <div class="order-amount">
                         <span class="amount-label">Total Paid</span>

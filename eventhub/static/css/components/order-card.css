@@ -18,27 +18,8 @@
     align-items: center;
 }
 
-.order-event-date {
-    background-color: var(--bg-tertiary);
-    border: 2px solid var(--primary-color);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    min-width: 80px;
-}
-
-.order-date-month {
-    display: block;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-}
-
-.order-date-day {
-    display: block;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--primary-color);
+.order-header .event-date {
+   align-self: stretch;
 }
 
 .order-event-info {

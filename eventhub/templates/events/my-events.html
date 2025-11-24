@@ -46,13 +46,14 @@
                     <div class="event-content">
                         <div class="event-description">
                             <div class="event-date">
-                                <span class="date-day">{{ event.date|date:"d" }}</span>
-                                <span class="date-month">{{ event.date|date:"M" }}</span>
+                                <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                                <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
                             </div>
 
                             <div class="event-info">
                                 <h3>{{ event.name }}</h3>
-                                <p><i class="fas fa-calendar"></i> {{ event.date|date:"F j, Y \a\\t g:i A" }} </p>
+                                <p><i class="fas fa-calendar"></i> <span class="full-date-no-week-day"
+                                        data-utc="{{ event.date|date:'c' }}"></p>
                                 <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
                                 </p>
                                 <div class="event-stats">
@@ -71,19 +72,11 @@
                             <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue
                             </p>
 
-                            <script>
-                                function redirectToEdit(e) {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    const editUrl = "{% url 'events:edit_event' event.id %}";
-                                    window.location.href = editUrl
-                                }
-                            </script>
-                            
                             {% if event.is_past %}
                             <button class="btn-secondary btn-small">Past&nbsp;Event</button>
                             {% else %}
-                            <button class="btn-secondary btn-small" onclick="redirectToEdit(event)">
+                            <button class="btn-secondary btn-small"
+                                data-edit-url="{% url 'events:edit_event' event.id %}" onclick="redirectToEdit(event)">
                                 <i class="fas fa-edit"></i> Edit
                             </button>
                             {% endif %}
@@ -108,5 +101,15 @@
         {% endif %}
     </div>
 </section>
+
+<script>
+    function redirectToEdit(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        const editUrl = btn.dataset.editUrl;
+        window.location.href = editUrl;
+    }
+</script>
 
 {% endblock %}

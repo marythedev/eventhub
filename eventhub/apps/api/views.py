@@ -5,7 +5,7 @@ from barcode.writer import ImageWriter
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
@@ -13,6 +13,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 from events.models import Order
 from tickets.models import Ticket
+
+from .stripe_utils import get_stripe_account_link, delete_stripe_account
 
 @login_required
 def ticket_barcode(request, ticket_id):
@@ -140,3 +142,36 @@ def order_receipt(request, order_id):
     response["Content-Disposition"] = f"inline; filename=receipt-{order.id}.pdf"
 
     return response
+
+@login_required
+def stripe_setup(request):
+    """Onboard and manage Stripe connected account."""
+    
+    try:
+        onboarding_url, login_url = get_stripe_account_link(request.user)
+
+        return JsonResponse({
+            'account_id': request.user.stripe_account_id,
+            'onboarding_url': onboarding_url,
+            'login_link': login_url
+        })
+
+    except Exception as e:
+        print('Error with Stripe account: ', e)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def stripe_delete(request):
+    """Delete Stripe connected account."""
+    
+    if request.method != "POST":
+        return JsonResponse({'error': 'Invalid request method'}, status=400)
+    
+    try:
+        if request.user.stripe_account_id:
+            delete_stripe_account(request.user)
+        return JsonResponse({'success': True})
+    except Exception as e:
+        print("Error deleting Stripe account:", e)
+        return JsonResponse({'error': str(e)}, status=500)

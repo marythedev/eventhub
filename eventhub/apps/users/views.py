@@ -1,11 +1,11 @@
 import io
 from PIL import Image
-from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
 from .utils import *
+from api.stripe_utils import get_stripe_account
 from .forms import RegisterValidator, LoginValidator, ProfileValidator, SecurityValidator
 from .models import Profile
 from events.models import Event, Order
@@ -100,6 +100,8 @@ def account(request):
     Returns: Rendered account page.
     """
     
+    stripe_account = get_stripe_account(request.user)
+    
     # previews only EVENT_PREVIEW_NUM events, rest user can view in events dedicated page
     user_events = Event.objects.filter(organizer=request.user).order_by('date')
     events_count = user_events.count()
@@ -113,6 +115,7 @@ def account(request):
     unpreview_order_count = order_count - ORDER_PREVIEW_NUM
     
     return render(request, 'users/account.html', {
+        'stripe_account': stripe_account,
         'events': preview_events,
         'events_more': unpreview_events_count,
         'orders': preview_orders,

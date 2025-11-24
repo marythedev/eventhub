@@ -57,6 +57,10 @@
     padding: 2rem;
 }
 
+.account-section-divider {
+    height: 2rem;
+}
+
 .section-header-account {
     margin-bottom: 2rem;
 }
@@ -73,7 +77,8 @@
     margin-bottom: 0.5rem;
 }
 
-.section-header-account p {
+.section-header-account p,
+.dim {
     color: var(--text-secondary);
 }
 
@@ -116,8 +121,10 @@
     gap: 0.25rem;
 }
 
-.account-section-divider {
-    height: 2rem;
+.stripe-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
 }
 
 .events-list,

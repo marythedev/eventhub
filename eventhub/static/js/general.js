@@ -1,13 +1,3 @@
-/* ACCOUNT */
-// highlight the clicked link in the account sidebar
-const accountNavLinks = document.querySelectorAll('.account-nav-link');
-accountNavLinks.forEach(link => {
-    link.addEventListener('click', function (e) {
-        accountNavLinks.forEach(l => l.classList.remove('active'));
-        this.classList.add('active');
-    });
-});
-
 // smooth scroll to #id sections
 // stops 100px before the section to avoid nav overlap
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -26,6 +16,24 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
+// smooth scroll to the hash section (for redirection links from 3rd party apps i.e. stripe)
+window.addEventListener("DOMContentLoaded", () => {
+    const hash = window.location.hash;
 
-/* FOOTER */
+    if (hash) {
+        window.scrollTo(0, 0);
+
+        setTimeout(() => {
+            const id = hash.substring(1);
+            const targetLink = document.querySelector(`a[href="#${id}"]`);
+
+            if (targetLink) {
+                targetLink.click();
+                history.replaceState(null, null, window.location.pathname);
+            }
+        }, 0);
+    }
+});
+
+// footer dynamic year update
 document.getElementById('current-year').textContent = new Date().getFullYear();

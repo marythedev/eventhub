@@ -21,6 +21,9 @@
                     <a href="#security" class="account-nav-link">
                         <i class="fas fa-lock"></i> Security
                     </a>
+                    <a href="#bank" class="account-nav-link">
+                        <i class="fas fa-bank"></i> Bank Settings
+                    </a>
                     <a href="#my-events" class="account-nav-link">
                         <i class="fas fa-calendar-check"></i> My Events
                     </a>
@@ -149,6 +152,72 @@
 
                 <div class="account-section-divider"></div>
 
+                <div class="account-section-content" id="bank">
+                    <div class="section-header-account">
+                        <h2>Bank Settings</h2>
+                        <p>Setup payment to receive event earnings</p>
+                    </div>
+
+                    <div>
+                        <strong>Bank: </strong>
+                        <span class="dim">
+                            {% if stripe_account.external_accounts.data %}
+                            {% for bank in stripe_account.external_accounts.data %}
+                            {% if bank.default_for_currency %}
+                            {{ bank.bank_name }} (**** {{ bank.last4 }})
+                            {% endif %}
+                            {% endfor %}
+                            {% else %}
+                            No bank account added yet.
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div>
+                        <strong>Payouts Enabled: </strong>
+                        <span class="dim">
+                            {% if stripe_account.payouts_enabled %} Yes {% else %} No {% endif %}
+                        </span>
+                    </div>
+
+                    <br>
+
+                    <div>
+                        <strong>Status: </strong>
+                        <span class="dim">
+                            {% if not stripe_account.details_submitted %}
+                            Account not connected.
+                            {% elif stripe_account.requirements.currently_due %}
+                            Additional information required.
+                            {% elif stripe_account.requirements.pending_verification %}
+                            Account in review.
+                            {% elif stripe_account.requirements.disabled_reason %}
+                            Account rejected.
+                            {% else %}
+                            Account is ready.
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="loading-indicator" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <p>Loading, please wait...</p>
+                    </div>
+
+                    <br>
+
+                    {% if not stripe_account.details_submitted %}
+                    <button class="btn-primary" id="stripe-setup">Connect with Stripe</button>
+                    {% else %}
+                    <div class="stripe-actions">
+                        <button class="btn-primary" id="stripe-setup">Manage Stripe</button>
+                        <button class="btn-secondary" id="stripe-delete">Delete</button>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="account-section-divider"></div>
+
                 <div class="account-section-content" id="my-events">
                     <div class="section-header-account row">
                         <h2>My Events</h2>
@@ -157,6 +226,10 @@
                         </a>
                     </div>
                     <div class="events-list">
+                        {% if not events %}
+                        <p class="empty-state">You have not created any events yet.</p>
+                        {% endif %}
+
                         {% for event in events %}
                         <a href="{% url 'events:view_event' event.id %}">
                             <div class="event-card {% if event.is_past %} past {% endif %}">
@@ -230,6 +303,10 @@
                         </a>
                     </div>
                     <div class="orders-list">
+                        {% if not orders %}
+                        <p class="empty-state">You have not made any orders yet.</p>
+                        {% endif %}
+
                         {% for order in orders %}
                         <div class="order-card {% if order.event.is_past %} past {% endif %}">
                             <div class="order-header">
@@ -286,5 +363,7 @@
         </div>
     </div>
 </section>
+
+<script src="{% static 'js/account.js' %}" defer></script>
 
 {% endblock %}

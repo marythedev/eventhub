@@ -14,7 +14,7 @@ from django.db.models import Count, Min, Sum, F, ExpressionWrapper, FloatField, 
 from .models import *
 from tickets.models import *
 
-from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator, CheckoutForm
+from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator
 from users.utils import cloud_upload_img
 
 # environmental variables
@@ -210,7 +210,10 @@ def view_event(request, event_id):
     if request.method == "POST":
         form = OrderFormValidator(request.POST)
         
-        if form.is_valid():
+        if event.is_past:
+            form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
+        
+        if not event.is_past and form.is_valid():
             selected_tickets = form.cleaned_data.get('price_zones', [])
             request.session['selected_tickets'] = selected_tickets
             return redirect('events:checkout', event_id=event.id)
@@ -340,9 +343,6 @@ def checkout(request, event_id):
         
         except (stripe.StripeError, Exception):
             return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
-
-    else:
-        form = CheckoutForm() # TODO
     
     return render(request, 'events/checkout.html', {
         'event': event,
@@ -351,8 +351,7 @@ def checkout(request, event_id):
         'service_fee': service_fee,
         'tax': tax,
         'total': total,
-        'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY,
-        'form': form
+        'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY
     })
 
 @login_required

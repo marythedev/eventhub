@@ -19,27 +19,29 @@
             <p class="result-message">Your tickets have been confirmed</p>
         </div>
         <div class="confirmation-details">
-            <div class="event-card">
-                <div class="event-image">
-                    <img src="{{ event.images.first.url }}" alt="{{ event.name }}" width="400" height="320">
-                </div>
+            <a href="{% url 'events:view_event' event.id %}">
+                <div class="event-card">
+                    <div class="event-image">
+                        <img src="{{ event.images.first.url }}" alt="{{ event.name }}" width="400" height="320">
+                    </div>
 
-                <div class="event-content">
-                    <div class="event-description">
-                        <div class="event-date">
-                            <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
-                            <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
-                        </div>
+                    <div class="event-content">
+                        <div class="event-description">
+                            <div class="event-date">
+                                <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                                <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
+                            </div>
 
-                        <div class="event-info">
-                            <h3>{{ event.title }}</h3>
-                            <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
-                            </p>
-                            <p class="event-category"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                            <div class="event-info">
+                                <h3>{{ event.title }}</h3>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
+                                </p>
+                                <p class="event-category"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
 
             <div class="confirmation-box">
                 <h3>Order Confirmation</h3>

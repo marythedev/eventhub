@@ -270,7 +270,4 @@ class OrderFormValidator(forms.Form):
                 "total": str(zone.price * quantity)
             })
         
-        return selected_tickets
-
-class CheckoutForm(forms.Form):
-    pass # TODO
+        return selected_tickets        

@@ -110,6 +110,7 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     gap: 1rem;
     padding: 1rem;
     background-color: var(--bg-secondary);
@@ -373,5 +374,13 @@ p.ticket-price {
 @media (max-width: 480px) {
     .ticket-type {
         flex-direction: column;
+    }
+}
+
+@media (max-width: 375px) {
+    .event-organizer a,
+    .event-organizer button {
+        width: 100%;
+        justify-content: center;
     }
 }

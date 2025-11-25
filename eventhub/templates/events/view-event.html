@@ -113,10 +113,18 @@
                     <h3>Order Summary</h3>
                     <div class="selected-tickets" id="selectedTickets">
                         <p class="empty-state">No tickets selected</p>
+                        
                         {% if form.price_zones.errors %}
                         <small class="form-error"
                             style="margin-top: 1rem; display: flex; justify-content: center; text-align: center;">
                             {{ form.price_zones.errors.0 }}
+                        </small>
+                        {% endif %}
+                        
+                        {% if form.non_field_errors %}
+                        <small class="form-error"
+                            style="margin-top: 1rem; display: flex; justify-content: center; text-align: center;">
+                            {{ form.non_field_errors.0 }}
                         </small>
                         {% endif %}
                     </div>

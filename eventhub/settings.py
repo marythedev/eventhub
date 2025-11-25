@@ -24,6 +24,7 @@ TAX = os.getenv('TAX')
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 DOMAIN_URL = os.getenv("DOMAIN_URL")
+SESSION_EXPIRY_TIME = os.getenv("SESSION_EXPIRY_TIME")
 
 # Application definition
 ROOT_URLCONF = 'eventhub.urls'

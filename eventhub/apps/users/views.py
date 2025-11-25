@@ -1,6 +1,6 @@
 import io
 from PIL import Image
-
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -9,7 +9,6 @@ from .utils import *
 from api.stripe_utils import get_stripe_account
 
 from .forms import RegisterValidator, LoginValidator, ProfileValidator, SecurityValidator
-
 from .models import Profile, StripeAccount
 from events.models import Event, Order
 
@@ -85,6 +84,13 @@ def login(request):
         if form.is_valid():
             user = form.cleaned_data['user']
             auth_login(request, user)
+            
+            remember_me = request.POST.get('remember_me')
+            if remember_me:
+                request.session.set_expiry(int(settings.SESSION_EXPIRY_TIME))
+            else:
+                request.session.set_expiry(0)
+                    
             return redirect(next_url or 'core:home')
     else:
         next_url = request.GET.get('next')

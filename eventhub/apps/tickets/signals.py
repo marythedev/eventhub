@@ -3,8 +3,9 @@ from django.dispatch import receiver
 
 from .models import Ticket
 
+
 @receiver(post_save, sender=Ticket)
-def update_pricezone_on_ticket_save(sender, instance, created, **kwargs):
+def update_pricezone_on_ticket_save(sender, instance, created, **kwargs):   # pylint: disable=unused-argument
     """Update price zone's sold seats and revenue when a ticket is created."""
     if created:
         zone = instance.price_zone

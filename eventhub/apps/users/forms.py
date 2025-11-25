@@ -1,8 +1,9 @@
 import re
-from dotenv import load_dotenv
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from dotenv import load_dotenv
 
 from .models import Profile
 from .utils import validate_location
@@ -134,7 +135,7 @@ class RegisterValidator(forms.Form):
 
     def clean(self):
         """Check if password and confirm_password match."""
-        
+
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
@@ -204,7 +205,7 @@ class ProfileValidator(forms.Form):
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-    
+
     full_name = _full_name_field()
     email = _email_field()
     phone = forms.CharField(
@@ -221,7 +222,7 @@ class ProfileValidator(forms.Form):
             'max_length': 'Location length exceeded.'
         }
     )
-    
+
     def clean_email(self):
         """Check if the new email already exists in db (excluding current user's email)."""
 
@@ -229,7 +230,7 @@ class ProfileValidator(forms.Form):
         if email != self.user.email and Profile.objects.user_exists(email=email, ignore_user_id = self.user.pk):
             raise ValidationError("Email is already registered.")
         return email
-    
+
     def clean_phone(self):
         """
         Validate phone number.
@@ -242,11 +243,11 @@ class ProfileValidator(forms.Form):
         """
 
         phone = self.cleaned_data.get('phone')
-        
+
         if phone and phone != self.user.phone:
             # remove formatting characters - parentheses, dashes, and spaces for consistent phone format
             phone = re.sub(r'[()\-\s]', '', phone)
-            
+
             # phone validation rules
             phone_digits = phone[1:]    # grab the numeric part of the phone number (exclude "+" at the beginning)
             if not phone.startswith('+'):
@@ -257,9 +258,9 @@ class ProfileValidator(forms.Form):
                 raise ValidationError("Phone number is too short.")
             if len(phone_digits) > 15:
                 raise ValidationError("Phone number is too long.")
-        
+
         return phone
-    
+
     def clean_location(self):
         """
         Validate the user's updated location.
@@ -270,10 +271,10 @@ class ProfileValidator(forms.Form):
         """
 
         location = self.cleaned_data.get('location')
-        
+
         if location and location != self.user.location:
             location = validate_location(location)
-            
+
         return location
 
 
@@ -296,14 +297,14 @@ class SecurityValidator(forms.Form):
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-    
+
     current_password = _password_field('Current password is required.')
     new_password = _password_field('New password is required.')
     confirm_new_password = _password_field('Confirmation of the new password is required.')
-    
+
     def clean_new_password(self):
         """Check new password again the password validation rules."""
-        
+
         new_password = self.cleaned_data.get('new_password')
         _validate_password(new_password)
 
@@ -311,7 +312,7 @@ class SecurityValidator(forms.Form):
 
     def clean(self):
         """Check if current_password is correct and password and confirm_password match."""
-        
+
         cleaned_data = super().clean()
         current_password = cleaned_data.get("current_password")
         new_password = cleaned_data.get("new_password")
@@ -320,9 +321,9 @@ class SecurityValidator(forms.Form):
         # check if new password and confirm new password match
         if new_password and confirm_new_password and new_password != confirm_new_password:
             self.add_error('confirm_new_password', "Passwords do not match.")
-        
+
         # check if entered current password is correct
         if current_password and not self.user.check_password(current_password):
             self.add_error('current_password', "Current password is incorrect.")
-        
+
         return cleaned_data

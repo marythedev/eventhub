@@ -1,11 +1,12 @@
 import os
+
 import requests
 from django.conf import settings
-from django.core.files.storage import FileSystemStorage
-from django.core.exceptions import ValidationError
 from django.contrib.auth.decorators import user_passes_test
-from pyuploadcare import Uploadcare
+from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 from PIL import Image
+from pyuploadcare import Uploadcare
 
 MAX_FILE_SIZE_MB = 5
 TARGET_SIZE = (300, 300)
@@ -48,7 +49,7 @@ def is_valid_image_format(file):
     try:
         image = Image.open(file)
         return image.format in ALLOWED_IMAGE_FORMATS
-    except Exception:
+    except Exception:       # pylint: disable=broad-exception-caught
         return False
 
 
@@ -72,10 +73,10 @@ def crop_to_center(image):
         bottom = top + min_side
         return image.crop((left, top, right, bottom))
     except Exception as e:
-        raise ValueError(f"Error cropping image: {e}")
+        raise ValueError(f"Error cropping image: {e}") from e
 
 
-def cloud_upload_img(file_path):   
+def cloud_upload_img(file_path):
     """
     Upload a local image file to Uploadcare cloud storage.
 
@@ -91,10 +92,10 @@ def cloud_upload_img(file_path):
             ucare_file = uploadcare.upload(image_file)
             return f"{settings.CDN_DOMAIN}/{ucare_file.uuid}/"
     except Exception as e:
-        raise Exception(f"Failed to upload image to cloud: {e}")
+        raise Exception(f"Failed to upload image to cloud: {e}") from e     # pylint: disable=broad-exception-raised
 
 
-def cloud_delete_img(url):   
+def cloud_delete_img(url):
     """
     Delete image from Uploadcare cloud storage based on url.
 
@@ -107,7 +108,7 @@ def cloud_delete_img(url):
         file = uploadcare.file(uuid)
         file.delete()
     except Exception as e:
-        raise Exception(f"Failed to delete image from cloud: {e}")
+        raise Exception(f"Failed to delete image from cloud: {e}") from e   # pylint: disable=broad-exception-raised
 
 
 def set_avatar(user, file_path):
@@ -153,12 +154,12 @@ def set_custom_avatar(user, file, filename):
 
     fs = FileSystemStorage()
     file_path = None
-    
+
     try:
         # save the file and get the full path of it
         filename = fs.save(filename, file)
         file_path = fs.path(filename)
-                    
+
         # upload new avatar to cloud and save to db
         set_avatar(user, file_path)
     finally:
@@ -196,19 +197,20 @@ def validate_location(location):
             headers={
                 'User-Agent': f'Eventhub/{os.getenv("APP_VERSION", "1.0")}',
                 'Accept-Language': 'en'
-            }
+            },
+            timeout=5
         )
         data = response.json()
-        
+
         if len(data) == 0:
             raise ValidationError("Location not found. Please enter a valid place.")
 
         # transform location to full display name for consistent location format
         location = data[0]['display_name']
-        
+
     except ValidationError:
         raise
-    except Exception:
-        raise ValidationError("Failed to validate location. Try again later.")
-    
+    except Exception as e:
+        raise ValidationError("Failed to validate location. Try again later.") from e
+
     return location

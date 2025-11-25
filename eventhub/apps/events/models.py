@@ -1,7 +1,8 @@
-from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator
+from django.db import models
 from django.utils import timezone
+
 
 class Event(models.Model):
     """
@@ -26,22 +27,22 @@ class Event(models.Model):
         ('sports', 'Sports'),
         ('tech', 'Technology'),
     ]
-    
+
     name = models.CharField(max_length=50)
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
-    
+
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='events',
     )
-    
+
     def __str__(self):
         return self.name
-    
+
     @property
     def is_past(self):
         """Returns True if event date is in the past."""
@@ -53,7 +54,7 @@ class Event(models.Model):
         now = timezone.localtime().date()
         event_day = timezone.localtime(self.date).date()
         return (event_day - now).days
-    
+
     @property
     def total_seats(self):
         """Return the total number of seats across all price zones."""
@@ -61,7 +62,7 @@ class Event(models.Model):
         for zone in self.price_zones.all():
             total_seats += zone.seats
         return total_seats
-    
+
     @property
     def total_seats_sold(self):
         """Return the total number of sold seats across all price zones."""
@@ -69,7 +70,7 @@ class Event(models.Model):
         for zone in self.price_zones.all():
             total_seats_sold += zone.seats_sold
         return total_seats_sold
-    
+
     @property
     def revenue(self):
         """Return the total revenue generated across all price zones."""
@@ -87,7 +88,7 @@ class EventImage(models.Model):
         event (Event): The event to which this image relates.
         url(str): The url by which the image can be accessed.
     """
-    
+
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
@@ -112,7 +113,7 @@ class EventPriceZone(models.Model):
         seats_sold (int): The number of seats already sold.
         revenue (Decimal): The total revenue generated from tickets sold in this price zone.
     """
-    
+
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
@@ -184,10 +185,10 @@ class Order(models.Model):
             MinValueValidator(0)
         ]
     )
-    
+
     def __str__(self):
         return f"Order {self.number} made by {self.acquirer}"
-    
+
     def save(self, *args, **kwargs):
         """
         Overridden save method.

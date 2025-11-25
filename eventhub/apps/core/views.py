@@ -1,5 +1,6 @@
 from django.shortcuts import render
 
+
 # TODO: home page for logged in user
 def home(request):
     """User's home page."""

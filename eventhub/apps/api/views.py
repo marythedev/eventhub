@@ -1,20 +1,20 @@
 import io
+
 from barcode import Code128
 from barcode.writer import ImageWriter
-
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
 from django.db.models import Count
-from django.http import HttpResponse, Http404, JsonResponse
-
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-
+from django.http import Http404, HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from events.models import Order
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+                                TableStyle)
 from tickets.models import Ticket
 
-from .stripe_utils import get_stripe_account_link, delete_stripe_account
+from .stripe_utils import delete_stripe_account, get_stripe_account_link
+
 
 @login_required
 def ticket_barcode(request, ticket_id):
@@ -34,8 +34,8 @@ def ticket_barcode(request, ticket_id):
     """
 
     ticket = get_object_or_404(Ticket, id=ticket_id)
-    
-    if (ticket.order.acquirer != request.user):
+
+    if ticket.order.acquirer != request.user:
         raise Http404("Ticket not found")
 
     buffer = io.BytesIO()
@@ -46,7 +46,7 @@ def ticket_barcode(request, ticket_id):
 
 
 @login_required
-def order_receipt(request, order_id):
+def order_receipt(request, order_id):       # pylint: disable=too-many-locals
     """
     Generate a PDF receipt for an order.
 
@@ -199,7 +199,7 @@ def stripe_setup(request):
             'login_link': login_url
         })
 
-    except Exception as e:
+    except Exception as e:      # pylint: disable=broad-exception-caught
         print('Error with Stripe account: ', e)
         return JsonResponse({'error': str(e)}, status=500)
 
@@ -221,11 +221,11 @@ def stripe_delete(request):
 
     if request.method != "POST":
         return JsonResponse({'error': 'Invalid request method'}, status=400)
-    
+
     try:
         if request.user.stripe_account.stripe_account_id:
             delete_stripe_account(request.user)
         return JsonResponse({'success': True})
-    except Exception as e:
+    except Exception as e:      # pylint: disable=broad-exception-caught
         print("Error deleting Stripe account:", e)
         return JsonResponse({'error': str(e)}, status=500)

@@ -1,16 +1,22 @@
 import io
-from PIL import Image
-from django.conf import settings
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
 
-from .utils import *
 from api.stripe_utils import get_stripe_account
-
-from .forms import RegisterValidator, LoginValidator, ProfileValidator, SecurityValidator
-from .models import Profile, StripeAccount
+from django.conf import settings
+from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
+from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect, render
 from events.models import Event, Order
+from PIL import Image
+
+from .forms import (LoginValidator, ProfileValidator, RegisterValidator,
+                    SecurityValidator)
+from .models import Profile, StripeAccount
+from .utils import (MAX_FILE_SIZE_MB, TARGET_SIZE, anonymous_required,
+                    cloud_delete_img, crop_to_center, is_valid_image_format,
+                    set_custom_avatar, set_default_avatar)
 
 EVENT_PREVIEW_NUM = 2
 ORDER_PREVIEW_NUM = 2
@@ -38,7 +44,7 @@ def register(request):
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     if next_url in [None, "", "None"]:
         next_url = None
-    
+
     if request.method == "POST":
         form = RegisterValidator(request.POST)
         if form.is_valid():
@@ -62,11 +68,10 @@ def register(request):
                 set_default_avatar(user)
                 auth_login(request, user)
                 return redirect(next_url or 'core:home')
-            else:
-                return redirect('users:login')
+            return redirect('users:login')
     else:
         form = RegisterValidator()
-        
+
     return render(request, 'users/register.html', {'form': form, 'next': next_url})
 
 
@@ -93,19 +98,19 @@ def login(request):
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     if next_url in [None, "", "None"]:
         next_url = None
-    
+
     if request.method == "POST":
         form = LoginValidator(request.POST)
         if form.is_valid():
             user = form.cleaned_data['user']
             auth_login(request, user)
-            
+
             remember_me = request.POST.get('remember_me')
             if remember_me:
                 request.session.set_expiry(int(settings.SESSION_EXPIRY_TIME))
             else:
                 request.session.set_expiry(0)
-                    
+
             return redirect(next_url or 'core:home')
     else:
         next_url = request.GET.get('next')
@@ -133,19 +138,19 @@ def account(request):
     """
 
     stripe_account = get_stripe_account(request.user)
-    
+
     # previews only EVENT_PREVIEW_NUM events, rest user can view in events dedicated page
     user_events = Event.objects.filter(organizer=request.user).order_by('date')
     events_count = user_events.count()
     preview_events = user_events[:EVENT_PREVIEW_NUM]
     unpreview_events_count = events_count - EVENT_PREVIEW_NUM
-    
+
     # previews only ORDER_PREVIEW_NUM events, rest user can view in orders dedicated page
     user_orders = Order.objects.filter(acquirer=request.user).order_by('-date')
     order_count = user_orders.count()
     preview_orders = user_orders[:ORDER_PREVIEW_NUM]
     unpreview_order_count = order_count - ORDER_PREVIEW_NUM
-    
+
     return render(request, 'users/account.html', {
         'stripe_account': stripe_account,
         'events': preview_events,
@@ -177,41 +182,41 @@ def avatar_upload(request):
 
     avatar_error = None
     user = request.user
-    
+
     if request.method == "POST":
         uploaded_file = request.FILES['imageFile']
-        
+
         if not uploaded_file:
             avatar_error = "Error uploading the file."
-        
+
         elif not is_valid_image_format(uploaded_file):
             avatar_error = "Unsupported image format. Please upload a JPG, PNG, GIF or WEBP file."
-            
+
         # check file size
         elif uploaded_file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
             avatar_error = "Image file is too large (max 5MB)."
-            
+
         else:
             try:
                 image = Image.open(uploaded_file)
                 image_format = image.format
-                
+
                 # process new image
                 image = crop_to_center(image)          # crop image 1:1 in the center
                 image = image.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
-            
+
                 # saves the image so it can be read or uploaded like a real file
                 buffer = io.BytesIO()
                 image.save(buffer, format=image_format)
                 buffer.seek(0)
-                
+
                 # delete previous avatar from cloud
                 cloud_delete_img(user.avatar)
-            
+
                 # set new avatar
                 set_custom_avatar(user, buffer, uploaded_file.name)
-                
-            except Exception:
+
+            except Exception:       # pylint: disable=broad-exception-caught
                 avatar_error = "Something went wrong."
 
         return render(request, 'users/account.html', {'avatar_error': avatar_error})
@@ -236,17 +241,17 @@ def avatar_delete(request):
     if request.method == "POST":
         user = request.user
         avatar_error = None
-                
+
         try:
             # delete user's avatar from could
             cloud_delete_img(user.avatar)
-            
+
             # set default avatar
             set_default_avatar(user)
-            
-        except Exception:
+
+        except Exception:       # pylint: disable=broad-exception-caught
             avatar_error = "Failed to delete an avatar."
-            
+
         return render(request, 'users/account.html', {'avatar_error': avatar_error})
     return redirect('users:account')
 
@@ -275,7 +280,7 @@ def profile_update(request):
             email = form.cleaned_data['email']
             phone = form.cleaned_data['phone']
             location = form.cleaned_data['location']
-            
+
             user.full_name = full_name
             user.email = email
             user.phone = phone

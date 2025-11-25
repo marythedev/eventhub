@@ -7,4 +7,4 @@ ignore=migrations
 max-line-length=120
 
 [MESSAGES CONTROL]
-disable=missing-module-docstring, fixme
+disable=missing-module-docstring, import-outside-toplevel, no-member, fixme

@@ -1,24 +1,24 @@
-import stripe
-from decimal import Decimal, ROUND_HALF_UP
-from django.conf import settings
-
-from django.utils import timezone
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
+from datetime import timezone as dt_timezone
+from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
-from django.shortcuts import render, redirect, get_object_or_404
+import stripe
+from api.stripe_utils import get_stripe_account
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-from django.db.models import Count, Min, Sum, F, ExpressionWrapper, FloatField, Case, When, Value
+from django.db.models import (Case, Count, ExpressionWrapper, F, FloatField,
+                              Min, Sum, Value, When)
 from django.http import Http404
-
-from api.stripe_utils import get_stripe_account
-
-from .models import *
-from tickets.models import *
-
-from .forms import EventInfoValidator, EventImageValidator, PriceZoneFormSet, OrderFormValidator
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from tickets.models import Ticket
 from users.utils import cloud_upload_img
+
+from .forms import (EventImageValidator, EventInfoValidator,
+                    OrderFormValidator, PriceZoneFormSet)
+from .models import Event, EventImage, EventPriceZone, Order
 
 # environmental variables
 SERVICE_FEE = settings.SERVICE_FEE
@@ -56,7 +56,7 @@ def _calculate_order_totals(selected_tickets):
     subtotal = Decimal(0)
     for ticket in selected_tickets:
         subtotal += Decimal(ticket.get("total"))
-    
+
     subtotal = _round(subtotal)
     service_fee = _round( subtotal * Decimal(SERVICE_FEE) )
     tax = _round( subtotal * Decimal(TAX) )
@@ -85,7 +85,7 @@ def _create_and_confirm_payment(total, payment_method_id, user_email):
         receipt_email=user_email,
         automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
     )
-                
+
     # payment confirmation
     confirmed_intent = stripe.PaymentIntent.confirm(
         payment_intent.id,
@@ -104,7 +104,7 @@ def _save_tickets(purchased_tickets, order):
     """
 
     for t in purchased_tickets:
-        price_zone = EventPriceZone.objects.filter(id=t.get("id")).first()                 
+        price_zone = EventPriceZone.objects.filter(id=t.get("id")).first()
         if price_zone:
             for _ in range(t.get('quantity')):
                 Ticket.objects.create(
@@ -132,23 +132,23 @@ def view_events(request):
     """
 
     events = Event.objects.filter(
-        date__gte=timezone.now(), 
+        date__gte=timezone.now(),
         organizer__stripe_account__stripe_account_ready=True
         ).annotate(
         lowest_price=ExpressionWrapper(
             Min('price_zones__price'),
             output_field=FloatField()
         ),
-        
+
         event_seats=Sum('price_zones__seats'),
         event_seats_sold=Sum('price_zones__seats_sold')
     ).annotate(
-        
+
         percent_sold=ExpressionWrapper(
             F('event_seats_sold') * 1.0 / F('event_seats'),
             output_field=FloatField()
         ),
-        
+
         badge=Case(
             When(percent_sold__gt=0.8, then=Value('Hot')),
             default=Value(''),
@@ -159,7 +159,7 @@ def view_events(request):
 
 
 @login_required
-def create_event(request):
+def create_event(request):      # pylint: disable=too-many-locals
     """
     Handle event creation.
 
@@ -182,20 +182,20 @@ def create_event(request):
         event_form = EventInfoValidator(request.POST)
         image_form = EventImageValidator(request.POST, request.FILES)
         price_zone_forms = PriceZoneFormSet(request.POST, prefix="zones")
-        
+
         if ( event_form.is_valid() and image_form.is_valid() and price_zone_forms.is_valid() ):
-            
+
             # concatenate date and time
             user_tz = ZoneInfo(event_form.cleaned_data['timezone'])
             event_user_local_datetime = timezone.make_aware(
                 datetime.combine(
-                    event_form.cleaned_data['date'], 
+                    event_form.cleaned_data['date'],
                     event_form.cleaned_data['time']
                 ),
                 user_tz
             )
             event_utc_datetime = event_user_local_datetime.astimezone(dt_timezone.utc)
-            
+
             # create event object
             event = Event.objects.create(
                 name=event_form.cleaned_data['name'],
@@ -205,10 +205,10 @@ def create_event(request):
                 description=event_form.cleaned_data['description'],
                 organizer=user
             )
-            
+
             # create price zone object
             for zone in price_zone_forms.cleaned_data:
-                if (zone):
+                if zone:
                     EventPriceZone.objects.create(
                         event=event,
                         name=zone['zone_name'],
@@ -216,31 +216,31 @@ def create_event(request):
                         price=zone['zone_price'],
                         seats=zone['zone_seats']
                     )
-            
+
             # upload images and create image objects
             try:
                 images = image_form.cleaned_data.get('images', [])
                 fs = FileSystemStorage()
-                
+
                 for img in images:
                     file = fs.save(img.name, img)
                     file_path = fs.path(file)
                     url = cloud_upload_img(file_path)
                     fs.delete(file)
-                    
+
                     EventImage.objects.create(
                         event=event,
                         url = url
                     )
-            except Exception:
+            except Exception:       # pylint: disable=broad-exception-caught
                 event_form.add_error('images', "Something went wrong.")
-                
+
             return redirect('events:view_event', event_id=event.id)
     else:
         event_form = EventInfoValidator()
         image_form = EventImageValidator()
         price_zone_forms = PriceZoneFormSet(prefix="zones")
-    
+
     return render(request, 'events/create-event.html', {
             'event_form': event_form,
             'image_form': image_form,
@@ -263,41 +263,41 @@ def view_event(request, event_id):
     """
 
     event = get_object_or_404(Event, id=event_id)
-        
+
     if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
         raise Http404("Event not found")
-    
+
     image_urls = []
     images = event.images.all()
     for image in images:
         image_urls.append(image.url)
-    
+
     owned_tickets = None
     if request.user.is_authenticated:
         owned_tickets = Ticket.objects.filter(
             order__acquirer=request.user,
             price_zone__event=event
         )
-        
+
     if request.method == "POST":
         form = OrderFormValidator(request.POST)
-        
+
         # check if user attempts to purchase tickets for past event
         if event.is_past:
             form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
-        
+
         # check if event owner has setup payouts
         get_stripe_account(request.user)
         if not event.organizer.stripe_account.stripe_account_ready:
             form.add_error(None, "Event owner has not configured their bank settings to receive payments.")
-        
+
         if not event.is_past and form.is_valid():
             selected_tickets = form.cleaned_data.get('price_zones', [])
             request.session['selected_tickets'] = selected_tickets
             return redirect('events:checkout', event_id=event.id)
     else:
         form = OrderFormValidator()
-    
+
     return render(request, 'events/view-event.html', {
         'event': event,
         'stripe_account_ready': event.organizer.stripe_account.stripe_account_ready,
@@ -328,35 +328,35 @@ def edit_event(request, event_id):
             - Update event details (Event) with the updated and validated details.
             - Redirect to event page.
     """
-    
+
     # users can modify details about their upcoming events
     event = get_object_or_404(Event, id=event_id, organizer=request.user, date__gte=timezone.now())
 
     if request.method == "POST":
         event_form = EventInfoValidator(request.POST)
-        
-        if ( event_form.is_valid()):
-            
+
+        if event_form.is_valid():
+
             # concatenate date and time
             user_tz = ZoneInfo(event_form.cleaned_data['timezone'])
             event_user_local_datetime = timezone.make_aware(
                 datetime.combine(
-                    event_form.cleaned_data['date'], 
+                    event_form.cleaned_data['date'],
                     event_form.cleaned_data['time']
                 ),
                 user_tz
             )
             event_utc_datetime = event_user_local_datetime.astimezone(dt_timezone.utc)
-            
-            # update event 
+
+            # update event
             event.name=event_form.cleaned_data['name']
             event.date=event_utc_datetime
             event.location=event_form.cleaned_data['location']
             event.category=event_form.cleaned_data['category']
             event.description=event_form.cleaned_data['description']
-            
+
             event.save()
-                        
+
             return redirect('events:view_event', event_id=event.id)
     else:
         event_form = EventInfoValidator(initial={
@@ -367,7 +367,7 @@ def edit_event(request, event_id):
             'category': event.category,
             'description': event.description,
         })
-    
+
     return render(request, 'events/edit-event.html', {
             'event': event, 
             'event_form': event_form
@@ -393,31 +393,31 @@ def checkout(request, event_id):
     """
 
     event = get_object_or_404(Event, id=event_id)
-    
+
     selected_tickets = request.session.get('selected_tickets')
     if not selected_tickets:
         return redirect('events:view_event', event_id=event.id)
-    
+
     subtotal, service_fee, tax, total = _calculate_order_totals(selected_tickets)
-    
+
     if total == 0:
-            order = Order.objects.create(
-                status="succeeded",
-                stripePaymentId=None,
-                acquirer=request.user,
-                subtotal=subtotal,
-                tax=tax,
-                service_fee=service_fee,
-                total=total
-            )
-            _save_tickets(selected_tickets, order)
-            request.session.pop("selected_tickets")
-            return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
+        order = Order.objects.create(
+            status="succeeded",
+            stripePaymentId=None,
+            acquirer=request.user,
+            subtotal=subtotal,
+            tax=tax,
+            service_fee=service_fee,
+            total=total
+        )
+        _save_tickets(selected_tickets, order)
+        request.session.pop("selected_tickets")
+        return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
 
     if request.method == "POST":
         payment_method_id = request.POST.get("payment_method_id")
 
-        try:   
+        try:
             confirmed_intent = _create_and_confirm_payment(total, payment_method_id, request.user.email)
 
             # save order to db
@@ -430,21 +430,20 @@ def checkout(request, event_id):
                 service_fee = service_fee,
                 total = total
             )
-            
+
             if confirmed_intent.status == "succeeded":
                 # TODO send money to the event owner
 
                 # save tickets in db
                 purchased_tickets = request.session.pop("selected_tickets")
                 _save_tickets(purchased_tickets, order)
-                
+
                 return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
-            else:
-                return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
-        
-        except (stripe.StripeError, Exception):
             return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
-    
+
+        except (stripe.StripeError, Exception):     # pylint: disable=broad-exception-caught
+            return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
+
     return render(request, 'events/checkout.html', {
         'event': event,
         'selected_tickets': selected_tickets,
@@ -475,7 +474,7 @@ def checkout_success(request, event_id, order_id):
 
     event = get_object_or_404(Event, id=event_id)
     order = get_object_or_404(Order, id=order_id, acquirer=request.user)
-    
+
     if order.status != 'succeeded':
         return redirect('events:checkout_fail', event_id=event.id, order_id=order.id)
 
@@ -484,7 +483,7 @@ def checkout_success(request, event_id, order_id):
         .values("price_zone__name")
         .annotate(quantity=Count("id"))
     )
-    
+
     return render(request, 'events/payment-success.html', {
         'event': event, 
         'order': order,
@@ -511,11 +510,11 @@ def checkout_fail(request, event_id, order_id):
 
     event = get_object_or_404(Event, id=event_id)
     order = get_object_or_404(Order, id=order_id)
-    
+
     # users cannot see orders that are not their own
     if order.acquirer != request.user:
         return redirect("events:view_event", event_id=event.id)
-    
+
     if order.status == 'succeeded':
         return redirect('events:checkout_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')

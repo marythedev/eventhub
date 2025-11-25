@@ -1,12 +1,15 @@
 
-from django import forms
-from django.forms import JSONField, formset_factory
-from django.core.exceptions import ValidationError
-from datetime import date as d, datetime
+from datetime import date as d
+from datetime import datetime
 from zoneinfo import available_timezones
 
+from django import forms
+from django.core.exceptions import ValidationError
+from django.forms import JSONField, formset_factory
+from users.utils import (MAX_FILE_SIZE_MB, is_valid_image_format,
+                         validate_location)
+
 from .models import Event, EventPriceZone
-from users.utils import validate_location, is_valid_image_format, MAX_FILE_SIZE_MB
 
 
 class EventInfoValidator(forms.Form):
@@ -52,7 +55,7 @@ class EventInfoValidator(forms.Form):
     )
     category = forms.ChoiceField(
         required=True,
-        choices=Event.CATEGORIES,        
+        choices=Event.CATEGORIES,
         error_messages={
             'required': 'Event category is required.',
             'invalid_choice': 'Select a valid event category.'
@@ -88,28 +91,28 @@ class EventInfoValidator(forms.Form):
     def clean_location(self):
         """Validate and normalize event location."""
         location = self.cleaned_data.get('location')
-        
+
         if location:
             location = validate_location(location)
-            
+
             # update location on form
             self.data = self.data.copy()
             self.data['location'] = location
-        
+
         return location
 
     def clean(self):
         """Check that event time is not in the past for today's events."""
         cleaned_data = super().clean()
-        
+
         date = cleaned_data.get("date")
         time = cleaned_data.get("time")
-        
+
         if date == d.today() and time:
             now = datetime.now().time()
             if time < now:
                 self.add_error('time', "Event time cannot be in the past.")
-        
+
         return cleaned_data
 
 
@@ -135,14 +138,16 @@ class EventImageValidator(forms.Form):
             'required': 'At least one image of the event is required.'
         }
     )
-    
+
     def clean_images(self):
         """Backend validation for each uploaded event image file."""
 
         images = self.files.getlist('images')
         for image in images:
             if not is_valid_image_format(image):
-                raise ValidationError(f"{image.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file.")
+                raise ValidationError(
+                    f"{image.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file."
+                )
 
             if image.size > MAX_FILE_SIZE_MB * 1024 * 1024:
                 raise ValidationError(f"{image.name} image file is too large (max {MAX_FILE_SIZE_MB}MB).")
@@ -249,29 +254,29 @@ class OrderFormValidator(forms.Form):
             'invalid': 'Something is wrong. Try to refresh the page.'
         }
     )
-    
+
     def clean_price_zones(self):
         """Validate ticket availability of selected price zones."""
 
         price_zones = self.cleaned_data.get('price_zones')
         selected_tickets = []
         for zone in price_zones:
-            quantity = zone.get("quantity") 
-            
+            quantity = zone.get("quantity")
+
             # don't include the price zones that were not selected
-            if (quantity <= 0):
+            if quantity <= 0:
                 continue
-            
+
             try:
                 zone = EventPriceZone.objects.get(id = zone.get("id"))
             except EventPriceZone.DoesNotExist:
                 self.add_error('price_zones', "Could not find selected tickets. Try to refresh the page.")
                 continue
-            
+
             if zone.remaining_seats < quantity:
                 self.add_error('price_zones', f"Selected quantity exceeds available {zone.name} tickets.")
                 continue
-            
+
             selected_tickets.append({
                 "id": zone.id,
                 "name": zone.name,
@@ -279,5 +284,5 @@ class OrderFormValidator(forms.Form):
                 "quantity": quantity,
                 "total": str(zone.price * quantity)
             })
-        
-        return selected_tickets        
+
+        return selected_tickets

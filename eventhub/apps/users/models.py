@@ -1,6 +1,8 @@
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.conf import settings
+from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
+                                        PermissionsMixin)
+from django.db import models
+
 
 class ProfileManager(BaseUserManager):
     """
@@ -10,7 +12,7 @@ class ProfileManager(BaseUserManager):
         - create superusers
         - check user existence
     """
-    
+
     def create_user(self, email, full_name, password=None, **extra_fields):
         """
         Creates a regular user.
@@ -53,7 +55,7 @@ class ProfileManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, full_name, password, **extra_fields)
-    
+
     def user_exists(self, email, ignore_user_id=None):
         """
         Checks if a user with the specified email exists.
@@ -98,15 +100,15 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     location = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['full_name']     # for superuser (for regular user it is auto required)
-    
+
     objects = ProfileManager()
-    
+
     def __str__(self):
         return self.email
-    
+
     def get_full_name(self):
         """Returns user's full name."""
         return self.full_name
@@ -130,12 +132,12 @@ class StripeAccount(models.Model):
 
     stripe_account_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     stripe_account_ready = models.BooleanField(default=False)
-    
+
     account_owner = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='stripe_account',
     )
-    
+
     def __str__(self):
         return f"{self.account_owner.email} Stripe Account"

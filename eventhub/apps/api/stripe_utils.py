@@ -18,7 +18,7 @@ def get_stripe_account(user):
     """
 
     account  = stripe.Account.retrieve(user.stripe_account.stripe_account_id)
-    
+
     # keep user's account status up-to-date
     if (account.details_submitted
         and not account.requirements.currently_due
@@ -70,16 +70,15 @@ def get_stripe_account_link(user):
     if account.details_submitted:
         login_link = stripe.Account.create_login_link(user.stripe_account.stripe_account_id)
         return None, login_link.url
-    
+
     # account has not onboarded (account onboarding link)
-    else:
-        account_link = stripe.AccountLink.create(
-            account=user.stripe_account.stripe_account_id,
-            refresh_url=f"{settings.DOMAIN_URL}/account/#bank",
-            return_url=f"{settings.DOMAIN_URL}/account/#bank",
-            type="account_onboarding"
-        )
-        return account_link.url, None
+    account_link = stripe.AccountLink.create(
+        account=user.stripe_account.stripe_account_id,
+        refresh_url=f"{settings.DOMAIN_URL}/account/#bank",
+        return_url=f"{settings.DOMAIN_URL}/account/#bank",
+        type="account_onboarding"
+    )
+    return account_link.url, None
 
 def delete_stripe_account(user):
     """

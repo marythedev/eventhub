@@ -16,5 +16,4 @@ urlpatterns = [
     
     # user-owned events
     path('my-events/', views.my_events, name="my_events"),
-    # TODO edit event
 ]

@@ -7,11 +7,11 @@ from events.models import EventPriceZone, Order
 class Ticket(models.Model):
     """
     Ticket that was purchased.
-    
+
     Attributes:
         number (str): Unique ticket identifier (auto generated).
         price_zone (EventPriceZone): EventPriceZone which ticket is associated with.
-        order (Order): Order at which ticket was purchased.
+        order (Order): Order in which ticket was purchased.
     """
     
     number = models.CharField(max_length=50, unique=True, blank=False)
@@ -30,10 +30,14 @@ class Ticket(models.Model):
         return f"Ticket {self.number} owned by {self.order.acquirer}"
     
     def save(self, *args, **kwargs):
+        """
+        Overridden save method.
+        Auto generates unique ticket number (EH-TCK-YEAR-ID) on initial save.
+        """
+        
         initial = self.pk is None
         super().save(*args, **kwargs)
         
-        # ticket number auto generation on initial save
         if initial:
             year = timezone.now().year
             self.number = f"EH-TCK-{year}-{self.id}"

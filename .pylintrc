@@ -1,6 +1,7 @@
 [MASTER]
 load-plugins=pylint_django
 django-settings-module=eventhub.settings
+ignore=migrations
 
 [FORMAT]
 max-line-length=120

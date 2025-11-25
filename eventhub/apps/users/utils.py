@@ -9,29 +9,42 @@ from PIL import Image
 
 MAX_FILE_SIZE_MB = 5
 TARGET_SIZE = (300, 300)
+ALLOWED_IMAGE_FORMATS = ['JPEG', 'PNG', 'GIF', 'WEBP']
 
 uploadcare = Uploadcare(public_key=settings.UPLOADCARE['pub_key'], secret_key=settings.UPLOADCARE['secret'])
 
+
 def anonymous_required(redirect_url='core:home'):
     """
-    Checks that user is not authenticated in the system.
-    Otherwise redirects user to the home page (or provided redirect_url).
+    Restrict access to views (i.e. login/register) for authenticated users.
+        Checks that user is not authenticated in the system.
+        Otherwise redirects user to the home page (or provided redirect_url).
+
+    Args:
+        redirect_url (str): URL name to redirect authenticated users to.
     """
+
     return user_passes_test(
         lambda u: not u.is_authenticated,
         login_url=redirect_url,
         redirect_field_name=''
     )
 
+
 def is_valid_image_format(file):
     """
-    Checks that the file is in a supported image format.
+    Validate if the file is in a supported image format.
+
+    Supported formats:
+        JPEG, PNG, GIF, or WEBP
+
+    Args:
+        file: File object uploaded by the user.
 
     Returns:
-        True for JPEG, PNG, GIF, or WEBP;
-        False for other formats.
+        bool: True if format is allowed; False otherwise.
     """
-    ALLOWED_IMAGE_FORMATS = ['JPEG', 'PNG', 'GIF', 'WEBP']
+
     try:
         image = Image.open(file)
         return image.format in ALLOWED_IMAGE_FORMATS
@@ -42,11 +55,14 @@ def is_valid_image_format(file):
 def crop_to_center(image):
     """
     Crop the center of the image with 1:1 ratio.
-    
-    Args: 
-        image (PIL.Image) - the original image.
-    Returns: PIL.Image - cropped square image centered within the original.
+
+    Args:
+        image (PIL.Image): The original image.
+
+    Returns:
+        PIL.Image: Cropped square image centered within the original.
     """
+
     try:
         width, height = image.size
         min_side = min(width, height)
@@ -63,12 +79,13 @@ def cloud_upload_img(file_path):
     """
     Upload a local image file to Uploadcare cloud storage.
 
-    Args: 
-        file_path (str) - full local file path to the image.
+    Args:
+        file_path (str): Full local file path to the image.
+
     Returns:
         url(str): URL by which uploaded image can be accessed.
     """
-    
+
     try:
         with open(file_path, 'rb') as image_file:
             ucare_file = uploadcare.upload(image_file)
@@ -80,12 +97,11 @@ def cloud_upload_img(file_path):
 def cloud_delete_img(url):   
     """
     Delete image from Uploadcare cloud storage based on url.
-    
-    Arg: 
-        url (str): access link to image ( https://cdn.domain/UUID/ ).
-    Returns: None
+
+    Arg:
+        url (str): Access link to image ( https://cdn.domain/UUID/ ).
     """
-    
+
     try:
         uuid = url.strip('/').split('/')[-1]
         file = uploadcare.file(uuid)
@@ -96,41 +112,45 @@ def cloud_delete_img(url):
 
 def set_avatar(user, file_path):
     """
-    Upload an image file to cloud storage and assign access link to user.
+    Upload an image file to cloud storage and save url in user's profile.
 
     Args:
         user (Profile): Profile (user) instance whose avatar is being updated.
         file_path (str): Local path to the image file.
-    Returns: None
     """
+
     user.avatar = cloud_upload_img(file_path)
     user.save()
 
 
 def set_default_avatar(user):
     """
-    Set the default avatar for the user.
+    Set the system default avatar for the user.
 
-    Args: 
+    Args:
         user (Profile): Profile (user) instance whose avatar is being updated.
-    Returns: None
     """
+
     file_path = os.path.join(settings.APP_ROOT, 'static/img/avatar.jpg')
     set_avatar(user, file_path)
 
 
 def set_custom_avatar(user, file, filename):
     """
-    Save the file temporarily to disk, upload it to cloud, 
-    assign new avatar to the user, and clean up the local file.
+    Set a custom avatar provided by the user on user's profile.
+
+    Behavior:
+        - Save the file temporarily to disk.
+        - Upload it to cloud
+        - Assign new avatar to the user.
+        - Clean up the local file.
 
     Args:
         user (Profile): Profile (user) instance whose avatar is being updated.
         file (file-like object): The image file to upload.
         filename (str): Original filename.
-    Returns: None
     """
-    
+
     fs = FileSystemStorage()
     file_path = None
     
@@ -149,17 +169,25 @@ def set_custom_avatar(user, file, filename):
 
 def validate_location(location):
     """
-    Helper function that validates location.
-    
+    Validate and normalize a location string using OpenStreetMap API.
+
+    Behavior:
+        - Fetch OpenStreetMap with the provided location string.
+        - Ensure at least one result exists.
+        - Normalize location input with the display_name returned by OpenStreetMap.
+
     Args:
         location (str): Location to be validated.
-    
+
     Raises:
-        ValidationError: when location is not valid (not found) or something is wrong with the fetch.
-        
+        ValidationError when:
+            - Location is not valid (not found).
+            - OpenStreetMap fetch fails.
+
     Returns:
-        location (str): Location after the validation (either validated or incorrect with raised error).
+        location (str): Validated and normalized location string.
     """
+
     try:
         # fetch openstreetmap to check if location exists
         response = requests.get(

@@ -24,10 +24,17 @@ def register(request):
         - Serve register form page.
 
     POST:
-        - Register user with fullname, email, password and confirm password.
-        - Return register form with errors or redirect to home or the flow they have browsed before on success.
+        Validate registration input.
+
+        On Validation success:
+            - Register user with fullname, email, password and confirm password.
+            - Create Stripe account, set default avatar, authenticate, and log the user in.
+            - Redirect to home or the flow they have browsed before.
+
+        On Validation fail:
+            - Return register form with errors.
     """
-    
+
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     if next_url in [None, "", "None"]:
         next_url = None
@@ -72,9 +79,17 @@ def login(request):
         - Serve login form page.
 
     POST:
-        - Authenticate user with email and password.
-        - Return login form with errors or redirect to home or the flow they have browsed before on success.
+        Validate login input.
+
+        On Validation success:
+            - Authenticate user with email and password.
+            - Set session expiry.
+            - Redirect to home or the flow they have browsed before.
+
+        On Validation fail:
+            - Return login form with errors.
     """
+
     next_url =  request.POST.get('next', '') or request.GET.get('next', '')
     if next_url in [None, "", "None"]:
         next_url = None
@@ -102,14 +117,21 @@ def login(request):
 @login_required
 def account(request):
     """
-    Display the account page and handle basic profile updates.
+    Display the account page.
+
+    Shows:
+        - Basic profile information to handle basic profile update.
+        - Security section to handle password update.
+        - Stripe account status.
+        - Recent events created by the user (previews EVENT_PREVIEW_NUM events).
+        - Recent orders made by the user (previews ORDER_PREVIEW_NUM orders).
 
     GET:
         - Render the account page with user information.
 
     Returns: Rendered account page.
     """
-    
+
     stripe_account = get_stripe_account(request.user)
     
     # previews only EVENT_PREVIEW_NUM events, rest user can view in events dedicated page
@@ -135,14 +157,12 @@ def account(request):
 
 @login_required
 def avatar_upload(request):
-    """Handles POST requests for avatar validation and upload."""
-    
     """
     Handle avatar validation, preprocessing and upload.
-    
+
     GET:
         - Redirects to account page (does nothing).
-    
+
     POST:
         - Validates and processes (crops & resizes) submitted file.
         - Deletes previous avatar from cloud storage.
@@ -154,7 +174,7 @@ def avatar_upload(request):
 
     Returns: Rendered account page (with error messages if any).
     """
-    
+
     avatar_error = None
     user = request.user
     
@@ -201,8 +221,8 @@ def avatar_upload(request):
 @login_required
 def avatar_delete(request):
     """
-    Handle deletion of the user's current avatar.
-    
+    Handle current user's avatar deletion.
+
     GET:
         - Redirects to account page (does nothing).
 
@@ -212,7 +232,7 @@ def avatar_delete(request):
 
     Returns: Rendered account page (with error messages if any).
     """
-    
+
     if request.method == "POST":
         user = request.user
         avatar_error = None
@@ -233,7 +253,20 @@ def avatar_delete(request):
 
 @login_required
 def profile_update(request):
-    """Update profile information for the user (name, email, phone, location)."""
+    """
+    Update profile information for the user (name, email, phone, location).
+
+    POST:
+        Validate profile information input.
+
+        On success:
+            - Updates profile information.
+            - Redirect to account page.
+
+        On fail:
+            - Return profile information form on account page with errors.
+    """
+
     if request.method == "POST":
         user = request.user
         form = ProfileValidator(request.POST, user=user)
@@ -254,7 +287,20 @@ def profile_update(request):
 
 @login_required
 def security_update(request):
-    """Handle user password update."""
+    """
+    Handle user password update.
+
+    POST:
+        Validate security information (passwords) input.
+
+        On success:
+            - Updates security (password) information.
+            - Redirect to account page.
+
+        On fail:
+            - Return security information form on account page with errors.
+    """
+
     if request.method == "POST":
         user = request.user
         form = SecurityValidator(request.POST, user=user)

@@ -20,11 +20,11 @@ class EventInfoValidator(forms.Form):
         location (str): Full address, required.
         category (str): Event category from predefined choices.
         description (str): Description of the event, optional.
-        
+
     Returns:
         dict: Cleaned and validated data.
     """
-    
+
     name =  forms.CharField(
         required=True,
         max_length=50,
@@ -66,24 +66,27 @@ class EventInfoValidator(forms.Form):
         }
     )
 
-    # check that event date is not in the past
     def clean_date(self):
+        """Check that event date is not in the past."""
         date = self.cleaned_data.get('date')
         if date and date < d.today():
             raise ValidationError("Event date cannot be in the past.")
         return date
-    
-    # check that timezone sent with the form is valid
-    # protection from frontend dev tools manipulation
-    def clean_timezone(self):
-        timezone  = self.cleaned_data["timezone"]
 
+    def clean_timezone(self):
+        """
+        Check that timezone sent with the form is valid.
+        This is the protection from frontend dev tools manipulation.
+        """
+
+        timezone  = self.cleaned_data["timezone"]
         if timezone not in available_timezones():
             self.add_error('timezone', "Something went wrong. Refresh the page and try to submit the form again.")
 
         return timezone
 
     def clean_location(self):
+        """Validate and normalize event location."""
         location = self.cleaned_data.get('location')
         
         if location:
@@ -96,9 +99,9 @@ class EventInfoValidator(forms.Form):
         return location
 
     def clean(self):
+        """Check that event time is not in the past for today's events."""
         cleaned_data = super().clean()
         
-        # check that event time is not in the past
         date = cleaned_data.get("date")
         time = cleaned_data.get("time")
         
@@ -116,16 +119,16 @@ class EventImageValidator(forms.Form):
 
     Fields:
         images (file): Uploaded image files of the event, required.
-    
+
     Validation rules:
         - At least one image is uploaded.
         - Each uploaded image is in a supported format (JPG, PNG, GIF, WEBP).
         - Each image file does not exceed the maximum allowed size.
-        
+
     Returns:
         dict: Cleaned and validated image data.
     """
-    
+
     images = forms.FileField(
         required=True,
         error_messages={
@@ -133,10 +136,10 @@ class EventImageValidator(forms.Form):
         }
     )
     
-    # backend validation for event images
     def clean_images(self):
-        images = self.files.getlist('images')
+        """Backend validation for each uploaded event image file."""
 
+        images = self.files.getlist('images')
         for image in images:
             if not is_valid_image_format(image):
                 raise ValidationError(f"{image.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file.")
@@ -155,11 +158,11 @@ class PriceZoneValidator(forms.Form):
         zone_name (str): The name of the price zone, required.
         zone_price (float): The price of the price zone in USD, required.
         zone_seats (int): The capacity of seats of the price zone, required.
-        
+
     Returns:
         dict: Cleaned and validated price zone data.
     """
-    
+
     zone_name = forms.CharField(
         required=True,
         max_length=30,
@@ -226,13 +229,19 @@ class PriceZoneValidator(forms.Form):
 # formset to handle multiple PriceZoneValidator forms (user can add as many price zones for the new event as needed)
 PriceZoneFormSet = formset_factory(PriceZoneValidator, extra=0, min_num=1, validate_min=True, can_delete=True)
 
+
 class OrderFormValidator(forms.Form):
     """
-    Validate user selected price zones (tickets).
-    
-    - Confirm that at least 1 ticket is selected before checkout.
-    - Check that selected quantity is <= than remaining seats for that price zone.
+    Validates user selected tickets before checkout.
+
+    Fields:
+        price_zones (JSON): List of selected price zones with quantity.
+
+    Validation:
+        - At least one ticket must be selected.
+        - Selected quantity does not exceed remaining seats for that price zone.
     """
+
     price_zones = JSONField(
         required=True,
         error_messages={
@@ -242,9 +251,10 @@ class OrderFormValidator(forms.Form):
     )
     
     def clean_price_zones(self):
+        """Validate ticket availability of selected price zones."""
+
         price_zones = self.cleaned_data.get('price_zones')
         selected_tickets = []
-        
         for zone in price_zones:
             quantity = zone.get("quantity") 
             

@@ -27,12 +27,32 @@ STRIPE_PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
 STRIPE_SECRET_KEY = settings.STRIPE_SECRET_KEY
 
 
-# round decimal number up if it is more than 0.5
+# helper functions
 def _round(number):
+    """
+    Round decimal number up if it is more than 0.5.
+
+    Args:
+        number (float or Decimal): Input number to round.
+
+    Returns:
+        Decimal: Rounded number to 2 decimal places.
+    """
+
     return Decimal(number).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-# accumulate the price summary for selected tickets
 def _calculate_order_totals(selected_tickets):
+    """
+    Accumulate the price summary for selected tickets.
+
+    Args:
+        selected_tickets: List of dictionaries of selected tickets.
+            Each ticket has { id, quantity (selected quantity), total (price * quantity) }
+
+    Returns:
+        tuple: (subtotal, service_fee, tax, total)
+    """
+
     subtotal = Decimal(0)
     for ticket in selected_tickets:
         subtotal += Decimal(ticket.get("total"))
@@ -43,9 +63,20 @@ def _calculate_order_totals(selected_tickets):
     total = _round( subtotal + service_fee + tax )
     return subtotal, service_fee, tax, total
 
-# payment from customer to Eventhub via Stripe
 def _create_and_confirm_payment(total, payment_method_id, user_email):
-    # payment intent based on received payment_method_id from frontend
+    """
+    Payment from customer to Eventhub via Stripe.
+    Create and confirm a Stripe PaymentIntent.
+
+    Args:
+        total (Decimal): Charge amount in dollars.
+        payment_method_id (str): ID of Stripe payment method from frontend Stripe fetch.
+        user_email (str): Email of the customer for receipt.
+
+    Returns:
+        stripe.PaymentIntent: Confirmed PaymentIntent object.
+    """
+
     stripe.api_key = STRIPE_SECRET_KEY
     payment_intent = stripe.PaymentIntent.create(
         amount=int(total * 100),
@@ -62,9 +93,16 @@ def _create_and_confirm_payment(total, payment_method_id, user_email):
     )
     return confirmed_intent
 
-# save tickets to db and associate them with order
-# update ticket quantity for the event (tickets have been purchased)
 def _save_tickets(purchased_tickets, order):
+    """
+    Save tickets to db and associate them with successful order.
+    Update ticket quantity for the event (tickets have been purchased).
+
+    Args:
+        purchased_tickets (list of dictionaries): Ticket selection data.
+        order (Order): Order to which tickets belong to.
+    """
+
     for t in purchased_tickets:
         price_zone = EventPriceZone.objects.filter(id=t.get("id")).first()                 
         if price_zone:
@@ -75,18 +113,24 @@ def _save_tickets(purchased_tickets, order):
                 )
 
 
-
 # views
 # TODO: filtering
 def view_events(request):
     """
-    Display upcoming events.
-    
-    Displays events that are:
-        - upcoming (event date > now)
-        - whose event owner has setup payouts to receive payments from ticket purchases
-    
+    Display events for users to explore.
+
+    Displays events criteria:
+        - event  is upcoming (event date > now)
+        - event organizer has setup Stripe payouts to receive payments from ticket purchases
+        - event has available seats
+
+    Event annotations:
+        - lowest_price
+        - total seats & seats sold
+        - percent_sold
+        - "Hot" badge for events with >80% seats sold
     """
+
     events = Event.objects.filter(
         date__gte=timezone.now(), 
         organizer__stripe_account__stripe_account_ready=True
@@ -105,13 +149,11 @@ def view_events(request):
             output_field=FloatField()
         ),
         
-        # "Hot" if event has >70% of seats sold
         badge=Case(
             When(percent_sold__gt=0.8, then=Value('Hot')),
             default=Value(''),
         )
-    ).filter(event_seats_sold__lt=F('event_seats')).distinct()  # exclude sold out events
-    
+    ).filter(event_seats_sold__lt=F('event_seats')).distinct()
 
     return render(request, 'events/view-events.html', {'events': events})
 
@@ -205,7 +247,21 @@ def create_event(request):
             'price_zone_forms': price_zone_forms
         })
 
+
 def view_event(request, event_id):
+    """
+    Display single event's information.
+
+    Additional behavior:
+        - Hide event from anyone except organizer if organizer’s Stripe account is not setup.
+        - If user owns tickets to this event, preview it.
+        - On POST validate order information before proceeding to checkout.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): ID of the event to view.
+    """
+
     event = get_object_or_404(Event, id=event_id)
         
     if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
@@ -251,13 +307,18 @@ def view_event(request, event_id):
         'form': form
     })
 
+
 @login_required
 def edit_event(request, event_id):
     """
     Handle event update.
 
+    Restrictions:
+        - Only the event owner may edit.
+        - Past events cannot be edited.
+
     GET:
-        - Serve edit event form page.
+        - Serve edit event form page with pre-filled event details.
 
     POST:
         Validate submitted form.
@@ -312,8 +373,25 @@ def edit_event(request, event_id):
             'event_form': event_form
         })
 
+
 @login_required
 def checkout(request, event_id):
+    """
+    Handle payment for ticket purchases.
+
+    Workflow:
+        - Load selected tickets from session.
+        - Compute totals (subtotal, service fee, tax, total).
+        - If total = 0 (free tickets only): skip Stripe payment and auto-complete order.
+        - If total > 0 (paid only or paid/free tickets):
+            - Creates and confirms a Stripe PaymentIntent.
+            - If confirmed  PaymentIntent is successful, saves Order and associated Tickets.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): ID of the event, which tickets are being purchased.
+    """
+
     event = get_object_or_404(Event, id=event_id)
     
     selected_tickets = request.session.get('selected_tickets')
@@ -377,18 +455,24 @@ def checkout(request, event_id):
         'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY
     })
 
+
 @login_required
 def checkout_success(request, event_id, order_id):
     """
     Display the payment success page.
 
+    Redirects to the event page or payment fail page if the check fails.
+    Otherwise displays payment success page.
+
     Validates:
         - order_id: belongs to the logged in user
         - payment succeeded: otherwise redirects to payment fail page
-    
-    Redirects to the event page or payment fail page if the check fails otherwise displays payment success page.
+
+    Args:
+        event_id (int): ID of the event for which the order was made.
+        order_id (int): ID of the order that was made by the user and is successful.
     """
-    
+
     event = get_object_or_404(Event, id=event_id)
     order = get_object_or_404(Order, id=order_id, acquirer=request.user)
     
@@ -407,18 +491,24 @@ def checkout_success(request, event_id, order_id):
         'purchased_tickets': purchased_tickets
     })
 
+
 @login_required
 def checkout_fail(request, event_id, order_id):
     """
     Display the payment fail page.
 
+    Redirects to the event page or payment success page if the check approves.
+    Otherwise displays payment fail page.
+
     Validates:
         - order_id: belongs to the logged in user
         - payment did not succeed: otherwise redirects to payment success page
-    
-    Redirects to the event page or payment success page if the check approves otherwise displays payment fail page.
+
+    Args:
+        event_id (int): ID of the event for which the order was made.
+        order_id (int): ID of the order that was made by the user and has failed.
     """
-    
+
     event = get_object_or_404(Event, id=event_id)
     order = get_object_or_404(Order, id=order_id)
     
@@ -430,10 +520,9 @@ def checkout_fail(request, event_id, order_id):
         return redirect('events:checkout_success', event_id=event.id, order_id=order.id)
     return render(request, 'events/payment-fail.html')
 
+
 @login_required
 def my_events(request):
-    """View events created by the user."""
-    
+    """Display all events created by the logged-in user."""
     all_events = request.user.events.all()
-    
     return render(request, 'events/my-events.html', { 'events': all_events })

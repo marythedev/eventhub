@@ -9,9 +9,15 @@ from .utils import validate_location
 
 load_dotenv()
 
-# Helper functions
+
+# helper functions
 def _full_name_field():
-    """Helper function that returns CharField with full name validation rules."""
+    """
+    Create a CharField for full name inputs with proper validation.
+    Returns:
+        forms.CharField: Configured form field for full name.
+    """
+
     return forms.CharField(
         max_length=100,
         required=True,
@@ -22,14 +28,28 @@ def _full_name_field():
     )
 
 def _email_field():
-    """Helper function that returns EmailField with email validation rules."""
+    """
+    Create an EmailField for email inputs with validation rules.
+    Returns:
+        forms.EmailField: Configured form field for email.
+    """
+
     return forms.EmailField(
         required=True,
         error_messages={'required': 'Email is required.'}
     )
 
 def _password_field(required_message):
-    """Helper function that returns CharField with password validation rules."""
+    """
+    Create a password input field with validation rules.
+
+    Args:
+        required_message (str): Error message when password is missing.
+
+    Returns:
+        forms.CharField: Configured password input field.
+    """
+
     return forms.CharField(
         min_length=8,
         required=True,
@@ -42,14 +62,19 @@ def _password_field(required_message):
 
 def _validate_password(password):
     """
-    Helper function to define password validation rules:
+    Validate password complexity rules.
+
+    Rules:
         - At least 8 characters long
         - Contains at least one uppercase letter
         - Contains at least one lowercase letter
         - Contains at least one digit
         - Contains at least one special character (@, $, !, %, *, ?, &)
+
+    Args:
+        password (str): The password to validate.
     """
-    
+
     if len(password) < 8:
         raise ValidationError("Password must be at least 8 characters long.")
     if not re.search(r"[A-Z]", password):
@@ -62,12 +87,12 @@ def _validate_password(password):
         raise ValidationError("Password must contain at least one special character (@, $, !, %, *, ?, &).")
 
 
-# Validation forms
+# forms
 class RegisterValidator(forms.Form):
     """
     Validates user registration data.
 
-    Args:
+    Fields:
         full_name (str): User's full name, max length 100.
         email (str): User's email address, must be unique.
         password (str): User's password, must satisfy validation rules.
@@ -81,7 +106,7 @@ class RegisterValidator(forms.Form):
     Returns:
         dict: Cleaned data containing validated form input.
     """
-    
+
     full_name = _full_name_field()
     email = _email_field()
     password = _password_field('Password is required.')
@@ -91,23 +116,25 @@ class RegisterValidator(forms.Form):
         error_messages={'required': 'Please accept the Terms and Conditions.'}
     )
 
-    # check if the email already exists in db
     def clean_email(self):
+        """Check if the email already exists in db."""
+
         email = self.cleaned_data.get('email')
         if Profile.objects.user_exists(email=email):
             raise ValidationError("Email is already registered.")
         return email
 
-    # password validation rules
     def clean_password(self):
-        password = self.cleaned_data.get('password')
+        """Check password against validation rules."""
 
+        password = self.cleaned_data.get('password')
         _validate_password(password)
 
         return password
 
-    # check if password and confirm_password match
     def clean(self):
+        """Check if password and confirm_password match."""
+        
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
         confirm_password = cleaned_data.get("confirm_password")
@@ -122,10 +149,9 @@ class LoginValidator(forms.Form):
     """
     Validates user login credentials.
 
-    Args:
+    Fields:
         email (str): User's email address.
         password (str): User's password.
-
 
     Raises:
         ValidationError: Raised if fields are missing or credentials are invalid.
@@ -133,7 +159,7 @@ class LoginValidator(forms.Form):
     Returns:
         dict: The authenticated user is stored in the form's cleaned data.
     """
-    
+
     email = _email_field()
     password = forms.CharField(
         required=True,
@@ -141,8 +167,9 @@ class LoginValidator(forms.Form):
         error_messages={'required': 'Password is required.'}
     )
 
-    # Authenticate user credentials
     def clean(self):
+        """Authenticate user with provided credentials."""
+
         cleaned_data = super().clean()
         email = cleaned_data.get("email")
         password = cleaned_data.get("password")
@@ -173,7 +200,7 @@ class ProfileValidator(forms.Form):
     Returns:
         dict: Cleaned data with validated and transformed (if needed) input.
     """
-    
+
     def __init__(self, *args, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
@@ -195,14 +222,25 @@ class ProfileValidator(forms.Form):
         }
     )
     
-    # check if the new email already exists in db, excluding current user's email
     def clean_email(self):
+        """Check if the new email already exists in db (excluding current user's email)."""
+
         email = self.cleaned_data.get('email')
         if email != self.user.email and Profile.objects.user_exists(email=email, ignore_user_id = self.user.pk):
             raise ValidationError("Email is already registered.")
         return email
     
     def clean_phone(self):
+        """
+        Validate phone number.
+
+        Rules:
+            - Starts with '+'
+            - Remaining characters must be digits
+            - Must be between 6 and 15 digits long
+            - Formatting characters like ( ), -, and spaces are removed during validation
+        """
+
         phone = self.cleaned_data.get('phone')
         
         if phone and phone != self.user.phone:
@@ -223,16 +261,20 @@ class ProfileValidator(forms.Form):
         return phone
     
     def clean_location(self):
+        """
+        Validate the user's updated location.
+
+        Behavior:
+            - Does nothing if location is unchanged.
+            - Validation and normalizes location using validate_location.
+        """
+
         location = self.cleaned_data.get('location')
         
         if location and location != self.user.location:
             location = validate_location(location)
             
         return location
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        return cleaned_data
 
 
 class SecurityValidator(forms.Form):
@@ -259,15 +301,17 @@ class SecurityValidator(forms.Form):
     new_password = _password_field('New password is required.')
     confirm_new_password = _password_field('Confirmation of the new password is required.')
     
-    # check new password again the password validation rules
     def clean_new_password(self):
+        """Check new password again the password validation rules."""
+        
         new_password = self.cleaned_data.get('new_password')
-
         _validate_password(new_password)
 
         return new_password
 
     def clean(self):
+        """Check if current_password is correct and password and confirm_password match."""
+        
         cleaned_data = super().clean()
         current_password = cleaned_data.get("current_password")
         new_password = cleaned_data.get("new_password")

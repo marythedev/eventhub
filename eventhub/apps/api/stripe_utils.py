@@ -6,6 +6,17 @@ STRIPE_SECRET_KEY = settings.STRIPE_SECRET_KEY
 stripe.api_key = STRIPE_SECRET_KEY
 
 def get_stripe_account(user):
+    """
+    Get user's Stripe account and update account readiness status (stripe_account.stripe_account_ready).
+        Account is ready if all details are submitted and no verification is pending
+
+    Args:
+        user (Profile): The user whose Stripe account is retrieved.
+
+    Returns:
+        stripe.Account: The Stripe account object.
+    """
+
     account  = stripe.Account.retrieve(user.stripe_account.stripe_account_id)
     
     # keep user's account status up-to-date
@@ -21,6 +32,16 @@ def get_stripe_account(user):
     return account
 
 def create_stripe_account(user):
+    """
+    Create a new Stripe Express account for a user and save its ID in the database.
+
+    Args:
+        user (Profile): The user for whom to create the account.
+
+    Returns:
+        stripe.Account: The newly created Stripe account object.
+    """
+
     account = stripe.Account.create(type="express")
     user.stripe_account.stripe_account_id = account.id
     user.stripe_account.save(update_fields=['stripe_account_id'])
@@ -28,23 +49,18 @@ def create_stripe_account(user):
 
 def get_stripe_account_link(user):
     """
-    Get URL for user's connected stripe account.
-        If user has not onboarded - returns the onboarding link to setup account.
-        If user has onboarded - returns the login link to manage the account.
+    Generate a Stripe account link for onboarding or login (account management).
+
+    Returns an onboarding URL if stripe onboarding is incomplete and no details were submitted.
+    Otherwise, returns a login URL to manage account.
 
     Args:
-        user (Profile): to retrieve stripe_account.stripe_account_id field of user's connected stripe account.
+        user (Profile): The user who is the owner of the Stripe account.
 
     Returns:
-        dict: {
-            'onboarding_url': str or None,
-            'login_url': str or None
-        }
-
-    Raises:
-        stripe.error.StripeError: If there is an error retrieving or creating the account.
+        tuple: (onboarding_url, login_url) where one of them is None.
     """
-    
+
     if not user.stripe_account.stripe_account_id:
         account = create_stripe_account(user)
     else:
@@ -66,6 +82,13 @@ def get_stripe_account_link(user):
         return account_link.url, None
 
 def delete_stripe_account(user):
+    """
+    Delete a user's Stripe account and reset stripe information in the database.
+
+    Args:
+        user (Profile): The user whose account is being deleted.
+    """
+
     if user.stripe_account.stripe_account_id:
         stripe.Account.delete(user.stripe_account.stripe_account_id)
         user.stripe_account.stripe_account_id = None

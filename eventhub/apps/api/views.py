@@ -18,7 +18,21 @@ from .stripe_utils import get_stripe_account_link, delete_stripe_account
 
 @login_required
 def ticket_barcode(request, ticket_id):
-    """Generate barcode for ticket."""
+    """
+    Generate a barcode image for a ticket.
+    Checks that the ticket belongs to the logged-in user and returns a barcode image of the ticket number.
+
+    Args:
+        request: Django request object.
+        ticket_id (int): ID of the ticket in the database.
+
+    Returns:
+        HttpResponse: image of the barcode.
+
+    Raises:
+        Http404: If the ticket does not exist or does not belong to the logged-in user.
+    """
+
     ticket = get_object_or_404(Ticket, id=ticket_id)
     
     if (ticket.order.acquirer != request.user):
@@ -30,9 +44,26 @@ def ticket_barcode(request, ticket_id):
 
     return HttpResponse(buffer.getvalue(), content_type="image/png")
 
+
 @login_required
 def order_receipt(request, order_id):
-    """Generate receipt for order."""
+    """
+    Generate a PDF receipt for an order.
+
+    Receipt includes event details, tickets purchased with quantity and price,
+    and a payment summary with subtotal, service fee, tax, and total.
+
+    Args:
+        request: Django request object.
+        order_id (int): ID of the order in the database.
+
+    Returns:
+        HttpResponse: order receipt PDF file.
+
+    Raises:
+        Http404: If the order does not exist or does not belong to the logged-in user.
+    """
+
     order = get_object_or_404(Order, id=order_id, acquirer=request.user)
 
     tickets = (
@@ -143,10 +174,22 @@ def order_receipt(request, order_id):
 
     return response
 
+
 @login_required
 def stripe_setup(request):
-    """Onboard and manage Stripe connected account."""
-    
+    """
+    Retrieve Stripe onboarding or login link for the current user.
+
+    Args:
+        request: Django request object.
+
+    Returns:
+        JsonResponse (dictionary): 'account_id', 'onboarding_url' or 'login_link'.
+
+    Raises:
+        JsonResponse with status 500 if error encountered.
+    """
+
     try:
         onboarding_url, login_url = get_stripe_account_link(request.user)
 
@@ -163,8 +206,19 @@ def stripe_setup(request):
 
 @login_required
 def stripe_delete(request):
-    """Delete Stripe connected account."""
-    
+    """
+    Delete the Stripe connected account of the current user.
+
+    Args:
+        request: Django request object.
+
+    Returns:
+        JsonResponse: {'success': True} if account has been deleted.
+
+    Raises:
+        JsonResponse with status 500 if error encountered.
+    """
+
     if request.method != "POST":
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     

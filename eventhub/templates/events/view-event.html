@@ -43,8 +43,16 @@
                             <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
                             <p><i class="fas fa-tags"></i> {{event.category|capfirst}}</p>
                         </div>
-                        <div class="event-organizer">
-                            <p><strong>Organized by:</strong> {{ event.organizer.get_full_name }}</p>
+                        <div class="event-organizer {% if event.is_past %} past {% endif %}">
+                            <p><strong>Organized by:</strong> {{ event.organizer.get_full_name}}</p>
+                            {% if event.is_past %}
+                            <button class="btn-secondary btn-small">Past&nbsp;Event</button>
+                            {% endif %}
+                            {% if request.user == event.organizer and not event.is_past %}
+                            <a href="{% url 'events:edit_event' event.id %}">
+                                <button class="btn-secondary btn-small"><i class="fas fa-edit"></i> Edit Event</button>
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -91,7 +99,16 @@
             </div>
 
             <aside class="v-event-sidebar">
-                <form class="order-summary" action="{% url 'events:view_event' event_id=event.id %}" method="POST">
+                {% if tickets_user_owns %}
+                <a href="{% url 'tickets:event_tickets' event.id %}">
+                    <div class="ticket-ownership">
+                        <p>You own tickets to this event.</p>
+                        <span class="ticket-ownership-count">{{tickets_user_owns|length}}</span>
+                    </div>
+                </a>
+                <br>
+                {% endif %}
+                <form class="order-summary" action="{% url 'events:view_event' event.id %}" method="POST">
                     {% csrf_token %}
                     <h3>Order Summary</h3>
                     <div class="selected-tickets" id="selectedTickets">

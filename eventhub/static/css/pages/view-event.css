@@ -106,10 +106,20 @@
 }
 
 .event-organizer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
     padding: 1rem;
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
+}
+
+.event-organizer.past button {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
 }
 
 .v-event-desc {
@@ -246,6 +256,70 @@ p.ticket-price {
     position: sticky;
     top: 100px;
     height: fit-content;
+}
+
+.ticket-ownership {
+    position: relative;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    transition: var(--transition);
+
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.ticket-ownership-count {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    width: fit-content;
+    padding: 4px 6px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.ticket-ownership:hover {
+    box-shadow: var(--card-shadow);
+    border-color: var(--primary-color);
+    cursor: pointer;
+}
+
+.ticket-ownership:hover .ticket-ownership-count {
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    20% {
+        transform: translateY(-4px);
+    }
+
+    35% {
+        transform: translateY(1px);
+    }
+
+    55% {
+        transform: translateY(-2px);
+    }
+
+    70% {
+        transform: translateY(0.25px);
+    }
 }
 
 .order-summary {

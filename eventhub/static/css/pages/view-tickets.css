@@ -2,6 +2,15 @@
     padding: 4rem 0;
 }
 
+.view-tickets-section .section-header-large {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
 .tickets-list {
     display: flex;
     flex-direction: column;

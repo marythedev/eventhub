@@ -199,6 +199,13 @@ def view_event(request, event_id):
     images = event.images.all()
     for image in images:
         image_urls.append(image.url)
+    
+    owned_tickets = None
+    if request.user.is_authenticated:
+        owned_tickets = Ticket.objects.filter(
+            order__acquirer=request.user,
+            price_zone__event=event
+        )
         
     if request.method == "POST":
         form = OrderFormValidator(request.POST)
@@ -211,7 +218,8 @@ def view_event(request, event_id):
         form = OrderFormValidator()
     
     return render(request, 'events/view-event.html', {
-        'event': event, 
+        'event': event,
+        'tickets_user_owns': owned_tickets,
         'imgs': image_urls, 
         'price_zones': event.price_zones.all(),
         'form': form

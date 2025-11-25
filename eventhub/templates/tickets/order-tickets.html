@@ -16,6 +16,10 @@
                 <h1>Order Tickets</h1>
                 <p>Order Number: {{order.number}}</p>
             </div>
+
+            <a href="{% url 'events:view_event' order.event.id %}">
+                <button class="btn-primary">View Event</button>
+            </a>
         </div>
 
         <div class="tickets-list">
@@ -29,7 +33,7 @@
                     <p class="ticket-meta">
                         <span><i class="fas fa-ticket-alt"></i> {{ticket.price_zone.name}}</span>
                         <span>
-                            <i class="fas fa-calendar"></i> 
+                            <i class="fas fa-calendar"></i>
                             <span class="full-date-no-week-day" data-utc="{{ order.event.date|date:'c' }}"></span>
                         </span>
                         <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>

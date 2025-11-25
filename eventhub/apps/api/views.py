@@ -151,7 +151,7 @@ def stripe_setup(request):
         onboarding_url, login_url = get_stripe_account_link(request.user)
 
         return JsonResponse({
-            'account_id': request.user.stripe_account_id,
+            'account_id': request.user.stripe_account.stripe_account_id,
             'onboarding_url': onboarding_url,
             'login_link': login_url
         })
@@ -169,7 +169,7 @@ def stripe_delete(request):
         return JsonResponse({'error': 'Invalid request method'}, status=400)
     
     try:
-        if request.user.stripe_account_id:
+        if request.user.stripe_account.stripe_account_id:
             delete_stripe_account(request.user)
         return JsonResponse({'success': True})
     except Exception as e:

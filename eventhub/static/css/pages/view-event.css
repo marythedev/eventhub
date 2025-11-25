@@ -7,6 +7,24 @@
     gap: 2rem;
 }
 
+.v-event-owner-alert {
+    position: relative;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    color: white;
+}
+
+.v-event-owner-alert a {
+    color: white;
+}
+
+.v-event-owner-alert a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 .v-event-main {
     flex: 1;
     min-width: 0;
@@ -265,8 +283,6 @@ p.ticket-price {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 16px;
-    transition: var(--transition);
-
     color: var(--text-primary);
     text-decoration: none;
     transition: var(--transition);

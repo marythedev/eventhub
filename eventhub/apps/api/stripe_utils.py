@@ -6,12 +6,24 @@ STRIPE_SECRET_KEY = settings.STRIPE_SECRET_KEY
 stripe.api_key = STRIPE_SECRET_KEY
 
 def get_stripe_account(user):
-    return stripe.Account.retrieve(user.stripe_account_id)
+    account  = stripe.Account.retrieve(user.stripe_account.stripe_account_id)
+    
+    # keep user's account status up-to-date
+    if (account.details_submitted
+        and not account.requirements.currently_due
+        and not account.requirements.pending_verification
+        and not account.requirements.disabled_reason):
+        user.stripe_account.stripe_account_ready = True
+    else:
+        user.stripe_account.stripe_account_ready = False
+    user.stripe_account.save(update_fields=['stripe_account_ready'])
+
+    return account
 
 def create_stripe_account(user):
     account = stripe.Account.create(type="express")
-    user.stripe_account_id = account.id
-    user.save()
+    user.stripe_account.stripe_account_id = account.id
+    user.stripe_account.save(update_fields=['stripe_account_id'])
     return account
 
 def get_stripe_account_link(user):
@@ -21,7 +33,7 @@ def get_stripe_account_link(user):
         If user has onboarded - returns the login link to manage the account.
 
     Args:
-        user (Profile): to retrieve stripe_account_id field of user's connected stripe account.
+        user (Profile): to retrieve stripe_account.stripe_account_id field of user's connected stripe account.
 
     Returns:
         dict: {
@@ -33,20 +45,20 @@ def get_stripe_account_link(user):
         stripe.error.StripeError: If there is an error retrieving or creating the account.
     """
     
-    if not user.stripe_account_id:
+    if not user.stripe_account.stripe_account_id:
         account = create_stripe_account(user)
     else:
         account = get_stripe_account(user)
 
     # account has onboarded (account manage link)
     if account.details_submitted:
-        login_link = stripe.Account.create_login_link(user.stripe_account_id)
+        login_link = stripe.Account.create_login_link(user.stripe_account.stripe_account_id)
         return None, login_link.url
     
     # account has not onboarded (account onboarding link)
     else:
         account_link = stripe.AccountLink.create(
-            account=user.stripe_account_id,
+            account=user.stripe_account.stripe_account_id,
             refresh_url=f"{settings.DOMAIN_URL}/account/#bank",
             return_url=f"{settings.DOMAIN_URL}/account/#bank",
             type="account_onboarding"
@@ -54,7 +66,8 @@ def get_stripe_account_link(user):
         return account_link.url, None
 
 def delete_stripe_account(user):
-    if user.stripe_account_id:
-        stripe.Account.delete(user.stripe_account_id)
-        user.stripe_account_id = None
-        user.save()
+    if user.stripe_account.stripe_account_id:
+        stripe.Account.delete(user.stripe_account.stripe_account_id)
+        user.stripe_account.stripe_account_id = None
+        user.stripe_account.stripe_account_ready = False
+        user.stripe_account.save()

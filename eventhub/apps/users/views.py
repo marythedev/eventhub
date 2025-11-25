@@ -1,13 +1,16 @@
 import io
 from PIL import Image
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 
 from .utils import *
 from api.stripe_utils import get_stripe_account
+
 from .forms import RegisterValidator, LoginValidator, ProfileValidator, SecurityValidator
-from .models import Profile
+
+from .models import Profile, StripeAccount
 from events.models import Event, Order
 
 EVENT_PREVIEW_NUM = 2
@@ -39,12 +42,13 @@ def register(request):
             avatar = ""
 
             # Create new user profile
-            Profile.objects.create_user(
+            user = Profile.objects.create_user(
                 full_name=full_name,
                 email=email,
                 password=password,
                 avatar=avatar
             )
+            StripeAccount.objects.create(account_owner=user)
 
             # Authenticate and log in the new user
             user = authenticate(request, email=email, password=password)

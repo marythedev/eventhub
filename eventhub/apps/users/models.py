@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
+from django.conf import settings
 
 class ProfileManager(BaseUserManager):
     """
@@ -59,7 +60,6 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
-    stripe_account_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
@@ -77,3 +77,19 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         """Returns: first name (before space) or defaults to full name if no space."""
         return self.full_name.split()[0]
+
+
+class StripeAccount(models.Model):
+    """Connected Stripe Account of the user."""
+    
+    stripe_account_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
+    stripe_account_ready = models.BooleanField(default=False)
+    
+    account_owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='stripe_account',
+    )
+    
+    def __str__(self):
+        return f"{self.account_owner.email} Stripe Account"

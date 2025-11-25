@@ -29,7 +29,6 @@ class Event(models.Model):
     ]
     
     name = models.CharField(max_length=50)
-    # TODO translate users local time to UTC while saving
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
     category = models.CharField(max_length=20, choices=CATEGORIES)

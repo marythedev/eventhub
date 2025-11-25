@@ -10,6 +10,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Count, Min, Sum, F, ExpressionWrapper, FloatField, Case, When, Value
+from django.http import Http404
+
+from api.stripe_utils import get_stripe_account
 
 from .models import *
 from tickets.models import *
@@ -76,8 +79,18 @@ def _save_tickets(purchased_tickets, order):
 # views
 # TODO: filtering
 def view_events(request):
-    """Display upcoming events."""
-    upcoming_events = Event.objects.filter(date__gte=timezone.now()).annotate(
+    """
+    Display upcoming events.
+    
+    Displays events that are:
+        - upcoming (event date > now)
+        - whose event owner has setup payouts to receive payments from ticket purchases
+    
+    """
+    events = Event.objects.filter(
+        date__gte=timezone.now(), 
+        organizer__stripe_account__stripe_account_ready=True
+        ).annotate(
         lowest_price=ExpressionWrapper(
             Min('price_zones__price'),
             output_field=FloatField()
@@ -100,7 +113,7 @@ def view_events(request):
     ).filter(event_seats_sold__lt=F('event_seats')).distinct()  # exclude sold out events
     
 
-    return render(request, 'events/view-events.html', {'events': upcoming_events})
+    return render(request, 'events/view-events.html', {'events': events})
 
 
 @login_required
@@ -194,6 +207,9 @@ def create_event(request):
 
 def view_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+        
+    if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
+        raise Http404("Event not found")
     
     image_urls = []
     images = event.images.all()
@@ -210,8 +226,14 @@ def view_event(request, event_id):
     if request.method == "POST":
         form = OrderFormValidator(request.POST)
         
+        # check if user attempts to purchase tickets for past event
         if event.is_past:
             form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
+        
+        # check if event owner has setup payouts
+        get_stripe_account(request.user)
+        if not event.organizer.stripe_account.stripe_account_ready:
+            form.add_error(None, "Event owner has not configured their bank settings to receive payments.")
         
         if not event.is_past and form.is_valid():
             selected_tickets = form.cleaned_data.get('price_zones', [])
@@ -222,6 +244,7 @@ def view_event(request, event_id):
     
     return render(request, 'events/view-event.html', {
         'event': event,
+        'stripe_account_ready': event.organizer.stripe_account.stripe_account_ready,
         'tickets_user_owns': owned_tickets,
         'imgs': image_urls, 
         'price_zones': event.price_zones.all(),

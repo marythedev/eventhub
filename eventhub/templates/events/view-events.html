@@ -26,9 +26,9 @@
             </div>
             <div class="search-bar-large">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search events, keywords or locations..." id="eventsSearch">
+                <input type="text" placeholder="Search events, keywords or locations..." class="eventsSearch">
+                <div class="suggestions-box searchSuggestions"></div>
             </div>
-
         </div>
 
         <div class="events-content">
@@ -168,7 +168,6 @@
                                         From ${{ event.lowest_price|floatformat:2 }}
                                         {% else %} Free {% endif %}
                                     </span>
-
 
                                     <button class="btn-primary btn-small">
                                         {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}

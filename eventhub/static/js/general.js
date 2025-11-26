@@ -1,3 +1,64 @@
+// search functionality
+const searchInputs = document.querySelectorAll(".eventsSearch");
+const suggestionBoxes = document.querySelectorAll(".searchSuggestions");
+
+searchInputs.forEach((input, index) => {
+
+    const suggestionsBox = suggestionBoxes[index];
+    let searchTimeout = null;
+
+    input.addEventListener("input", function () {
+        const query = this.value.trim();
+
+        clearTimeout(searchTimeout);
+
+        if (!query) {
+            suggestionsBox.style.display = "none";
+            return;
+        }
+
+        // fetch and display search suggestions
+        searchTimeout = setTimeout(() => {
+            fetch(`/api/search/?q=${encodeURIComponent(query)}`, {
+                headers: {
+                    "X-App-Request": "true"
+                }
+            }).then(res => res.json())
+                .then(data => showSuggestions(data.results, suggestionsBox));
+        }, 250);
+    });
+
+    // hide suggestions if user clicks somewhere outside
+    document.addEventListener("click", (e) => {
+        if (!input.contains(e.target) && !suggestionsBox.contains(e.target))
+            suggestionsBox.style.display = "none";
+    });
+});
+
+function showSuggestions(events, suggestionsBox) {
+    if (!events.length) {
+        suggestionsBox.style.display = "none";
+        return;
+    }
+
+    let suggestion = "";
+    events.forEach(event => {
+        suggestion += `
+            <div class="suggestion-item" onclick="window.location='/events/${event.id}/'">
+                <img src="${event.image}" class="suggestion-img">
+                <div>
+                    <div><strong>${event.name}</strong></div>
+                    <div><small>${event.location}</small></div>
+                </div>
+            </div>
+        `;
+    });
+
+    suggestionsBox.innerHTML = suggestion;
+    suggestionsBox.style.display = "block";
+}
+
+
 // convert from UTC to user's browser timezone
 function UTCtoLocalTime(utcString, element, options = undefined) {
     const localDate = new Date(utcString);

@@ -223,6 +223,39 @@ section {
 
 
 /* multi-page reused classes */
+.suggestions-box {
+    position: absolute;
+    top: 55px;
+    left: 0;
+    width: 100%;
+    margin-top: 5px;
+    overflow-y: auto;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    box-shadow: var(--card-shadow);
+    z-index: 2000;
+    display: none;
+}
+
+.suggestion-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    cursor: pointer;
+    align-items: center;
+}
+
+.suggestion-item:hover {
+    background: var(--bg-primary);
+}
+
+.suggestion-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
 .empty-state {
     text-align: center;
     color: var(--text-secondary);

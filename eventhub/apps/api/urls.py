@@ -5,6 +5,7 @@ from . import views
 app_name = 'api'
 
 urlpatterns = [
+    path("search/", views.search_suggestions, name="search_suggestions"),
     path("barcode/<int:ticket_id>/", views.ticket_barcode, name="ticket_barcode"),
     path('orders/<int:order_id>/receipt/', views.order_receipt, name='order_receipt'),
     # TODO POST /api/validate-ticket

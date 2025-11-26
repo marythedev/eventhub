@@ -294,6 +294,7 @@ def view_event(request, event_id):
         if not event.is_past and form.is_valid():
             selected_tickets = form.cleaned_data.get('price_zones', [])
             request.session['selected_tickets'] = selected_tickets
+            request.session['selected_event'] = event.id
             return redirect('events:checkout', event_id=event.id)
     else:
         form = OrderFormValidator()
@@ -394,8 +395,12 @@ def checkout(request, event_id):
 
     event = get_object_or_404(Event, id=event_id)
 
+    if not event.organizer.stripe_account.stripe_account_ready:
+        raise Http404("Event not found")
+
     selected_tickets = request.session.get('selected_tickets')
-    if not selected_tickets:
+    selected_event = request.session.get('selected_event')
+    if not selected_tickets or selected_event != event.id:
         return redirect('events:view_event', event_id=event.id)
 
     subtotal, service_fee, tax, total = _calculate_order_totals(selected_tickets)
@@ -412,6 +417,7 @@ def checkout(request, event_id):
         )
         _save_tickets(selected_tickets, order)
         request.session.pop("selected_tickets")
+        request.session.pop("selected_event")
         return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
 
     if request.method == "POST":

@@ -291,6 +291,12 @@
                         </a>
                         {% endif %}
                     </div>
+                    <div class="section-footer-account">
+                        <br>
+                        <a href="{% url 'events:my_events' %}">
+                            <button class="btn-primary">View All Events</button>
+                        </a>
+                    </div>
                 </div>
 
                 <div class="account-section-divider"></div>
@@ -320,7 +326,8 @@
                                     <p class="order-meta">
                                         <span>
                                             <i class="fas fa-calendar"></i>
-                                            <span class="regular-date" data-utc="{{ order.event.date|date:'c' }}"></span>
+                                            <span class="regular-date"
+                                                data-utc="{{ order.event.date|date:'c' }}"></span>
                                         </span>
                                     </p>
                                 </div>
@@ -358,6 +365,12 @@
                             <p class=" remaining-count">+{{orders_more}} more order{{orders_more|pluralize}}</p>
                         </a>
                         {% endif %}
+                    </div>
+                    <div class="section-footer-account">
+                        <br>
+                        <a href="{% url 'tickets:view_orders' %}">
+                            <button class="btn-primary">View All Orders</button>
+                        </a>
                     </div>
                 </div>
             </div>

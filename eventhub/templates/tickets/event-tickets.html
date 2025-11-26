@@ -21,6 +21,11 @@
             </a>
         </div>
 
+        {% if not tickets_user_owns %}
+        <p class="empty-state">You have not purchased any tickets for this event.</p>
+        {% endif %}
+
+        {% if tickets_user_owns|length > 0 %}
         <div class="tickets-list">
             {% for ticket in tickets_user_owns %}
             <div class="ticket-list-item">
@@ -41,6 +46,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 </section>
 

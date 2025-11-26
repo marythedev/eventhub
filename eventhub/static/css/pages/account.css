@@ -82,6 +82,10 @@
     color: var(--text-secondary);
 }
 
+.section-footer-account {
+    display: none;
+}
+
 .account-form {
     display: flex;
     flex-direction: column;
@@ -273,9 +277,22 @@
         padding: 2rem 1rem;
     }
 
+    .section-header-account {
+        margin-bottom: 1rem;
+    }
 
     .section-header-account button {
         display: none;
+    }
+
+    .section-footer-account {
+        display: block;
+    }
+
+    .section-footer-account a,
+    .section-footer-account button {
+        width: 100%;
+        justify-content: center;
     }
 
     .order-details {
@@ -289,5 +306,15 @@
 
     .account-section .orders-list .order-card .order-meta {
         display: none;
+    }
+}
+
+@media (max-width: 375px) {
+    .stripe-actions {
+        flex-direction: column;
+    }
+
+    .stripe-actions button {
+        width: 100%;
     }
 }

@@ -70,8 +70,24 @@
     .ticket-list-item {
         justify-content: column;
     }
-    
+
     .ticket-barcode {
         width: 100%;
     }
+}
+
+@media (max-width: 465px) {
+
+    .view-tickets-section .section-header-large {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .section-header-large a,
+    .section-header-large button {
+        width: 100%;
+        justify-content: center;
+    }
+
 }

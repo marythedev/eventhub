@@ -129,9 +129,7 @@
     .order-event-date {
         display: none;
     }
-}
 
-@media (max-width: 350px) {
     .order-actions {
         flex-direction: column;
         width: 100%;

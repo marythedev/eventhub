@@ -3,31 +3,33 @@ import io
 from barcode import Code128
 from barcode.writer import ImageWriter
 from django.contrib.auth.decorators import login_required
-from django.db.models import Q, Count
+from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from events.models import Order
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
                                 TableStyle)
-from events.models import Event, Order
 from tickets.models import Ticket
 
 from .stripe_utils import delete_stripe_account, get_stripe_account_link
+from .utils import filter_events
 
 SUGGESTION_PREVIEW_NUM = 5
 
-def search_suggestions(request):
+def search(request):
     """
     Return event suggestions for live search.
+    Only allows requests with the header 'X-App-Request: true'.
+    
+    Displays events filtered by:
+        - Basic filtering of 'filter_events' function (always).
+        - Search query if given.
+        - Includes sold-out events in the results.
 
-    Behavior:
-        - Only allows requests with the header 'X-App-Request: true'. 
-        - Events must be upcoming (date >= now).
-        - Event organizer have Stripe account ready.
-        - Event must match the query against name, location or category.
-
+    Events are not annotated with additional information by 'filter_events' for display.
+    
     Args:
         request: Django HttpRequest with optional query parameter.
 
@@ -42,23 +44,15 @@ def search_suggestions(request):
     if request.headers.get("X-App-Request") != "true":
         raise Http404()
 
-    query = request.GET.get("q", "").strip()
-
-    if not query:
+    if not request.GET:
         return JsonResponse({"results": []})
 
-    events = (
-        Event.objects.filter(
-            Q(date__gte=timezone.now()) &
-            Q(organizer__stripe_account__stripe_account_ready=True) &
-            (
-                Q(name__icontains=query) |
-                Q(location__icontains=query) |
-                Q(category__icontains=query)
-            )
-        )
-        .order_by("date")[:SUGGESTION_PREVIEW_NUM]
-    )
+    events = filter_events(
+        request.GET,
+        hide_sold_out=False,
+        event_annotation=False
+    ).order_by("date")[:SUGGESTION_PREVIEW_NUM]
+
 
     data = []
     for e in events:

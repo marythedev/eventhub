@@ -7,6 +7,7 @@ searchInputs.forEach((input, index) => {
     const suggestionsBox = suggestionBoxes[index];
     let searchTimeout = null;
 
+    // live suggestion fetch on input
     input.addEventListener("input", function () {
         const query = this.value.trim();
 
@@ -26,6 +27,17 @@ searchInputs.forEach((input, index) => {
             }).then(res => res.json())
                 .then(data => showSuggestions(data.results, suggestionsBox));
         }, 250);
+    });
+
+    // search submit on Enter press
+    input.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            const query = input.value.trim();
+            if (query.length > 0) {
+                window.location.href = `/events/explore/?q=${encodeURIComponent(query)}`;
+            }
+        }
     });
 
     // hide suggestions if user clicks somewhere outside

@@ -5,11 +5,11 @@ from zoneinfo import ZoneInfo
 
 import stripe
 from api.stripe_utils import get_stripe_account
+from api.utils import filter_events
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-from django.db.models import (Case, Count, ExpressionWrapper, F, FloatField,
-                              Min, Sum, Value, When)
+from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -119,41 +119,29 @@ def view_events(request):
     """
     Display events for users to explore.
 
-    Displays events criteria:
-        - event  is upcoming (event date > now)
-        - event organizer has setup Stripe payouts to receive payments from ticket purchases
-        - event has available seats
-
-    Event annotations:
-        - lowest_price
-        - total seats & seats sold
-        - percent_sold
-        - "Hot" badge for events with >80% seats sold
+    Displays events filtered by:
+        - Basic filtering of 'filter_events' function (always).
+        - Search query if given.
+        - Sold out status:
+            - If a search query ('q') is provided, includes sold-out events.
+            - Otherwise, sold-out events are excluded.
+        
+    Events are annotated with additional information by 'filter_events' for display.
     """
 
-    events = Event.objects.filter(
-        date__gte=timezone.now(),
-        organizer__stripe_account__stripe_account_ready=True
-        ).annotate(
-        lowest_price=ExpressionWrapper(
-            Min('price_zones__price'),
-            output_field=FloatField()
-        ),
+    search_query = request.GET.get('q')
 
-        event_seats=Sum('price_zones__seats'),
-        event_seats_sold=Sum('price_zones__seats_sold')
-    ).annotate(
-
-        percent_sold=ExpressionWrapper(
-            F('event_seats_sold') * 1.0 / F('event_seats'),
-            output_field=FloatField()
-        ),
-
-        badge=Case(
-            When(percent_sold__gt=0.8, then=Value('Hot')),
-            default=Value(''),
+    if search_query:
+        events = filter_events(
+            request.GET,
+            hide_sold_out=False,
+            event_annotation=True
         )
-    ).filter(event_seats_sold__lt=F('event_seats')).distinct()
+    else:
+        events = filter_events(request.GET,
+            hide_sold_out=True,
+            event_annotation=True
+        )
 
     return render(request, 'events/view-events.html', {'events': events})
 

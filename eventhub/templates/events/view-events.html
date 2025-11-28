@@ -26,7 +26,8 @@
             </div>
             <div class="search-bar-large">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search events, keywords or locations..." class="eventsSearch">
+                <input type="text" placeholder="Search events, keywords or locations..." class="eventsSearch" 
+                    value="{{ request_query.search }}">
                 <div class="suggestions-box searchSuggestions"></div>
             </div>
         </div>
@@ -35,28 +36,33 @@
             <aside class="filters-sidebar" id="filtersSidebar">
                 <div class="filters-header">
                     <h3>Filters</h3>
-                    <button class="btn-icon link-btn" id="clearFilters">Clear all</button>
+                    <a href="{% url 'events:view_events' %}">
+                        <button class="btn-icon link-btn" id="clearFilters">Clear all</button>
+                    </a>
                 </div>
 
                 <div class="filter-group">
                     <h4>Price Range</h4>
                     <div class="price-inputs">
-                        <input type="number" placeholder="Min" class="filter-input" min="0">
+                        <input type="number" name="min_price" placeholder="Min" class="filter-input" min="0"
+                            value="{{ request_query.min_price }}">
                         <span>to</span>
-                        <input type="number" placeholder="Max" class="filter-input" min="0">
+                        <input type="number" name="max_price" placeholder="Max" class="filter-input" min="0"
+                            value="{{ request_query.max_price }}">
                     </div>
                     <label class="checkbox-label">
-                        <input type="checkbox" name="free_only">
+                        <input type="checkbox" name="free_only" 
+                        {% if request_query.free_only == '1' or request_query.free_only == 'true' or request_query.free_only == 'on' %}checked{% endif %}>
                         <span>Free events only</span>
                     </label>
                 </div>
 
                 <div class="filter-group">
                     <h4>Location</h4>
-                    <input type="text" placeholder="City or venue" class="filter-input">
+                    <input type="text" name="location" placeholder="City or address" class="filter-input" value="{{ request_query.location }}">
                     <div class="radius-slider">
-                        <label for="radiusSlider">Radius: <span id="radiusValue">25</span> km</label>
-                        <input type="range" id="radiusSlider" min="1" max="100" value="25">
+                        <label for="radiusSlider">Radius: <span id="radiusValue">{{ request_query.radius|default:'25' }}</span> km</label>
+                        <input type="range" name="radius" id="radiusSlider" min="1" max="100" value="{{ request_query.radius|default:'25' }}">
                     </div>
                 </div>
 
@@ -65,11 +71,11 @@
                     <div class="date-range-inputs">
                         <div class="date-from">
                             <label for="dateFrom">from</label>
-                            <input type="date" id="dateFrom" name="date_from">
+                            <input type="date" id="dateFrom" name="date_from" value="{{ request_query.date_from }}">
                         </div>
                         <div class="date-to">
                             <label for="dateTo">to</label>
-                            <input type="date" id="dateTo" name="date_to">
+                            <input type="date" id="dateTo" name="date_to" value="{{ request_query.date_to }}">
                         </div>
                     </div>
                     <div class="quick-dates">
@@ -77,43 +83,18 @@
                         <button class="quick-date-btn" data-range="week">This Week</button>
                         <button class="quick-date-btn" data-range="month">This Month</button>
                     </div>
-
+                    <input type="hidden" class="userTimezone" name="timezone">
                 </div>
 
                 <div class="filter-group">
                     <h4>Categories</h4>
+                    {% for key, label in categories %}
                     <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="arts">
-                        <span>Arts</span>
+                        <input type="checkbox" name="category" value="{{ key }}" 
+                            {% if key in selected_categories %}checked{% endif %}>
+                        <span>{{label}}</span>
                     </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="business">
-                        <span>Business</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="family">
-                        <span>Family</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="food">
-                        <span>Food &amp; Drink</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="music">
-                        <span>Music &amp; Concerts</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="social">
-                        <span>Social &amp; Comedy</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="sports">
-                        <span>Sports</span>
-                    </label>
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="category" value="tech">
-                        <span>Technology</span>
-                    </label>
+                    {% endfor %}
                 </div>
 
                 <button class="btn-primary btn-full" id="applyFilters">Apply Filters</button>

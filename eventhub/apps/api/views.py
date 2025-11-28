@@ -47,11 +47,12 @@ def search(request):
     if not request.GET:
         return JsonResponse({"results": []})
 
-    events = filter_events(
+    events, _ = filter_events(
         request.GET,
         hide_sold_out=False,
         event_annotation=False
-    ).order_by("date")[:SUGGESTION_PREVIEW_NUM]
+    )
+    events = events.order_by("date")[:SUGGESTION_PREVIEW_NUM]
 
 
     data = []

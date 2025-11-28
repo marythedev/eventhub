@@ -20,7 +20,7 @@ searchInputs.forEach((input, index) => {
 
         // fetch and display search suggestions
         searchTimeout = setTimeout(() => {
-            fetch(`/api/search/?q=${encodeURIComponent(query)}`, {
+            fetch(`/api/search/?search=${encodeURIComponent(query)}`, {
                 headers: {
                     "X-App-Request": "true"
                 }
@@ -33,10 +33,19 @@ searchInputs.forEach((input, index) => {
     input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
+            
             const query = input.value.trim();
-            if (query.length > 0) {
-                window.location.href = `/events/explore/?q=${encodeURIComponent(query)}`;
-            }
+            const params = new URLSearchParams(window.location.search);
+
+            // user searched something
+            if (query.length > 0)
+                params.set("search", query);
+
+            // user cleared search input
+            else
+                params.delete("search");
+
+            window.location.href = `/events/explore/?${params.toString()}`;
         }
     });
 

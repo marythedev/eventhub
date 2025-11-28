@@ -12,6 +12,8 @@ class Event(models.Model):
         name (str): The name of the event, required.
         date (datetime): The scheduled date and time of the event, required.
         location (str): The full address or location of the event, required.
+        location_lat (float): Location latitude value, required.
+        location_lon (float): Location longitude value, required.
         category (str): The category of the event, required.
         description (str): A detailed description of the event (max 5000 characters), optional.
         organizer (Profile): The user who created the event.
@@ -31,6 +33,8 @@ class Event(models.Model):
     name = models.CharField(max_length=50)
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
+    location_lat = models.FloatField()
+    location_lon = models.FloatField()
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
 

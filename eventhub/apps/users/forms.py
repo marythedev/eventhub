@@ -3,10 +3,10 @@ import re
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from users.utils import clean_and_update_location
 from dotenv import load_dotenv
 
 from .models import Profile
-from .utils import validate_location
 
 load_dotenv()
 
@@ -268,12 +268,13 @@ class ProfileValidator(forms.Form):
         Behavior:
             - Does nothing if location is unchanged.
             - Validation and normalizes location using validate_location.
+                If location is valid, get its latitude and longitude.
         """
 
         location = self.cleaned_data.get('location')
 
         if location and location != self.user.location:
-            location = validate_location(location)
+            location = clean_and_update_location(self, location)
 
         return location
 

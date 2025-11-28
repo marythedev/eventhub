@@ -114,36 +114,33 @@ def _save_tickets(purchased_tickets, order):
 
 
 # views
-# TODO: filtering
 def view_events(request):
     """
     Display events for users to explore.
-
-    Displays events filtered by:
-        - Basic filtering of 'filter_events' function (always).
-        - Search query if given.
-        - Sold out status:
-            - If a search query ('q') is provided, includes sold-out events.
-            - Otherwise, sold-out events are excluded.
-        
-    Events are annotated with additional information by 'filter_events' for display.
+    
+    Events are filtered based on request.GET search & filters query.
+        Sold out events are displayed on explicit search query.
+    Events are annotated with additional information for display.
     """
 
-    search_query = request.GET.get('q')
+    search_query = request.GET.get('search')
+    hide_sold_out = not search_query
 
-    if search_query:
-        events = filter_events(
-            request.GET,
-            hide_sold_out=False,
-            event_annotation=True
-        )
-    else:
-        events = filter_events(request.GET,
-            hide_sold_out=True,
-            event_annotation=True
-        )
+    events, request_query = filter_events(
+        request.GET,
+        hide_sold_out=hide_sold_out,
+        event_annotation=True
+    )
 
-    return render(request, 'events/view-events.html', {'events': events})
+    categories = Event.CATEGORIES
+    selected_categories = request.GET.getlist('category')
+
+    return render(request, 'events/view-events.html', {
+        'events': events,
+        'categories': categories,
+        'selected_categories': selected_categories,
+        'request_query': request_query
+    })
 
 
 @login_required
@@ -189,6 +186,8 @@ def create_event(request):      # pylint: disable=too-many-locals
                 name=event_form.cleaned_data['name'],
                 date=event_utc_datetime,
                 location=event_form.cleaned_data['location'],
+                location_lat=event_form.cleaned_data['latitude'],
+                location_lon=event_form.cleaned_data['longitude'],
                 category=event_form.cleaned_data['category'],
                 description=event_form.cleaned_data['description'],
                 organizer=user
@@ -341,6 +340,8 @@ def edit_event(request, event_id):
             event.name=event_form.cleaned_data['name']
             event.date=event_utc_datetime
             event.location=event_form.cleaned_data['location']
+            event.location_lat=event_form.cleaned_data['latitude']
+            event.location_lon=event_form.cleaned_data['longitude']
             event.category=event_form.cleaned_data['category']
             event.description=event_form.cleaned_data['description']
 

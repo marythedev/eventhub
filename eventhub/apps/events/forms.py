@@ -6,8 +6,7 @@ from zoneinfo import available_timezones
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import JSONField, formset_factory
-from users.utils import (MAX_FILE_SIZE_MB, is_valid_image_format,
-                         validate_location)
+from users.utils import MAX_FILE_SIZE_MB, is_valid_image_format, clean_and_update_location
 
 from .models import Event, EventPriceZone
 
@@ -89,15 +88,15 @@ class EventInfoValidator(forms.Form):
         return timezone
 
     def clean_location(self):
-        """Validate and normalize event location."""
+        """
+        Validate and normalize event location.
+        If location is valid, get its latitude and longitude.
+        """
+
         location = self.cleaned_data.get('location')
 
         if location:
-            location = validate_location(location)
-
-            # update location on form
-            self.data = self.data.copy()
-            self.data['location'] = location
+            location = clean_and_update_location(self, location)
 
         return location
 

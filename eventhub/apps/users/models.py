@@ -89,6 +89,8 @@ class Profile(AbstractBaseUser, PermissionsMixin):
         full_name (CharField): User's full name.
         phone (CharField): Optional phone number.
         location (CharField): Optional location string.
+        location_lat (float): Optional location latitude value.
+        location_lon (float): Optional location longitude value.
         is_active (bool): Account activation status.
         is_staff (bool): Admin site access status.
     """
@@ -98,6 +100,8 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
+    location_lat = models.FloatField(blank=True, null=True)
+    location_lon = models.FloatField(blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 

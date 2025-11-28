@@ -1,9 +1,8 @@
 import os
 
-import requests
+from api.utils import validate_location
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
-from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from PIL import Image
 from pyuploadcare import Uploadcare
@@ -168,49 +167,26 @@ def set_custom_avatar(user, file, filename):
             os.remove(file_path)
 
 
-def validate_location(location):
+def clean_and_update_location(form, location):
     """
-    Validate and normalize a location string using OpenStreetMap API.
-
-    Behavior:
-        - Fetch OpenStreetMap with the provided location string.
-        - Ensure at least one result exists.
-        - Normalize location input with the display_name returned by OpenStreetMap.
-
+    Validate and normalize location.
+    If location is valid, get its latitude and longitude.
+    
     Args:
-        location (str): Location to be validated.
-
-    Raises:
-        ValidationError when:
-            - Location is not valid (not found).
-            - OpenStreetMap fetch fails.
-
+        form: form instance that calls this method.
+        location: location string to be validated and normalized.
+    
     Returns:
-        location (str): Validated and normalized location string.
+        The normalized location string.
     """
 
-    try:
-        # fetch openstreetmap to check if location exists
-        response = requests.get(
-            'https://nominatim.openstreetmap.org/search',
-            params={'q': location, 'format': 'json'},
-            headers={
-                'User-Agent': f'Eventhub/{os.getenv("APP_VERSION", "1.0")}',
-                'Accept-Language': 'en'
-            },
-            timeout=5
-        )
-        data = response.json()
+    if location:
+        location, lat, lon = validate_location(location)
 
-        if len(data) == 0:
-            raise ValidationError("Location not found. Please enter a valid place.")
-
-        # transform location to full display name for consistent location format
-        location = data[0]['display_name']
-
-    except ValidationError:
-        raise
-    except Exception as e:
-        raise ValidationError("Failed to validate location. Try again later.") from e
+        # update location on form
+        form.data = form.data.copy()
+        form.data['location'] = location
+        form.cleaned_data['latitude'] = lat
+        form.cleaned_data['longitude'] = lon
 
     return location

@@ -1,36 +1,4 @@
 // helper functions
-const clearPriceFilter = () => {
-    const freeOnlyCheckbox = document.querySelector("input[name='free_only']");
-
-    priceInputs.forEach(input => input.value = "");
-    freeOnlyCheckbox.checked = false;
-}
-
-const clearLocationFilter = () => {
-    const locationInput = document.querySelector(".filter-group input[type='text']");
-    const radiusSlider = document.getElementById("radiusSlider");
-    const radiusValue = document.getElementById("radiusValue");
-
-    locationInput.value = "";
-    radiusSlider.value = 25;
-    radiusValue.textContent = 25;
-}
-
-const clearDateFilter = () => {
-    const dateFromInput = document.getElementById("dateFrom");
-    const dateToInput = document.getElementById("dateTo");
-
-    dateFromInput.value = "";
-    dateFromInput.removeAttribute("max");
-    dateToInput.value = "";
-    dateToInput.removeAttribute("min");
-}
-
-const clearCategoryFilter = () => {
-    const categoryCheckboxes = document.querySelectorAll("input[name='category']");
-    categoryCheckboxes.forEach(checkbox => checkbox.checked = false);
-}
-
 const formatDate = (d) => {
     const date = new Date(d);
     const day = String(date.getDate()).padStart(2, '0');
@@ -38,7 +6,6 @@ const formatDate = (d) => {
     const year = date.getFullYear();
     return `${year}-${month}-${day}`;
 }
-
 
 
 // open/close filters
@@ -53,15 +20,6 @@ if (filterToggleBtn && filtersSidebar) {
             filterBtnText.textContent = 'Close Filters' : filterBtnText.textContent = 'Filters'
     });
 }
-
-
-// clear all filters
-document.getElementById("clearFilters").addEventListener("click", function () {
-    clearPriceFilter();
-    clearLocationFilter();
-    clearDateFilter();
-    clearCategoryFilter();
-});
 
 
 // update location radius on slider move
@@ -117,6 +75,36 @@ quickDates.addEventListener('click', function (e) {
         dateTo.value = formatDate(endDate);
     }
 });
+
+
+// apply filters
+// get all filter data and update query string with it
+const applyBtn = document.getElementById("applyFilters");
+
+applyBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+
+    const sidebar = document.getElementById("filtersSidebar");
+    const inputs = sidebar.querySelectorAll("input");
+
+    // clean up any previous filter data in the query
+    const params = new URLSearchParams(window.location.search);
+    inputs.forEach(input => params.delete(input.name));
+
+    // update query with relevant filter data
+    inputs.forEach(input => {
+        if (input.type === "checkbox") {
+            if (input.checked) {
+                params.append(input.name, input.value || "true");
+            }
+        } else if (input.value.trim() !== "") {
+            params.append(input.name, input.value.trim());
+        }
+    });
+
+    window.location.href = `/events/explore/?${params.toString()}`;
+});
+
 
 
 // change the position of create event button depending on breakpoint of max-width: 615px

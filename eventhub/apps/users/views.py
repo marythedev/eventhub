@@ -275,17 +275,16 @@ def profile_update(request):
     if request.method == "POST":
         user = request.user
         form = ProfileValidator(request.POST, user=user)
-        if form.is_valid():
-            full_name = form.cleaned_data['full_name']
-            email = form.cleaned_data['email']
-            phone = form.cleaned_data['phone']
-            location = form.cleaned_data['location']
 
-            user.full_name = full_name
-            user.email = email
-            user.phone = phone
-            user.location = location
+        if form.is_valid():
+            user.full_name = form.cleaned_data['full_name']
+            user.email = form.cleaned_data['email']
+            user.phone = form.cleaned_data['phone']
+            user.location = form.cleaned_data['location']
+            user.location_lat = form.cleaned_data.get('latitude', None)
+            user.location_lon = form.cleaned_data.get('longitude', None)
             user.save()
+
         return render(request, 'users/account.html', {'form': form})
     return redirect('users:account')
 

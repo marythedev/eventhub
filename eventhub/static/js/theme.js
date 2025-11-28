@@ -25,14 +25,22 @@ themeToggle.addEventListener('click', async function () {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
 
-    // if user is on checkout page
-    // checkout form stripe input color update
+    // checkout form stripe input color update if user is on checkout page
+    await updateCheckoutFormColor();
+});
+
+// initial checkout form stripe input color fetch
+document.addEventListener('DOMContentLoaded', async () => {
+    await updateCheckoutFormColor();
+});
+
+async function updateCheckoutFormColor() {
     if (document.getElementById('checkout-form')) {
         const { updateStripeColors, getStripeInputColors } = await import('./checkout.js');
         const { inputColor, errorColor } = getStripeInputColors();
         updateStripeColors(inputColor, errorColor);
     }
-});
+}
 
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
     if (!localStorage.getItem('theme')) {

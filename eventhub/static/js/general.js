@@ -6,6 +6,8 @@ searchInputs.forEach((input, index) => {
 
     const suggestionsBox = suggestionBoxes[index];
     let searchTimeout = null;
+    const isMyEventsSearch = input.classList.contains('my-events');
+    const isMyOrdersSearch = input.classList.contains('my-orders');
 
     // live suggestion fetch on input
     input.addEventListener("input", function () {
@@ -20,7 +22,7 @@ searchInputs.forEach((input, index) => {
 
         // fetch and display search suggestions
         searchTimeout = setTimeout(() => {
-            fetch(`/api/search/?search=${encodeURIComponent(query)}`, {
+            fetch(`${suggestionRoute(isMyEventsSearch, isMyOrdersSearch)}?search=${encodeURIComponent(query)}`, {
                 headers: {
                     "X-App-Request": "true"
                 }
@@ -33,21 +35,18 @@ searchInputs.forEach((input, index) => {
     input.addEventListener("keydown", function (e) {
         if (e.key === "Enter") {
             e.preventDefault();
-            
-            const query = input.value.trim();
-            const params = new URLSearchParams(window.location.search);
-
-            // user searched something
-            if (query.length > 0)
-                params.set("search", query);
-
-            // user cleared search input
-            else
-                params.delete("search");
-
-            window.location.href = `/events/explore/?${params.toString()}`;
+            searchResults(input);
         }
     });
+
+    if (isMyEventsSearch || isMyOrdersSearch) {
+        const searchIcon = input.parentElement.querySelector("i.fas.fa-search");
+        if (searchIcon) {
+            searchIcon.addEventListener("click", () => {
+                searchResults(input);
+            });
+        }
+    }
 
     // hide suggestions if user clicks somewhere outside
     document.addEventListener("click", (e) => {
@@ -55,6 +54,16 @@ searchInputs.forEach((input, index) => {
             suggestionsBox.style.display = "none";
     });
 });
+
+function suggestionRoute(isMyEventsSearch, isMyOrdersSearch) {
+    let route;
+
+    isMyEventsSearch ? route = '/api/search/my-events/' :
+        isMyOrdersSearch ? route = '/api/search/my-orders/' :
+            route = '/api/search/all/';
+
+    return route;
+}
 
 function showSuggestions(events, suggestionsBox) {
     if (!events.length) {
@@ -78,6 +87,56 @@ function showSuggestions(events, suggestionsBox) {
     suggestionsBox.innerHTML = suggestion;
     suggestionsBox.style.display = "block";
 }
+
+function searchResultsRoute(isMyEventsSearch, isMyOrdersSearch) {
+    let route;
+
+    isMyEventsSearch ? route = '/events/my-events/' :
+        isMyOrdersSearch ? route = '/tickets/orders/' :
+            route = '/events/explore/';
+
+    return route;
+}
+
+function searchResults(input) {
+    const query = input.value.trim();
+    const params = new URLSearchParams(window.location.search);
+
+    // user searched something
+    if (query.length > 0)
+        params.set("search", query);
+
+    // user cleared search input
+    else
+        params.delete("search");
+
+    window.location.href = `${searchResultsRoute(isMyEventsSearch, isMyOrdersSearch)}?${params.toString()}`;
+}
+
+
+// filter tabs (all events, upcoming, past) for my-events & my-orders
+const filterTabs = document.querySelectorAll('.filter-tab');
+const params = new URLSearchParams(window.location.search);
+const currentShow = params.get('show') || 'all';
+const isMyEventsSearch = document.querySelector('.eventsSearch.my-events');
+const isMyOrdersSearch = document.querySelector('.eventsSearch.my-orders');
+
+filterTabs.forEach(tab => {
+    if (tab.dataset.filter === currentShow)
+        tab.classList.add('active');
+
+    tab.addEventListener('click', function () {
+        const filter = this.getAttribute('data-filter');
+
+        filterTabs.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+
+        const params = new URLSearchParams(window.location.search);
+        params.set('show', filter);
+
+        window.location.href = `${searchResultsRoute(isMyEventsSearch, isMyOrdersSearch)}?${params.toString()}`;
+    });
+});
 
 
 // convert from UTC to user's browser timezone

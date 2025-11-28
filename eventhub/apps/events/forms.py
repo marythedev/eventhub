@@ -6,7 +6,8 @@ from zoneinfo import available_timezones
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import JSONField, formset_factory
-from users.utils import MAX_FILE_SIZE_MB, is_valid_image_format, clean_and_update_location
+from users.utils import (MAX_FILE_SIZE_MB, clean_and_update_location,
+                         is_valid_image_format)
 
 from .models import Event, EventPriceZone
 

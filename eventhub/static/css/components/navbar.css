@@ -222,6 +222,7 @@
 .mobile-search {
     display: flex;
     align-items: center;
+    position: relative;
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: 50px;

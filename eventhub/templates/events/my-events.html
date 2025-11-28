@@ -18,23 +18,29 @@
             </a>
         </div>
 
-        {% if not events %}
-        <p class="empty-state">You have not created any events yet.</p>
-        {% endif %}
-
-        {% if events|length > 0 %}
+        {% if events|length > 0 or request.GET %}
         <div class="history-filters">
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Events</button>
+                <button class="filter-tab" data-filter="all">All Events</button>
                 <button class="filter-tab" data-filter="upcoming">Upcoming</button>
                 <button class="filter-tab" data-filter="past">Past</button>
             </div>
             <div class="search-history">
-                <input type="text" placeholder="Search your events...">
                 <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search your events..." class="eventsSearch my-events" value="{{request.GET.search}}">
+
+                <div class="suggestions-box searchSuggestions"></div>
             </div>
         </div>
+        {% endif %}
 
+        {% if not events and request.GET %}
+        <p class="empty-state">No events found.</p>
+        {% elif not events %}
+        <p class="empty-state">You have not created any events yet.</p>
+        {% endif %}
+
+        {% if events|length > 0 %}
         <div class="events-list">
             {% for event in events %}
             <a href="{% url 'events:view_event' event.id %}">

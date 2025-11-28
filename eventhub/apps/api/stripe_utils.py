@@ -17,7 +17,7 @@ def get_stripe_account(user):
         stripe.Account: The Stripe account object.
     """
 
-    account  = stripe.Account.retrieve(user.stripe_account.stripe_account_id)
+    account = stripe.Account.retrieve(user.stripe_account.stripe_account_id)
 
     # keep user's account status up-to-date
     if (account.details_submitted

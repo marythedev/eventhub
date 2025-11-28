@@ -49,7 +49,7 @@ def _event_search_filter(events, query):
         query: GET parameters
 
     Returns:
-        Filtered Event QuerySet
+        Filtered Event QuerySet.
     """
 
     search_query = query.get('search', '').strip()
@@ -58,6 +58,25 @@ def _event_search_filter(events, query):
             Q(name__icontains=search_query) |
             Q(location__icontains=search_query) |
             Q(category__icontains=search_query)
+        ).distinct()
+    return events
+
+def _event_search_name_filter(events, query):
+    """
+    Filter events by search query against name (case-insensitive).
+
+    Args:
+        events: initial QuerySet of Event to filter
+        query: GET parameters
+
+    Returns:
+        Filtered Event QuerySet.
+    """
+
+    search_query = query.get('search', '').strip()
+    if search_query:
+        events = events.filter(
+            Q(name__icontains=search_query)
         ).distinct()
     return events
 
@@ -108,7 +127,7 @@ def _event_date_filters(events, query):
         query: GET parameters
 
     Returns:
-        Filtered Event QuerySet
+        Filtered Event QuerySet.
     """
 
     date_from = query.get('date_from')
@@ -155,7 +174,7 @@ def _event_category_filter(events, query):
         query: GET parameters
 
     Returns:
-        Filtered Event QuerySet
+        Filtered Event QuerySet.
     """
 
     selected_categories = query.getlist('category')
@@ -254,7 +273,6 @@ def _haversine(lat1, lon1, lat2, lon2):
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     return 2 * 6371 * asin(sqrt(a))
 
-
 def validate_location(location):
     """
     Validate and normalize a location string using OpenStreetMap API.
@@ -304,14 +322,14 @@ def validate_location(location):
 
     return location, latitude, longitude
 
-def filter_events(request_query, hide_sold_out=True, event_annotation=True):
+def filter_events_global(request_query, hide_sold_out=True, event_annotation=True):
     """
     Apply all filters to events based on user query parameters.
     
     List of all filters:
         Basic filters.
         Sold out filter.
-        Search query filter.
+        Name, location or category search.
         Price filters.
         Date filters.
         Category filters.
@@ -344,3 +362,57 @@ def filter_events(request_query, hide_sold_out=True, event_annotation=True):
     events, query = _event_location_filter(events, query)
 
     return events, query
+
+def filter_events_custom(events, request_query):
+    """
+    Apply custom filters to a given Event queryset.
+    
+    List of all filters:
+        Name search.
+        Event date filter.
+            - show="upcoming" - events occurring now or in the future
+            - show="past"     - events that have already occurred
+            - show="all"      - no date filtering (default)
+
+    Args:
+        events: initial QuerySet of Event to filter
+        request_query: GET parameters
+
+    Returns:
+        Filtered Event QuerySet.
+    """
+
+    events = _event_search_name_filter(events, request_query)
+
+    show = request_query.get("show", "all")
+
+    now = timezone.now()
+    if show == "upcoming":
+        events = events.filter(date__gte=now)
+
+    elif show == "past":
+        events = events.filter(date__lt=now)
+
+    return events
+
+def get_unique_events_from_orders(user):
+    """
+    Get all unique events to which user has purchased at least 1 ticket.
+    Collects unique event IDs from the first ticket from each order. Filters events queryset based on those IDs.
+
+    Args:
+        user (Profile): The user whose orders are being retrieved.
+
+    Returns:
+        Filtered Event QuerySet.
+    """
+
+    orders = user.orders.all().prefetch_related("tickets__price_zone__event")
+
+    event_ids = set()
+    for order in orders:
+        ticket = order.tickets.first()
+        if ticket:
+            event_ids.add(ticket.price_zone.event_id)
+
+    return Event.objects.filter(id__in=event_ids)

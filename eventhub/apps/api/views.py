@@ -14,21 +14,22 @@ from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
 from tickets.models import Ticket
 
 from .stripe_utils import delete_stripe_account, get_stripe_account_link
-from .utils import filter_events
+from .utils import (filter_events_custom, filter_events_global,
+                    get_unique_events_from_orders)
 
 SUGGESTION_PREVIEW_NUM = 5
 
-def search(request):
+def search_all(request):
     """
-    Return event suggestions for live search.
+    Return event suggestions for live search withing all events.
     Only allows requests with the header 'X-App-Request: true'.
     
     Displays events filtered by:
-        - Basic filtering of 'filter_events' function (always).
+        - Basic filtering of 'filter_events_global' function (always).
         - Search query if given.
         - Includes sold-out events in the results.
 
-    Events are not annotated with additional information by 'filter_events' for display.
+    Events are not annotated with additional information by 'filter_events_global' for display.
     
     Args:
         request: Django HttpRequest with optional query parameter.
@@ -47,13 +48,104 @@ def search(request):
     if not request.GET:
         return JsonResponse({"results": []})
 
-    events, _ = filter_events(
+    events, _ = filter_events_global(
         request.GET,
         hide_sold_out=False,
         event_annotation=False
     )
     events = events.order_by("date")[:SUGGESTION_PREVIEW_NUM]
 
+
+    data = []
+    for e in events:
+        data.append({
+            "id": e.id,
+            "name": e.name,
+            "location": e.location,
+            "date": e.date,
+            "image": e.images.first().url
+        })
+
+    return JsonResponse({"results": data})
+
+
+@login_required
+def search_my_events(request):
+    """
+    Return event suggestions for live search within the user's events.
+    Only allows requests with the header 'X-App-Request: true'.
+
+    Displays events filtered by:
+        - Events that are created by the user.
+        - Custom filtering of 'filter_events_custom' (names search + upcoming/past).
+
+    Events are not annotated and display only basic information.
+
+    Args:
+        request: Django request object with optional query parameters.
+
+    Raises:
+        Http404: if the request does not have 'X-App-Request' header set to 'true'.
+
+    Returns:
+        JSON list with SUGGESTION_PREVIEW_NUM events with basic info for displaying suggestions.
+    """
+
+    # prevent accidental direct access to search api via browser url
+    if request.headers.get("X-App-Request") != "true":
+        raise Http404()
+
+    if not request.GET:
+        return JsonResponse({"results": []})
+
+    events = filter_events_custom(request.user.events.all(), request.GET)
+    events = events.order_by("date")[:SUGGESTION_PREVIEW_NUM]
+
+    data = []
+    for e in events:
+        data.append({
+            "id": e.id,
+            "name": e.name,
+            "location": e.location,
+            "date": e.date,
+            "image": e.images.first().url
+        })
+
+    return JsonResponse({"results": data})
+
+
+@login_required
+def search_events_from_orders(request):
+    """
+    Return event suggestions for live search within events the user has purchased tickets for.
+    Only allows requests with the header 'X-App-Request: true'.
+
+    Displays events filtered by:
+        - Unique events connected to the user's orders.
+        - Custom filtering by 'filter_events_custom' (name search + upcoming/past).
+
+    Events are not annotated and display only basic information.
+
+    Args:
+        request: Django request object with optional query parameters.
+
+    Raises:
+        Http404: if the request does not have 'X-App-Request' header set to 'true'.
+
+    Returns:
+        JSON list with SUGGESTION_PREVIEW_NUM events with basic info for displaying suggestions.
+    """
+
+    # prevent accidental direct access to search api via browser url
+    if request.headers.get("X-App-Request") != "true":
+        raise Http404()
+
+    if not request.GET:
+        return JsonResponse({"results": []})
+
+    events = get_unique_events_from_orders(request.user)
+    events = filter_events_custom(events, request.GET)
+    events = events.order_by("date")[:SUGGESTION_PREVIEW_NUM]
 
     data = []
     for e in events:

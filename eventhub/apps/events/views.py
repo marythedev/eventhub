@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 import stripe
 from api.stripe_utils import get_stripe_account
-from api.utils import filter_events
+from api.utils import filter_events_custom, filter_events_global
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
@@ -126,7 +126,7 @@ def view_events(request):
     search_query = request.GET.get('search')
     hide_sold_out = not search_query
 
-    events, request_query = filter_events(
+    events, request_query = filter_events_global(
         request.GET,
         hide_sold_out=hide_sold_out,
         event_annotation=True
@@ -251,6 +251,7 @@ def view_event(request, event_id):
 
     event = get_object_or_404(Event, id=event_id)
 
+    get_stripe_account(event.organizer)
     if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
         raise Http404("Event not found")
 
@@ -274,7 +275,6 @@ def view_event(request, event_id):
             form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
 
         # check if event owner has setup payouts
-        get_stripe_account(request.user)
         if not event.organizer.stripe_account.stripe_account_ready:
             form.add_error(None, "Event owner has not configured their bank settings to receive payments.")
 
@@ -517,6 +517,12 @@ def checkout_fail(request, event_id, order_id):
 
 @login_required
 def my_events(request):
-    """Display all events created by the logged-in user."""
-    all_events = request.user.events.all()
-    return render(request, 'events/my-events.html', { 'events': all_events })
+    """
+    Display all events created by the logged-in user.
+    Events are filtered based on request.GET search & filters query.
+    """
+
+    events = request.user.events.all()
+    events = filter_events_custom(events, request.GET)
+
+    return render(request, 'events/my-events.html', { 'events': events })

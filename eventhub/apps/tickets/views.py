@@ -1,3 +1,4 @@
+from api.utils import filter_events_custom, get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from events.models import Event, Order
@@ -30,13 +31,22 @@ def event_tickets(request, event_id):
 
 @login_required
 def view_orders(request):
-    """Display a list of all orders made by the user."""
+    """
+    Display a list of all orders made by the user.
 
-    # TODO implement filtering, pagination & display only successfully paid orders
-        # (failed only for inner records in case of disputes)
-    all_orders = request.user.orders.all()
+    Events from orders are filtered based on request.GET search & filters query.
+    Orders are filtered based on these events.
+    """
 
-    return render(request, 'tickets/view-orders.html', { 'orders': all_orders })
+    events = get_unique_events_from_orders(request.user)
+    events = filter_events_custom(events, request.GET)
+
+    # get orders for filtered events
+    orders = request.user.orders.filter(
+        tickets__price_zone__event__in=events
+    ).distinct().order_by('-date')
+
+    return render(request, 'tickets/view-orders.html', {'orders': orders})
 
 
 @login_required

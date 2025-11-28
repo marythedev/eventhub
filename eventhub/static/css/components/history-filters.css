@@ -43,7 +43,13 @@
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     border-radius: 50px;
+    outline: none;
     color: var(--text-primary);
+    transition: var(--transition);
+}
+
+.search-history input:focus-within {
+    box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.1);
 }
 
 .search-history i {
@@ -52,6 +58,7 @@
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-secondary);
+    cursor: pointer;
 }
 
 @media (max-width: 768px) {

@@ -22,27 +22,31 @@
             </a>
         </div>
 
-        {% if not orders %}
-        <p class="empty-state">You have not made any orders yet.</p>
-        {% endif %}
-
-        {% if orders|length > 0 %}
+        {% if orders|length > 0 or request.GET %}
         <div class="history-filters">
             <div class="filter-tabs">
-                <button class="filter-tab active" data-filter="all">All Events</button>
+                <button class="filter-tab" data-filter="all">All Events</button>
                 <button class="filter-tab" data-filter="upcoming">Upcoming</button>
                 <button class="filter-tab" data-filter="past">Past</button>
             </div>
             <div class="search-history">
-                <input type="text" placeholder="Search events...">
                 <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search events you have tickets for..." class="eventsSearch my-orders" value="{{request.GET.search}}">
+                
+                <div class="suggestions-box searchSuggestions"></div>
             </div>
         </div>
+        {% endif %}
 
+        {% if not orders and request.GET %}
+        <p class="empty-state">No orders found.</p>
+        {% elif not orders %}
+        <p class="empty-state">You have not made any orders yet.</p>
+        {% endif %}
+
+        {% if orders|length > 0 %}
         <div class="view-orders-list">
-
             {% for order in orders %}
-
             <div class="order-card {% if order.event.is_past %} past {% endif %}">
                 <div class="order-header">
                     <div class="event-date">

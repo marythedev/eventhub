@@ -144,9 +144,9 @@
                                 </div>
 
                                 <div class="event-footer">
-                                    <span class="event-price {% if event.badge == 'Free' %}free{% endif %}">
-                                        {% if not event.badge == 'Free' %}
-                                        From ${{ event.lowest_price|floatformat:2 }}
+                                    <span class="event-price {% if event.min_price == 0 %}free{% endif %}">
+                                        {% if event.min_price != 0 %}
+                                        From ${{ event.min_price|floatformat:2 }}
                                         {% else %} Free {% endif %}
                                     </span>
 

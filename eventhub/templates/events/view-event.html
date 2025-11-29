@@ -89,7 +89,11 @@
                             <div class="ticket-type-info">
                                 <h4>{{zone.name}}</h4>
                                 <p>{{zone.desc}}</p>
-                                <p class="ticket-price price">${{zone.price}}</p>
+                                <p class="ticket-price price {% if zone.price == 0 %}free{% endif %}">
+                                    {% if zone.price != 0 %}
+                                    ${{ zone.price }}
+                                    {% else %} Free {% endif %}
+                                </span>
                             </div>
                             <div class="ticket-type-seats">
                                 <div class="quantity-controls">

@@ -185,6 +185,9 @@ document.querySelectorAll(".regular-date-short-month").forEach(el => {
         day: 'numeric',
     })
 });
+document.querySelectorAll(".date-month-day").forEach(el => {
+    UTCtoLocalTime(el.dataset.utc, el, { month: 'short', day: 'numeric' });
+});
 document.querySelectorAll(".date-month").forEach(el => {
     UTCtoLocalTime(el.dataset.utc, el, { month: 'short' });
 });

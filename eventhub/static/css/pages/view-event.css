@@ -217,6 +217,10 @@ p.ticket-price {
     color: var(--primary-color);
 }
 
+p.ticket-price.free {
+    color: var(--success-color);
+}
+
 .ticket-type-seats {
     display: flex;
     flex-direction: column;

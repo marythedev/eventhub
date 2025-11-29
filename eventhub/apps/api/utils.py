@@ -34,8 +34,8 @@ def _event_basic_filter(events):
         .annotate(
             event_seats=Sum("price_zones__seats"),
             event_seats_sold=Sum("price_zones__seats_sold"),
-            lowest_price=ExpressionWrapper(Min("price_zones__price"), output_field=FloatField()),
-            highest_price=ExpressionWrapper(Max("price_zones__price"), output_field=FloatField())
+            min_price=ExpressionWrapper(Min("price_zones__price"), output_field=FloatField()),
+            max_price=ExpressionWrapper(Max("price_zones__price"), output_field=FloatField())
         )
         .distinct()
     )
@@ -100,19 +100,19 @@ def _event_price_filters(events, query):
     if min_price:
         try:
             min_price = float(min_price)
-            events = events.filter(highest_price__gte=min_price)
+            events = events.filter(max_price__gte=min_price)
         except ValueError:
             pass
 
     if max_price:
         try:
             max_price = float(max_price)
-            events = events.filter(lowest_price__lte=max_price)
+            events = events.filter(min_price__lte=max_price)
         except ValueError:
             pass
 
     if free_only in ['true', '1', 'on']:
-        events = events.filter(lowest_price=0)
+        events = events.filter(min_price=0)
         query.pop('min_price', None)
         query.pop('max_price', None)
 
@@ -242,7 +242,7 @@ def _event_location_filter(events, query):
                 # additional precise location filter by haversine (circle around the location)
                 filtered_ids = [
                     e.id for e in events
-                    if _haversine(lat, lon, e.location_lat, e.location_lon) <= radius
+                    if haversine(lat, lon, e.location_lat, e.location_lon) <= radius
                 ]
                 events = events.filter(id__in=filtered_ids)
 
@@ -252,7 +252,7 @@ def _event_location_filter(events, query):
 
     return events, query
 
-def _haversine(lat1, lon1, lat2, lon2):
+def haversine(lat1, lon1, lat2, lon2):
     """
     Calculate the distance between two points on the Earth.
     
@@ -303,7 +303,7 @@ def validate_location(location):
                 'User-Agent': f'Eventhub/{os.getenv("APP_VERSION", "1.0")}',
                 'Accept-Language': 'en'
             },
-            timeout=10
+            timeout=7
         )
         data = response.json()
 

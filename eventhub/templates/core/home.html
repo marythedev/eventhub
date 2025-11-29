@@ -9,6 +9,7 @@
 <!-- stylesheets -->
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'css/pages/landing.css' %}" type="text/css">
+<link rel="stylesheet" href="{% static 'css/pages/home.css' %}" type="text/css">
 {% endblock %}
 
 {% block navclass %}landing{% endblock %}
@@ -61,7 +62,90 @@
 
 {% else %}
 
-<h1>This is user's home page.</h1>
+<section id="home" class="home-section">
+    <div class="container">
+        <div class="home-header">
+            <h1>Hello, {{ user.get_short_name }} 👋</h1>
+            <p>Discover events that move you</p>
+        </div>
+
+        <div class="recommended-events">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Recommended For You</h2>
+            </div>
+
+            <div class="events-grid">
+
+                {% for event in recommended_events %}
+                <a href="{% url 'events:view_event' event.id %}">
+                    <div class="event-card">
+                        <div class="event-image">
+                            <img src="{{ event.images.first.url }}" alt="{{ event.title }}">
+                            {% if event.badge %}
+                            <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="event-content">
+                            <div class="event-description">
+                                <div class="event-date">
+                                    <span class="date-day" data-utc="{{ event.date|date:'c' }}"></span>
+                                    <span class="date-month" data-utc="{{ event.date|date:'c' }}"></span>
+                                </div>
+                                <div class="event-info">
+                                    <h3>{{event.name}}</h3>
+                                    <p class="event-location"><i class="fas fa-map-marker-alt"></i>
+                                        {{ event.location|truncatechars:50 }}</p>
+                                    <p class="event-genre"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                                </div>
+                            </div>
+
+                            <div class="event-footer">
+                                <span class="event-price {% if event.min_price == 0 %}free{% endif %}">
+                                    {% if event.min_price != 0 %}
+                                    From ${{ event.min_price|floatformat:2 }}
+                                    {% else %} Free {% endif %}
+                                </span>
+                                <button class="btn-primary btn-small">
+                                    {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-alt"></i> Your Upcoming Events</h2>
+            </div>
+
+            {% if not upcoming_events %}
+            <div class="no-upcoming-events">
+                <p class="empty-state">You have not made any orders yet.</p>
+            </div>
+            {% endif %}
+
+            {% if upcoming_events|length > 0 %}
+            <div class="upcoming-events-list">
+                {% for event in upcoming_events %}
+                <a href="{% url 'events:view_event' event.id %}">
+                    <div class="upcoming-event-item">
+                        <div class="upcoming-event-date date-month-day" data-utc="{{ event.date|date:'c' }}"></div>
+                        <div class="upcoming-event-details">
+                            <h4>{{event.name}}</h4>
+                            <p>{{event.tickets_owned}} tickets • {{event.location}}</p>
+                        </div>
+                    </div>
+                </a>
+                {% endfor%}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
 {% endif %}
 
 {% endblock %}

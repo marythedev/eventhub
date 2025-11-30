@@ -20,12 +20,17 @@ WSGI_APPLICATION = 'eventhub.wsgi.application'
 
 
 # env load
+DOMAIN_URL = os.getenv("DOMAIN_URL")
+SESSION_EXPIRY_TIME = os.getenv("SESSION_EXPIRY_TIME")
+
+EMAIL_HOST_USER = os.getenv("SUPPORT_EMAIL")
+EMAIL_HOST_PASSWORD = os.getenv("SUPPORT_EMAIL_APP_PASSWORD")
+
 SERVICE_FEE = os.getenv('SERVICE_FEE')
 TAX = os.getenv('TAX')
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-DOMAIN_URL = os.getenv("DOMAIN_URL")
-SESSION_EXPIRY_TIME = os.getenv("SESSION_EXPIRY_TIME")
+
 
 # Application definition
 ROOT_URLCONF = 'eventhub.urls'
@@ -114,6 +119,12 @@ DATABASES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.Profile' # custom user model
+
+# Email configurations
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'

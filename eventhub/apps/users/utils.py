@@ -14,7 +14,7 @@ ALLOWED_IMAGE_FORMATS = ['JPEG', 'PNG', 'GIF', 'WEBP']
 uploadcare = Uploadcare(public_key=settings.UPLOADCARE['pub_key'], secret_key=settings.UPLOADCARE['secret'])
 
 
-def anonymous_required(redirect_url='core:home'):
+def anonymous_required(redirect_url='home'):
     """
     Restrict access to views (i.e. login/register) for authenticated users.
         Checks that user is not authenticated in the system.

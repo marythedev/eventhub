@@ -61,7 +61,7 @@ def _password_field(required_message):
         }
     )
 
-def _validate_password(password):
+def validate_password(password):
     """
     Validate password complexity rules.
 
@@ -129,7 +129,7 @@ class RegisterValidator(forms.Form):
         """Check password against validation rules."""
 
         password = self.cleaned_data.get('password')
-        _validate_password(password)
+        validate_password(password)
 
         return password
 
@@ -304,10 +304,10 @@ class SecurityValidator(forms.Form):
     confirm_new_password = _password_field('Confirmation of the new password is required.')
 
     def clean_new_password(self):
-        """Check new password again the password validation rules."""
+        """Check new password against the password validation rules."""
 
         new_password = self.cleaned_data.get('new_password')
-        _validate_password(new_password)
+        validate_password(new_password)
 
         return new_password
 

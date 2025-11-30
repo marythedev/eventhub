@@ -67,7 +67,7 @@ def register(request):
             if user is not None:
                 set_default_avatar(user)
                 auth_login(request, user)
-                return redirect(next_url or 'core:home')
+                return redirect(next_url or 'home')
             return redirect('users:login')
     else:
         form = RegisterValidator()
@@ -111,7 +111,7 @@ def login(request):
             else:
                 request.session.set_expiry(0)
 
-            return redirect(next_url or 'core:home')
+            return redirect(next_url or 'home')
     else:
         next_url = request.GET.get('next')
         form = LoginValidator()
@@ -323,4 +323,4 @@ def security_update(request):
 def logout(request):
     """Terminate current user session and redirect to the homepage."""
     auth_logout(request)
-    return redirect('core:home')
+    return redirect('home')

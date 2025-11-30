@@ -262,6 +262,35 @@ section {
     padding: 2rem 0;
 }
 
+.success-icon,
+.fail-icon {
+    font-size: 5rem;
+    margin-bottom: 1rem;
+    animation: successPop 0.5s ease;
+}
+
+.success-icon {
+    color: var(--success-color);
+}
+
+.fail-icon {
+    color: var(--error-color);
+}
+
+@keyframes successPop {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
 .price {
     word-break: keep-all;
 }

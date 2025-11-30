@@ -30,7 +30,7 @@
         <nav class="navbar" id="navbar">
             <div class="nav-container">
                 <div class="nav-logo">
-                    <a href="{% url 'core:home' %}">Eventhub</a>
+                    <a href="{% url 'home' %}">Eventhub</a>
                 </div>
                 <div class="nav-search" id="navSearch">
                     <i class="fas fa-search"></i>
@@ -47,7 +47,7 @@
                             <img src="{{user.avatar}}" alt="Avatar" width="64" height="64">
                         </button>
                         <div class="user-dropdown" id="userDropdown">
-                            <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
+                            <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
                             <a href="{% url 'events:view_events' %}"><i class="fas fa-compass"></i> Explore Events</a>
                             <a href="{% url 'users:account' %}"><i class="fas fa-user"></i> My Account</a>
                             <a href="{% url 'users:logout' %}"><i class="fas fa-sign-out-alt"></i> Log Out</a>
@@ -84,7 +84,7 @@
                     <div class="suggestions-box searchSuggestions"></div>
                 </div>
 
-                <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
+                <a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a>
                 <a href="{% url 'events:view_events' %}"><i class="fas fa-compass"></i> Explore Events</a>
             </div>
         </div>
@@ -107,7 +107,7 @@
                     <li class="dot-separator">&middot;</li>
                     <li><a href="#">Contact Us</a></li>
                     <li class="dot-separator">&middot;</li>
-                    <li><a href="#">Donate</a></li>
+                    <li><a href="https://buymeacoffee.com/marythedev" target="_blank">Donate</a></li>
                 </ul>
                 <p>© 2023 - <span id="current-year"></span> Eventhub. All rights reserved.</p>
             </div>

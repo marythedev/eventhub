@@ -18,7 +18,7 @@
             </a>
         </div>
 
-        {% if events|length > 0 or request.GET %}
+        {% if paginated_events.object_list|length > 0 or request.GET %}
         <div class="history-filters">
             <div class="filter-tabs">
                 <button class="filter-tab" data-filter="all">All Events</button>
@@ -27,22 +27,23 @@
             </div>
             <div class="search-history">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search your events..." class="eventsSearch my-events" value="{{request.GET.search}}">
+                <input type="text" placeholder="Search your events..." class="eventsSearch my-events"
+                    value="{{request.GET.search}}">
 
                 <div class="suggestions-box searchSuggestions"></div>
             </div>
         </div>
         {% endif %}
 
-        {% if not events and request.GET %}
+        {% if not paginated_events.object_list and request.GET %}
         <p class="empty-state">No events found.</p>
-        {% elif not events %}
+        {% elif not paginated_events.object_list %}
         <p class="empty-state">You have not created any events yet.</p>
         {% endif %}
 
-        {% if events|length > 0 %}
+        {% if paginated_events.object_list|length > 0 %}
         <div class="events-list">
-            {% for event in events %}
+            {% for event in paginated_events.object_list %}
             <a href="{% url 'events:view_event' event.id %}">
                 <div class="event-card {% if event.is_past %} past {% endif %}">
                     <div class="event-image">
@@ -93,17 +94,8 @@
             {% endfor %}
         </div>
 
-        <div class="pagination">
-            <button class="pagination-btn" disabled=""><i class="fas fa-chevron-left"></i> Previous</button>
-            <div class="pagination-pages">
-                <button class="pagination-page active">1</button>
-                <button class="pagination-page">2</button>
-                <button class="pagination-page">3</button>
-                <span class="pagination-ellipsis">...</span>
-                <button class="pagination-page">8</button>
-            </div>
-            <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
-        </div>
+        {% include "components/pagination.html" with pagination_results=paginated_events query=query only %}
+
         {% endif %}
     </div>
 </section>

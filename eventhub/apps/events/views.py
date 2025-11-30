@@ -9,6 +9,7 @@ from api.utils import filter_events_custom, filter_events_global
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
+from django.core.paginator import Paginator
 from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -525,4 +526,15 @@ def my_events(request):
     events = request.user.events.all()
     events = filter_events_custom(events, request.GET)
 
-    return render(request, 'events/my-events.html', { 'events': events })
+    paginator = Paginator(events, 3)
+    page_number = request.GET.get('page')
+    paginated_events = paginator.get_page(page_number)
+
+    # remove page parameter
+    query = request.GET.copy()
+    query.pop('page', None)
+
+    return render(request, 'events/my-events.html', {
+        'paginated_events': paginated_events,
+        'query': query
+    })

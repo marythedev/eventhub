@@ -22,7 +22,7 @@
             </a>
         </div>
 
-        {% if orders|length > 0 or request.GET %}
+        {% if paginated_orders.object_list|length > 0 or request.GET %}
         <div class="history-filters">
             <div class="filter-tabs">
                 <button class="filter-tab" data-filter="all">All Events</button>
@@ -31,22 +31,23 @@
             </div>
             <div class="search-history">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search events you have tickets for..." class="eventsSearch my-orders" value="{{request.GET.search}}">
-                
+                <input type="text" placeholder="Search events you have tickets for..." class="eventsSearch my-orders"
+                    value="{{request.GET.search}}">
+
                 <div class="suggestions-box searchSuggestions"></div>
             </div>
         </div>
         {% endif %}
 
-        {% if not orders and request.GET %}
+        {% if not paginated_orders.object_list and request.GET %}
         <p class="empty-state">No orders found.</p>
-        {% elif not orders %}
+        {% elif not paginated_orders.object_list %}
         <p class="empty-state">You have not made any orders yet.</p>
         {% endif %}
 
-        {% if orders|length > 0 %}
+        {% if paginated_orders.object_list|length > 0 %}
         <div class="view-orders-list">
-            {% for order in orders %}
+            {% for order in paginated_orders.object_list %}
             <div class="order-card {% if order.event.is_past %} past {% endif %}">
                 <div class="order-header">
                     <div class="event-date">
@@ -58,7 +59,7 @@
                         <h3>{{order.event.name}}</h3>
                         <p class="order-meta">
                             <span>
-                                <i class="fas fa-calendar"></i> 
+                                <i class="fas fa-calendar"></i>
                                 <span class="full-date-no-week-day" data-utc="{{ order.event.date|date:'c' }}"></span>
                             </span>
                             <span><i class="fas fa-map-marker-alt"></i> {{order.event.location}}</span>
@@ -72,7 +73,8 @@
                 <div class="order-details">
                     <div class="order-info">
                         <p><strong>Order #:</strong> {{order.number}}</p>
-                        <p><strong>Purchase Date:</strong> <span class="regular-date-short-month" data-utc="{{ order.date|date:'c' }}"></span></p>
+                        <p><strong>Purchase Date:</strong> <span class="regular-date-short-month"
+                                data-utc="{{ order.date|date:'c' }}"></span></p>
                     </div>
                     <div class="order-amount">
                         <span class="amount-label">Total Paid</span>
@@ -99,17 +101,8 @@
 
         </div>
 
-        <div class="pagination">
-            <button class="pagination-btn" disabled=""><i class="fas fa-chevron-left"></i> Previous</button>
-            <div class="pagination-pages">
-                <button class="pagination-page active">1</button>
-                <button class="pagination-page">2</button>
-                <button class="pagination-page">3</button>
-                <span class="pagination-ellipsis">...</span>
-                <button class="pagination-page">8</button>
-            </div>
-            <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
-        </div>
+        {% include "components/pagination.html" with pagination_results=paginated_orders query=query only %}
+
         {% endif %}
     </div>
 </section>

@@ -1,0 +1,66 @@
+{% if pagination_results.has_other_pages %}
+<div class="pagination">
+    {% if pagination_results.has_previous %}
+    <a href="?page={{pagination_results.previous_page_number}}{% if query %}&{{query.urlencode}}{% endif %}">
+        <button class="pagination-btn"><i class="fas fa-chevron-left"></i> Previous</button>
+    </a>
+    {% else %}
+    <button class="pagination-btn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+    {% endif %}
+
+    <div class="pagination-pages">
+        {% for page_num in pagination_results.paginator.page_range %}
+            {% if pagination_results.paginator.num_pages <= 5 %}
+                {% if page_num == pagination_results.number %}
+                    <button class="pagination-page active">{{page_num}}</button>
+                {% else %}
+                    <a href="?page={{page_num}}{% if query %}&{{query.urlencode}}{% endif %}" class="pagination-page">
+                        <button>{{page_num}}</button>
+                    </a>
+                {% endif %}
+
+            {% elif pagination_results.number <= 3 %}
+                {% if page_num <= 5 %}
+                    {% if page_num == pagination_results.number %}
+                        <button class="pagination-page active">{{page_num}}</button>
+                    {% else %}
+                        <a href="?page={{page_num}}{% if query %}&{{query.urlencode}}{% endif %}" class="pagination-page">
+                            <button>{{page_num}}</button>
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+            {% elif pagination_results.number >= pagination_results.paginator.num_pages|add:"-2" %}
+                {% if page_num >= pagination_results.paginator.num_pages|add:"-4" %}
+                    {% if page_num == pagination_results.number %}
+                        <button class="pagination-page active">{{page_num}}</button>
+                    {% else %}
+                        <a href="?page={{page_num}}{% if query %}&{{query.urlencode}}{% endif %}" class="pagination-page">
+                            <button>{{ page_num }}</button>
+                        </a>
+                    {% endif %}
+                {% endif %}
+
+            {% else %}
+                {% if page_num >= pagination_results.number|add:"-2" and page_num <= pagination_results.number|add:"2" %}
+                    {% if page_num == pagination_results.number %}
+                        <button class="pagination-page active">{{page_num}}</button>
+                    {% else %}
+                        <a href="?page={{page_num}}{% if query %}&{{query.urlencode}}{% endif %}" class="pagination-page">
+                            <button>{{page_num}}</button>
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if pagination_results.has_next %}
+    <a href="?page={{pagination_results.next_page_number}}{% if query %}&{{query.urlencode}}{% endif %}">
+        <button class="pagination-btn">Next <i class="fas fa-chevron-right"></i></button>
+    </a>
+    {% else %}
+    <button class="pagination-btn" disabled>Next <i class="fas fa-chevron-right"></i></button>
+    {% endif %}
+</div>
+{% endif %}

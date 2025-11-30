@@ -1,5 +1,6 @@
 from api.utils import filter_events_custom, get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
 from events.models import Event, Order
 
@@ -46,7 +47,18 @@ def view_orders(request):
         tickets__price_zone__event__in=events
     ).distinct().order_by('-date')
 
-    return render(request, 'tickets/view-orders.html', {'orders': orders})
+    paginator = Paginator(orders, 3)
+    page_number = request.GET.get('page')
+    paginated_orders = paginator.get_page(page_number)
+
+    # remove page parameter
+    query = request.GET.copy()
+    query.pop('page', None)
+
+    return render(request, 'tickets/view-orders.html', {
+        'paginated_orders': paginated_orders,
+        'query': query
+    })
 
 
 @login_required

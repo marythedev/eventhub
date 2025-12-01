@@ -13,11 +13,44 @@ from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
                                 TableStyle)
 from tickets.models import Ticket
 
+from .event_filter_utils import (filter_events_custom, filter_events_global,
+                                 get_filtered_paginated_events)
 from .stripe_utils import delete_stripe_account, get_stripe_account_link
-from .utils import (filter_events_custom, filter_events_global,
-                    get_unique_events_from_orders)
+from .utils import get_unique_events_from_orders
 
 SUGGESTION_PREVIEW_NUM = 5
+
+def load_events(request):
+    """
+    Get paginated list of events based on the search query and pagination page parameter.
+    Filters events based on request GET parameters.
+    Returns serialized list of events.
+    """
+
+    paginated_events, _ , _ = get_filtered_paginated_events(
+        request, hide_sold_out=True, event_annotation=True
+    )
+
+    data = []
+    for e in paginated_events:
+        data.append({
+            "id": e.id,
+            "name": e.name,
+            "date": e.date.isoformat(),
+            "location": e.location,
+            "category_label": e.category_label,
+            "category_icon": e.category_icon,
+            "min_price": e.min_price,
+            "max_price": e.max_price,
+            "badge": e.badge,
+            "image_url": e.images.first().url
+        })
+
+    return JsonResponse({
+        "events": data,
+        "has_next": paginated_events.has_next()
+    })
+
 
 def search_all(request):
     """

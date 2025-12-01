@@ -158,42 +158,45 @@ function UTCtoLocalTime(utcString, element, options = undefined) {
 }
 
 // event date conversion from UTC to user's local time
-document.querySelectorAll(".full-date").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el);
-});
-document.querySelectorAll(".full-date-no-week-day").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true
-    })
-});
-document.querySelectorAll(".regular-date").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    })
-});
-document.querySelectorAll(".regular-date-short-month").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    })
-});
-document.querySelectorAll(".date-month-day").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, { month: 'short', day: 'numeric' });
-});
-document.querySelectorAll(".date-month").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, { month: 'short' });
-});
-document.querySelectorAll(".date-day").forEach(el => {
-    UTCtoLocalTime(el.dataset.utc, el, { day: 'numeric' });
-});
+export function convertDateToLocalTime() {
+    document.querySelectorAll(".full-date").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el);
+    });
+    document.querySelectorAll(".full-date-no-week-day").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true
+        })
+    });
+    document.querySelectorAll(".regular-date").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        })
+    });
+    document.querySelectorAll(".regular-date-short-month").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        })
+    });
+    document.querySelectorAll(".date-month-day").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, { month: 'short', day: 'numeric' });
+    });
+    document.querySelectorAll(".date-month").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, { month: 'short' });
+    });
+    document.querySelectorAll(".date-day").forEach(el => {
+        UTCtoLocalTime(el.dataset.utc, el, { day: 'numeric' });
+    });
+}
+convertDateToLocalTime()
 
 // update fields with user timezone information for correct backend date/time processing
 document.querySelectorAll(".userTimezone").forEach(inputEl => {

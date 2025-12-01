@@ -16,6 +16,10 @@
     font-size: 1.1rem;
 }
 
+.recommended-events {
+    margin-bottom: 5rem;
+}
+
 .section-header {
     margin-bottom: 2rem;
 }
@@ -72,4 +76,24 @@
 .upcoming-event-details p {
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+@media (max-width: 450px) {
+    .section-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 335px) {
+    .home-header h1 {
+        font-size: 2.25rem;
+    }
+
+    .home-header p {
+        font-size: 1rem;
+    }
+
+    .section-header h2 {
+        font-size: 1.25rem;
+    }
 }

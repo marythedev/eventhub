@@ -6,6 +6,11 @@
     margin-top: 3rem;
 }
 
+.home-section .pagination {
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
 .pagination-btn {
     padding: 0.75rem 1.5rem;
     background-color: var(--bg-secondary);
@@ -17,6 +22,11 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.home-section .pagination-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
 }
 
 .pagination-btn:hover:not(:disabled) {
@@ -45,6 +55,12 @@ button.pagination-page,
     color: var(--text-primary);
     cursor: pointer;
     transition: var(--transition);
+}
+
+.home-section button.pagination-page,
+.home-section .pagination-page button {
+    width: 30px;
+    height: 30px;
 }
 
 .pagination-page button:hover {
@@ -79,7 +95,7 @@ button.pagination-page,
         justify-content: center;
     }
 
-   .pagination-page {
+    .pagination-page {
         display: none;
     }
 
@@ -103,5 +119,5 @@ button.pagination-page,
     .pagination-pages .pagination-page:not(.pagination-page.active) {
         display: none;
     }
-    
+
 }

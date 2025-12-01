@@ -75,6 +75,11 @@ if (nameInput) {
     nameInput.addEventListener('input', () => updateCounter(nameCounter, nameMaxLength, nameInput));
 }
 
+// set min date input to today (user can't create a past event)
+const dateInput = document.getElementById('eventDate');
+if (dateInput)
+    dateInput.min = new Date().toISOString().slice(0, 10);
+
 // dynamic update of input characters for event description
 const descTextarea = document.getElementById('eventDescription');
 const descCounter = document.getElementById('descCounter');

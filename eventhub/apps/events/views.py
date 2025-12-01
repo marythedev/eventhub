@@ -4,8 +4,9 @@ from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
 import stripe
+from api.event_filter_utils import (filter_events_custom,
+                                    get_filtered_paginated_events)
 from api.stripe_utils import get_stripe_account
-from api.utils import filter_events_custom, filter_events_global
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
@@ -114,6 +115,7 @@ def _save_tickets(purchased_tickets, order):
                 )
 
 
+
 # views
 def view_events(request):
     """
@@ -124,23 +126,82 @@ def view_events(request):
     Events are annotated with additional information for display.
     """
 
-    search_query = request.GET.get('search')
-    hide_sold_out = not search_query
-
-    events, request_query = filter_events_global(
-        request.GET,
-        hide_sold_out=hide_sold_out,
-        event_annotation=True
+    paginated_events, request_query, total_events = get_filtered_paginated_events(
+        request, hide_sold_out=True, event_annotation=True
     )
 
+    filters_applied_count = len(request_query) - 1      # don't count timezone filter
     categories = Event.CATEGORIES
     selected_categories = request.GET.getlist('category')
 
     return render(request, 'events/view-events.html', {
-        'events': events,
+        'events': paginated_events,
+        'total_events': total_events,
+        'filters_applied_count': filters_applied_count,
         'categories': categories,
         'selected_categories': selected_categories,
         'request_query': request_query
+    })
+
+
+def view_event(request, event_id):
+    """
+    Display single event's information.
+
+    Additional behavior:
+        - Hide event from anyone except organizer if organizer’s Stripe account is not setup.
+        - If user owns tickets to this event, preview it.
+        - On POST validate order information before proceeding to checkout.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): ID of the event to view.
+    """
+
+    event = get_object_or_404(Event, id=event_id)
+
+    get_stripe_account(event.organizer)
+    if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
+        raise Http404("Event not found")
+
+    image_urls = []
+    images = event.images.all()
+    for image in images:
+        image_urls.append(image.url)
+
+    owned_tickets = None
+    if request.user.is_authenticated:
+        owned_tickets = Ticket.objects.filter(
+            order__acquirer=request.user,
+            price_zone__event=event
+        )
+
+    if request.method == "POST":
+        form = OrderFormValidator(request.POST)
+
+        # check if user attempts to purchase tickets for past event
+        if event.is_past:
+            form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
+
+        # check if event owner has setup payouts
+        if not event.organizer.stripe_account.stripe_account_ready:
+            form.add_error(None, "Event owner has not configured their bank settings to receive payments.")
+
+        if not event.is_past and form.is_valid():
+            selected_tickets = form.cleaned_data.get('price_zones', [])
+            request.session['selected_tickets'] = selected_tickets
+            request.session['selected_event'] = event.id
+            return redirect('events:checkout', event_id=event.id)
+    else:
+        form = OrderFormValidator()
+
+    return render(request, 'events/view-event.html', {
+        'event': event,
+        'stripe_account_ready': event.organizer.stripe_account.stripe_account_ready,
+        'tickets_user_owns': owned_tickets,
+        'imgs': image_urls, 
+        'price_zones': event.price_zones.all(),
+        'form': form
     })
 
 
@@ -230,70 +291,9 @@ def create_event(request):      # pylint: disable=too-many-locals
         price_zone_forms = PriceZoneFormSet(prefix="zones")
 
     return render(request, 'events/create-event.html', {
-            'event_form': event_form,
-            'image_form': image_form,
-            'price_zone_forms': price_zone_forms
-        })
-
-
-def view_event(request, event_id):
-    """
-    Display single event's information.
-
-    Additional behavior:
-        - Hide event from anyone except organizer if organizer’s Stripe account is not setup.
-        - If user owns tickets to this event, preview it.
-        - On POST validate order information before proceeding to checkout.
-
-    Args:
-        request (HttpRequest)
-        event_id (int): ID of the event to view.
-    """
-
-    event = get_object_or_404(Event, id=event_id)
-
-    get_stripe_account(event.organizer)
-    if (event.organizer != request.user and not event.organizer.stripe_account.stripe_account_ready):
-        raise Http404("Event not found")
-
-    image_urls = []
-    images = event.images.all()
-    for image in images:
-        image_urls.append(image.url)
-
-    owned_tickets = None
-    if request.user.is_authenticated:
-        owned_tickets = Ticket.objects.filter(
-            order__acquirer=request.user,
-            price_zone__event=event
-        )
-
-    if request.method == "POST":
-        form = OrderFormValidator(request.POST)
-
-        # check if user attempts to purchase tickets for past event
-        if event.is_past:
-            form.add_error(None, "This event has already ended. Tickets cannot be purchased.")
-
-        # check if event owner has setup payouts
-        if not event.organizer.stripe_account.stripe_account_ready:
-            form.add_error(None, "Event owner has not configured their bank settings to receive payments.")
-
-        if not event.is_past and form.is_valid():
-            selected_tickets = form.cleaned_data.get('price_zones', [])
-            request.session['selected_tickets'] = selected_tickets
-            request.session['selected_event'] = event.id
-            return redirect('events:checkout', event_id=event.id)
-    else:
-        form = OrderFormValidator()
-
-    return render(request, 'events/view-event.html', {
-        'event': event,
-        'stripe_account_ready': event.organizer.stripe_account.stripe_account_ready,
-        'tickets_user_owns': owned_tickets,
-        'imgs': image_urls, 
-        'price_zones': event.price_zones.all(),
-        'form': form
+        'event_form': event_form,
+        'image_form': image_form,
+        'price_zone_forms': price_zone_forms
     })
 
 

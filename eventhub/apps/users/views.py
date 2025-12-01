@@ -275,6 +275,7 @@ def profile_update(request):
     if request.method == "POST":
         user = request.user
         form = ProfileValidator(request.POST, user=user)
+        success_profile_update = None
 
         if form.is_valid():
             user.full_name = form.cleaned_data['full_name']
@@ -284,8 +285,8 @@ def profile_update(request):
             user.location_lat = form.cleaned_data.get('latitude', None)
             user.location_lon = form.cleaned_data.get('longitude', None)
             user.save()
-
-        return render(request, 'users/account.html', {'form': form})
+            success_profile_update = "Your profile has been updated."
+        return render(request, 'users/account.html', {'form': form, 'success_profile_update': success_profile_update})
     return redirect('users:account')
 
 

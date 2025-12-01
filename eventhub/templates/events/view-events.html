@@ -20,10 +20,14 @@
 
         <div class="events-controls">
             <div class="events-controls-btns">
-                <button class="filter-toggle-btn" id="filterToggleBtn">
+                <button class="filter-toggle-btn counter-wrapper" id="filterToggleBtn">
                     <i class="fas fa-sliders-h"></i> <span id="filterBtnText">Filters</span>
+                    <span class="counter">
+                        {% if filters_applied_count > 0 %} {{filters_applied_count}} {% else %} 0 {% endif %}
+                    </span>
                 </button>
             </div>
+
             <div class="search-bar-large">
                 <i class="fas fa-search"></i>
                 <input type="text" placeholder="Search events, keywords or locations..." class="eventsSearch" 
@@ -100,9 +104,9 @@
                 <button class="btn-primary btn-full" id="applyFilters">Apply Filters</button>
             </aside>
 
-            <div class="events-main">
+            <div class="events-main" id="events-wrapper">
                 <div class="events-results-header">
-                    <p class="results-count">Showing {{events|length}} events</p>
+                    <p class="results-count">Showing {{total_events}} events</p>
                     <div class="sort-controls">
                         <label for="sortBy">Sort&nbsp;by:</label>
                         <select id="sortBy">
@@ -114,12 +118,12 @@
                     </div>
                 </div>
 
-                <div class="events-grid-large" id="eventsGrid">
+                <div class="events-grid" id="eventsGrid">
                     {% for event in events %}
                     <a href="{% url 'events:view_event' event.id %}">
                         <div class="event-card">
                             <div class="event-image">
-                                <img src="{{ event.images.first.url }}" alt="{{ event.title }}">
+                                <img src="{{ event.images.first.url }}" alt="{{ event.name }}">
                                 {% if event.badge %}
                                 <div class="event-badge {{ event.badge|lower }}">{{ event.badge }}</div>
                                 {% endif %}
@@ -137,8 +141,8 @@
                                         <p class="event-location"><i class="fas fa-map-marker-alt"></i>
                                             {{ event.location|truncatechars:50 }}
                                         </p>
-                                        <p class="event-category"><i class="fas fa-tags"></i>
-                                            {{ event.category|capfirst }}
+                                        <p class="event-category"><i class="fas {{ event.category_icon }}"></i>
+                                            {{ event.category_label }}
                                         </p>
                                     </div>
                                 </div>
@@ -151,7 +155,7 @@
                                     </span>
 
                                     <button class="btn-primary btn-small">
-                                        {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}
+                                        {% if event.min_price == 0 %} Reserve Spot {% else %} Get Tickets {% endif %}
                                     </button>
                                 </div>
                             </div>
@@ -159,11 +163,21 @@
                     </a>
                     {% endfor %}
                 </div>
+
+                <div class="loading-indicator" id="loadingIndicator">
+                    <br>
+                    <div class="spinner"></div>
+                    <p>Loading more events...</p>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <script src="{% static 'js/view-events.js' %}" defer></script>
+
+{% if events.has_other_pages %}
+<script src="{% static 'js/infinite-scroll.js' %}" type="module"></script>
+{% endif %}
 
 {% endblock %}

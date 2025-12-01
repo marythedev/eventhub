@@ -1,4 +1,5 @@
-from api.utils import filter_events_custom, get_unique_events_from_orders
+from api.event_filter_utils import filter_events_custom
+from api.utils import get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render

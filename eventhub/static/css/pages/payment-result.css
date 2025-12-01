@@ -54,12 +54,6 @@
     gap: 1rem;
 }
 
-@media(max-width: 700px) {
-    .event-confirmation {
-        flex-wrap: wrap;
-    }
-}
-
 @media(max-width: 400px) {
     .next-actions {
         flex-wrap: wrap;

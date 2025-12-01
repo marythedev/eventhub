@@ -75,7 +75,6 @@
             </div>
 
             <div class="events-grid">
-
                 {% for event in recommended_events %}
                 <a href="{% url 'events:view_event' event.id %}">
                     <div class="event-card">
@@ -95,7 +94,7 @@
                                     <h3>{{event.name}}</h3>
                                     <p class="event-location"><i class="fas fa-map-marker-alt"></i>
                                         {{ event.location|truncatechars:50 }}</p>
-                                    <p class="event-genre"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                                    <p class="event-genre"><i class="fas {{ event.category_icon }}"></i> {{ event.category_label }}</p>
                                 </div>
                             </div>
 
@@ -106,7 +105,7 @@
                                     {% else %} Free {% endif %}
                                 </span>
                                 <button class="btn-primary btn-small">
-                                    {% if event.price == 'Free' %} Reserve Spot {% else %} Get Tickets {% endif %}
+                                    {% if event.min_price == 0 %} Reserve Spot {% else %} Get Tickets {% endif %}
                                 </button>
                             </div>
                         </div>
@@ -114,6 +113,8 @@
                 </a>
                 {% endfor %}
             </div>
+
+            {% include "components/pagination.html" with pagination_results=recommended_events query=query only %}
         </div>
 
         <div>
@@ -145,6 +146,8 @@
         </div>
     </div>
 </section>
+
+<script src="{% static 'js/home.js' %}"></script>
 
 {% endif %}
 

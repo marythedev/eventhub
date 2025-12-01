@@ -30,6 +30,17 @@ class Event(models.Model):
         ('tech', 'Technology'),
     ]
 
+    ICONS = {
+        'arts': 'fa-film',
+        'business': 'fa-briefcase',
+        'family': 'fa-heart',
+        'food': 'fa-martini-glass-citrus',
+        'music': 'fa-music',
+        'social': 'fa-comments',
+        'sports': 'fa-basketball',
+        'tech': 'fa-code',
+    }
+
     name = models.CharField(max_length=50)
     date = models.DateTimeField()
     location = models.CharField(max_length=255)
@@ -46,6 +57,16 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def category_label(self):
+        """Returns the full category name."""
+        return dict(self.CATEGORIES).get(self.category, self.category)
+
+    @property
+    def category_icon(self):
+        """Returns icon for the category."""
+        return self.ICONS.get(self.category, 'fa-tag')
 
     @property
     def is_past(self):

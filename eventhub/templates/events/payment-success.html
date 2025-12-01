@@ -33,10 +33,12 @@
                             </div>
 
                             <div class="event-info">
-                                <h3>{{ event.title }}</h3>
+                                <h3>{{ event.name }}</h3>
                                 <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
                                 </p>
-                                <p class="event-category"><i class="fas fa-tags"></i> {{ event.category|capfirst }}</p>
+                                <p class="event-category">
+                                    <i class="fas {{event.category_icon}}"></i> {{ event.category_label }}
+                                </p>
                             </div>
                         </div>
                     </div>

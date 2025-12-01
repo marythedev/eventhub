@@ -1,8 +1,9 @@
 from collections import Counter
 
-from api.utils import get_unique_events_from_orders, haversine
-from django.db.models import (Case, Count, F, IntegerField, Max, Min, Q,
-                              Subquery, Value, When)
+from api.location_utils import haversine
+from api.utils import get_unique_events_from_orders
+from django.db.models import (Case, F, IntegerField, Max, Min, Subquery, Value,
+                              When)
 from django.utils import timezone
 from events.models import Event
 
@@ -188,7 +189,7 @@ def _purchased_penalty(events, user):
 
     return events
 
-def get_recommended_events(user, max_event_pool=500, max_recommend_results=10):
+def get_recommended_events(user, max_event_pool=500, max_recommend_results=12):
     """
     Get personalized recommended events for a user.
 
@@ -222,29 +223,3 @@ def get_recommended_events(user, max_event_pool=500, max_recommend_results=10):
     ).order_by("-relevance_score", "date")
 
     return events[:max_recommend_results]
-
-def get_upcoming_user_events(user):
-    """
-    Get upcoming events that user has purchased tickets for.
-    Annotates each event with the number of tickets the user owns for that event.
-
-    Args:
-        user (User): User whose upcoming events are being fetched.
-
-    Returns:
-        QuerySet: Upcoming events ordered by date with 'tickets_owned' annotation.
-    """
-
-    upcoming_events = get_unique_events_from_orders(user).filter(
-        date__gte=timezone.now()
-    )
-
-    # owned ticket number annotation
-    upcoming_events = upcoming_events.annotate(
-        tickets_owned=Count(
-            'price_zones__tickets',
-            filter=Q(price_zones__tickets__order__acquirer=user)
-        )
-    ).order_by('date')
-
-    return upcoming_events

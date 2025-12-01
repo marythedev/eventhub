@@ -1,6 +1,6 @@
 import os
 
-from api.utils import validate_location
+from api.location_utils import validate_location
 from django.conf import settings
 from django.contrib.auth.decorators import user_passes_test
 from django.core.files.storage import FileSystemStorage

@@ -5,6 +5,7 @@ from . import views
 app_name = 'api'
 
 urlpatterns = [
+    path("load-events/", views.load_events, name="load_events"),
     path("search/all/", views.search_all, name="search_all"),
     path("search/my-events/", views.search_my_events, name="search_my_events"),
     path("search/my-orders/", views.search_events_from_orders, name="search_events_from_orders"),

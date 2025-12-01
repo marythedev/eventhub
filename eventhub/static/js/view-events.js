@@ -35,20 +35,28 @@ if (radiusSlider && radiusValue) {
 
 const dateTo = document.getElementById("dateTo");
 const dateFrom = document.getElementById("dateFrom");
+const today = formatDate(new Date());
 
-// user can't select the date (date to) before 'date from'
-document.getElementById("dateFrom").addEventListener("change", function () {
-    dateTo.setAttribute("min", this.value);
-    if (new Date(dateTo.value) < new Date(this.value))
-        dateTo.value = this.value;
-});
+if (dateFrom) {
+    dateFrom.setAttribute('min', today);
 
-// user can't select the date (date from) after 'date to'
-document.getElementById("dateTo").addEventListener("change", function () {
-    dateFrom.setAttribute("max", this.value);
-    if (new Date(dateFrom.value) > new Date(this.value))
-        dateFrom.value = this.value;
-});
+    // user can't select the date (date to) before 'date from'
+    dateFrom.addEventListener("change", function () {
+        dateTo.setAttribute("min", this.value);
+        if (new Date(dateTo.value) < new Date(this.value))
+            dateTo.value = this.value;
+    });
+}
+if (dateTo) {
+    dateTo.setAttribute('min', today);
+
+    // user can't select the date (date from) after 'date to'
+    dateTo.addEventListener("change", function () {
+        dateFrom.setAttribute("max", this.value);
+        if (new Date(dateFrom.value) > new Date(this.value))
+            dateFrom.value = this.value;
+    });
+}
 
 // set date ranges when quick dates button is clicked
 const quickDates = document.querySelector('.quick-dates');

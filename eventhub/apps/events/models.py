@@ -17,6 +17,8 @@ class Event(models.Model):
         category (str): The category of the event, required.
         description (str): A detailed description of the event (max 5000 characters), optional.
         organizer (Profile): The user who created the event.
+        team (Profile - ManyToMany): Additional users assigned to the event team.
+            These users are able to validate (scan) tickets for the event.
     """
 
     CATEGORIES = [
@@ -55,8 +57,19 @@ class Event(models.Model):
         related_name='events',
     )
 
+    team = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        related_name='team_events',
+        blank=True,
+        help_text="Users allowed to validate (scan) tickets for this event."
+    )
+
     def __str__(self):
         return self.name
+
+    def is_team_member(self, user):
+        """Return True if the user is a member of the event's team."""
+        return self.team.filter(id=user.id).exists()
 
     @property
     def category_label(self):

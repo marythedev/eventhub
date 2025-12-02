@@ -55,15 +55,38 @@
                             <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
                             <p><i class="fas {{event.category_icon}}"></i> {{event.category_label}}</p>
                         </div>
-                        <div class="event-organizer {% if event.is_past %} past {% endif %}">
-                            <p><strong>Organized by:</strong> {{ event.organizer.get_full_name}}</p>
-                            {% if event.is_past %}
-                            <button class="btn-secondary btn-small">Past&nbsp;Event</button>
-                            {% endif %}
-                            {% if request.user == event.organizer and not event.is_past %}
-                            <a href="{% url 'events:edit_event' event.id %}">
-                                <button class="btn-secondary btn-small"><i class="fas fa-edit"></i> Edit Event</button>
-                            </a>
+                        <div class="event-manage">
+                            <div class="event-organizer {% if event.is_past %} past {% endif %}">
+                                <p><strong>Organized by:</strong> {{ event.organizer.get_full_name}}</p>
+                                {% if event.is_past %}
+                                <button class="btn-secondary btn-small">Past&nbsp;Event</button>
+                                {% endif %}
+                                {% if request.user == event.organizer and not event.is_past %}
+                                <a href="{% url 'events:edit_event' event.id %}">
+                                    <button class="btn-secondary btn-small">
+                                        <i class="fas fa-edit"></i> Edit Event
+                                    </button>
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            {% if request.user == event.organizer or request.user in event.team.all %}
+                            <div class="ticket-validation">
+                                <div>
+                                    <p><strong>Ticket Validation</strong></p>
+
+                                    {% if request.user == event.organizer %}
+                                    <p>You can validate attendees' tickets for this event and manage who else can validate them.</p>
+                                    {% endif %}
+
+                                    {% if request.user in event.team.all %}
+                                    <p>You can validate attendees' tickets for this event.</p>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'events:validate_tickets' event.id %}">
+                                    <button class="btn-secondary btn-small">Validate Tickets</button>
+                                </a>
+                            </div>
                             {% endif %}
                         </div>
                     </div>
@@ -93,7 +116,7 @@
                                     {% if zone.price != 0 %}
                                     ${{ zone.price }}
                                     {% else %} Free {% endif %}
-                                </span>
+                                </p>
                             </div>
                             <div class="ticket-type-seats">
                                 <div class="quantity-controls">

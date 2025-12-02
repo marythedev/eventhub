@@ -6,6 +6,7 @@ from zoneinfo import available_timezones
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import JSONField, formset_factory
+from users.models import Profile
 from users.utils import (MAX_FILE_SIZE_MB, clean_and_update_location,
                          is_valid_image_format)
 
@@ -286,3 +287,93 @@ class OrderFormValidator(forms.Form):
             })
 
         return selected_tickets
+
+
+class AddTeamValidator(forms.Form):
+    """
+    Validates a user to add to the event team.
+
+    Fields:
+        email (str): Email of the user to be added to the event team, required.
+
+    Validation rules:
+        - User must exist in the system.
+        - The user cannot be the event organizer (organizer already has full privileges to the event).
+        - The user must not already be a team member of the event.
+
+    Returns:
+        dict: Validated email of the team member to add.
+    """
+
+    email = forms.EmailField(
+        required=True,
+        error_messages={
+            "required": "Email is required.",
+            "invalid": "Enter a valid email address."
+        }
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Get event information to which user is to be added."""
+        self.event = kwargs.pop("event")
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        """Check if the user exists, is not the organizer or is not part of the team already."""
+
+        email = self.cleaned_data["email"]
+
+        try:
+            user = Profile.objects.get(email=email)
+        except Profile.DoesNotExist as e:
+            raise ValidationError("No user found with this email.") from e
+
+        if user == self.event.organizer:
+            raise ValidationError("As the organizer, you already part of the team.")
+
+        if user in self.event.team.all():
+            raise ValidationError("This user is already a team member.")
+
+        return email
+
+class RemoveTeamValidator(forms.Form):
+    """
+    Validates a user to remove from the event team.
+
+    Fields:
+        email (str): Email of the user to be removed from the event team, required.
+
+    Validation rules:
+        - User must exist in the system.
+        - The user must currently be a team member of the event.
+
+    Returns:
+        dict: Validated email of the team member to remove.
+    """
+
+    email = forms.EmailField(
+        required=True,
+        error_messages={
+            "required": "Email is required.",
+            "invalid": "Enter a valid email address."
+        }
+    )
+
+    def __init__(self, *args, **kwargs):
+        """Get event information from which user is to be removed."""
+        self.event = kwargs.pop("event")
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        """Check if the user exists, is the organizer and is part of the team."""
+        email = self.cleaned_data["email"]
+
+        try:
+            user = Profile.objects.get(email=email)
+        except Profile.DoesNotExist as e:
+            raise ValidationError("No user found with this email.") from e
+
+        if user not in self.event.team.all():
+            raise ValidationError("This user is not part of the team.")
+
+        return email

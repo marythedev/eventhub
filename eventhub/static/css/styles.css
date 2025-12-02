@@ -216,6 +216,13 @@ section {
 
 
 /* multi-page reused classes */
+i {
+    min-width: 18px;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
 .suggestions-box {
     position: absolute;
     top: 55px;

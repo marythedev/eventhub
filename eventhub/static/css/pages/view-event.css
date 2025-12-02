@@ -123,22 +123,42 @@
     gap: 0.5rem;
 }
 
-.event-organizer {
+.event-manage {
+    padding: 1.5rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+}
+
+.event-organizer,
+.ticket-validation {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    padding: 1rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
 }
 
 .event-organizer.past button {
     background: var(--bg-tertiary);
     color: var(--text-secondary);
+}
+
+.ticket-validation {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.ticket-validation p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.ticket-validation p strong {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
 }
 
 .v-event-desc {
@@ -352,8 +372,9 @@ p.ticket-price.free {
 }
 
 @media (max-width: 375px) {
-    .event-organizer a,
-    .event-organizer button {
+
+    .event-manage a,
+    .event-manage button {
         width: 100%;
         justify-content: center;
     }

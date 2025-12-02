@@ -8,6 +8,7 @@ from api.event_filter_utils import (filter_events_custom,
                                     get_filtered_paginated_events)
 from api.stripe_utils import get_stripe_account
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
@@ -16,10 +17,11 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from tickets.models import Ticket
+from users.models import Profile
 from users.utils import cloud_upload_img
 
-from .forms import (EventImageValidator, EventInfoValidator,
-                    OrderFormValidator, PriceZoneFormSet)
+from .forms import (AddTeamValidator, EventImageValidator, EventInfoValidator,
+                    OrderFormValidator, PriceZoneFormSet, RemoveTeamValidator)
 from .models import Event, EventImage, EventPriceZone, Order
 
 # environmental variables
@@ -360,9 +362,104 @@ def edit_event(request, event_id):
         })
 
     return render(request, 'events/edit-event.html', {
-            'event': event, 
-            'event_form': event_form
-        })
+        'event': event, 
+        'event_form': event_form
+    })
+
+
+@login_required
+def validate_tickets(request, event_id):
+    """
+    Display the ticket validation page for an event.
+    Only the event organizer or event team members are allowed to access.
+    
+    Raises:
+        Http404: If event does not exist or user does not have permission to access.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): The ID of the event for which ticket validation page should be displayed.
+    """
+
+    event = get_object_or_404(Event, id=event_id)
+
+    if not (event.organizer == request.user or event.is_team_member(request.user)):
+        return Http404("Event not found.")
+
+    return render(request, 'events/validate-tickets.html', { 'event': event })
+
+
+@login_required
+def add_team_member(request, event_id):
+    """
+    Add a team member to the event.
+    Event organizers can add team members to their events.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): The ID of the event to which team member should be added.
+
+    POST:
+        Validate submitted form.
+        - On errors:
+            - Add error message.
+        - On success:
+            - Add user to event team.
+            - Add success message.
+        - Redirect to validate tickets page (where event team management happens).
+    """
+
+    if request.method == "POST":
+        event = get_object_or_404(Event, id=event_id, organizer=request.user)
+
+        form = AddTeamValidator(request.POST, event=event)
+
+        if form.is_valid():
+            user = Profile.objects.get(email=form.cleaned_data["email"])
+            event.team.add(user)
+            messages.success(request, "User was added to the event team.")
+        else:
+            for errs in form.errors.values():
+                for e in errs:
+                    messages.error(request, e)
+
+    return redirect('events:validate_tickets', event_id=event_id)
+
+
+@login_required
+def remove_team_member(request, event_id):
+    """
+    Remove a team member from the event.
+    Event organizers can remove team members to their events.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): The ID of the event from which team member should be removed.
+
+    POST:
+        Validate submitted form.
+        - On errors:
+            - Add error message.
+        - On success:
+            - Remove user from event team.
+            - Add success message.
+        - Redirect to validate tickets page (where event team management happens).
+    """
+
+    if request.method == "POST":
+        event = get_object_or_404(Event, id=event_id, organizer=request.user)
+        form = RemoveTeamValidator(request.POST, event=event)
+
+        if form.is_valid():
+            user = Profile.objects.get(email=form.cleaned_data["email"])
+            event.team.remove(user)
+            messages.success(request, "User was removed from the event team.")
+        else:
+            for errs in form.errors.values():
+                for e in errs:
+                    messages.error(request, e)
+
+    return redirect('events:validate_tickets', event_id=event_id)
 
 
 @login_required

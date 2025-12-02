@@ -288,8 +288,8 @@
                         </a>
                         {% endfor %}
                         {% if events_more > 0 %}
-                        <a href="{% url 'events:my_events' %}"">
-                            <p class=" remaining-count">+{{events_more}} more event{{events_more|pluralize}}</p>
+                        <a href="{% url 'events:my_events' %}">
+                            <p class="remaining-count">+{{events_more}} more event{{events_more|pluralize}}</p>
                         </a>
                         {% endif %}
                     </div>
@@ -363,8 +363,8 @@
                         </div>
                         {% endfor %}
                         {% if orders_more > 0 %}
-                        <a href="{% url 'tickets:view_orders' %}"">
-                            <p class=" remaining-count">+{{orders_more}} more order{{orders_more|pluralize}}</p>
+                        <a href="{% url 'tickets:view_orders' %}">
+                            <p class="remaining-count">+{{orders_more}} more order{{orders_more|pluralize}}</p>
                         </a>
                         {% endif %}
                     </div>

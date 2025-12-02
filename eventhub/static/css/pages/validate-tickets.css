@@ -1,0 +1,201 @@
+.t-validation-section {
+    position: relative;
+}
+
+.t-validation-section .auth-container,
+.t-validation-section .event-info-box {
+    max-width: 450px;
+}
+
+.validation-layout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.event-info-box {
+    width: 100%;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2rem;
+    text-align: left;
+    word-break: normal;
+}
+
+.event-info {
+    margin-bottom: 1.5rem;
+}
+
+.event-info h3 {
+    margin-bottom: 0.5rem;
+}
+
+.event-info p {
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+}
+
+.team-preview p {
+    margin-bottom: 0.5rem;
+}
+
+.team-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.team-badge {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+    padding: 0.3rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+}
+
+.remaining-count {
+    color: var(--text-secondary);
+    padding: 0.3rem 0.6rem;
+}
+
+.event-team-modal {
+    position: fixed;
+    inset: 0;
+    padding: 3.5rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0);
+    backdrop-filter: blur(0px);
+    opacity: 0;
+    pointer-events: none;
+    transition: background-color 0.25s ease, backdrop-filter 0.25s ease, opacity 0.25s ease;
+    z-index: 1000;
+}
+
+.event-team-modal.open {
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.event-team {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    max-width: 800px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.event-team.open {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+}
+
+/* scrollbar inside the modal */
+.event-team::-webkit-scrollbar {
+    width: 8px;
+}
+
+.event-team::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+.event-team::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+.event-team::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-tertiary);
+}
+
+.event-team-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.event-organizer {
+    margin-bottom: 1rem;
+}
+
+.event-team-members {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.event-team-desc {
+    color: var(--text-secondary);
+}
+
+.team-add-form {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 415px) {
+    .team-add-form button {
+        width: 100%;
+        justify-content: center;
+    };
+}
+
+.team-add-form .form-group {
+    flex: 1;
+}
+
+.team-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.team-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 0.75rem;
+    background-color: var(--bg-tertiary);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.team-remove-form button {
+    padding: 0.5rem 0;
+}
+
+.remove-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.team-empty {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}

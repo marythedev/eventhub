@@ -1,27 +1,11 @@
+// Event Image Carousel
 const slides = document.querySelectorAll('.carousel-slide');
 const nextBtn = document.getElementById('nextBtn');
 const prevBtn = document.getElementById('prevBtn');
 
-const orderForm = document.querySelector('.order-summary');
-const selectedTicketsDiv = document.getElementById('selectedTickets');
-const subtotalSpan = document.getElementById('subtotal');
-const serviceFeeSpan = document.getElementById('serviceFee');
-const taxSpan = document.getElementById('tax');
-const totalSpan = document.getElementById('total');
-const checkoutBtn = document.getElementById('checkoutBtn');
-
-const SERVICE_FEE = 0.08
-const TAX = 0.13
-
-// img carousel manipulation
 function showSlide(index) {
     slides.forEach(slide => slide.classList.remove('active'));
     slides[index].classList.add('active');
-}
-
-// round the second digit of the number
-function round(number) {
-    return Math.round(number * 100) / 100;
 }
 
 let currentIndex = 0;
@@ -35,7 +19,26 @@ try {
         currentIndex = (currentIndex - 1 + slides.length) % slides.length;
         showSlide(currentIndex);
     });
-} catch{/* page only has 1 image */}
+} catch {/* page only has 1 image */ }
+
+
+
+// Event Ticket Selection
+const orderForm = document.querySelector('.order-summary');
+const selectedTicketsDiv = document.getElementById('selectedTickets');
+const subtotalSpan = document.getElementById('subtotal');
+const serviceFeeSpan = document.getElementById('serviceFee');
+const taxSpan = document.getElementById('tax');
+const totalSpan = document.getElementById('total');
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+const SERVICE_FEE = 0.08
+const TAX = 0.13
+
+// round the second digit of the number
+function round(number) {
+    return Math.round(number * 100) / 100;
+}
 
 let price_zones = [];
 function updateOrderSummary() {
@@ -43,18 +46,18 @@ function updateOrderSummary() {
     let summaryHTML = '';
     let subtotal = 0;
     let selectedTicketsExists = false;
-    
+
     price_zones = [];
 
     ticketTypes.forEach(ticket => {
         const qtyInput = ticket.querySelector('.qty-input');
-        
+
         const id = ticket.dataset.zoneId;
         const name = ticket.dataset.ticketName;
         const price = parseFloat(ticket.dataset.price);
         const quantity = parseInt(qtyInput.value);
-        
-        price_zones.push({id, quantity});
+
+        price_zones.push({ id, quantity });
 
         if (quantity > 0) {
             const totalForType = quantity * price;
@@ -91,8 +94,7 @@ function updateOrderSummary() {
     }
 }
 
-
-// Quantity button event handling
+// ticket quantity button
 const qtyBtns = document.querySelectorAll('.qty-btn');
 qtyBtns.forEach(btn => {
     btn.addEventListener('click', function () {

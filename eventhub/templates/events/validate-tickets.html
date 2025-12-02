@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Validate Ticket {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/validate-tickets.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+<section class="t-validation-section">
+    <div class="container">
+        <div class="breadcrumb">
+            <a href="{% url 'events:view_events' %}">Events</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'events:view_event' event.id %}">{{ event.name }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Ticket Validation</span>
+        </div>
+
+        <div class="validation-layout">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <div class="auth-header">
+                        <h2>Ticket Validation</h2>
+                        <p style="font-size: 0.85rem;">Ensure attendees' tickets are valid before entry</p>
+
+                        {% if form.non_field_errors %}
+                        <small class="form-error"> {{ form.non_field_errors.0 }} </small>
+                        {% endif %}
+                    </div>
+
+                    <form class="auth-form" action="{% url 'users:login' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="ticketNumber">Ticket Number</label>
+                            <input type="text" id="ticketNumber" name="ticketNumber" placeholder="EH-TCK-XXXX-XXXXX"
+                                required>
+                            {% if form.email.errors %}
+                            <small class="form-error">{{ form.email.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-full">Check Ticket</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if request.user == event.organizer %}
+            <div class="event-info-box">
+                <div class="event-info">
+                    <h3>{{ event.name }}</h3>
+                    <p><i class="fas fa-calendar-alt"></i>
+                        <span class="full-date-no-week-day" data-utc="{{ event.date|date:'c' }}"></span>
+                    </p>
+                    <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
+                    <p><i class="fas {{event.category_icon}}"></i> {{event.category_label}}</p>
+                </div>
+
+                {% if request.user == event.organizer %}
+                <div class="team-preview">
+                    <p><strong>Team Members</strong></p>
+                    <div class="team-badges">
+                        {% if not event.team.all %}
+                        <small class="team-empty">No team members added.</small>
+                        {% endif %}
+
+                        {% for member in event.team.all %}
+                        {% if forloop.counter <= 3 %}<span class="team-badge">{{ member.email }}</span> {% endif %}
+                        {% endfor %}
+
+                        {% if event.team.all|length > 3 %}
+                        <small class="remaining-count eventTeamModalOpen btn-icon link-btn">
+                            +{{ event.team.all|length|add:"-3" }} more
+                        </small>
+                        {% endif %}
+                    </div>
+                    <br>
+                    <button class="btn-secondary eventTeamModalOpen btn-full">Manage Team</button>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if request.user == event.organizer %}
+    <div class="event-team-modal" id="eventTeamModal">
+        <div class="event-team">
+            <div class="event-team-header">
+                <h2>Manage Team</h2>
+                <button class="btn-icon" id="eventTeamModalClose">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="event-organizer">
+                <p><strong>Organizer:</strong> {{event.organizer.email}}</p>
+            </div>
+
+            <div class="event-team-members">
+                <p><strong>Event Team</strong></p>
+                <small class="event-team-desc">Anyone added here will be able to validate tickets for this event.</small>
+
+                <form method="POST" action="{% url 'events:add_team_member' event.id %}" class="team-add-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="email" name="email" placeholder="Enter user email" required>
+                    </div>
+                    <button type="submit" class="btn-secondary btn-small"><i class="fas fa-plus"></i>Add</button>
+                </form>
+
+                {% for message in messages %}
+                {% if "success" in message.tags %}
+                <small class="form-success"
+                    style="margin-top: 0.5rem; display: flex; justify-content: flex-start; text-align: left;">
+                    {{ message }}
+                </small>
+                {% elif "error" in message.tags %}
+                <small class="form-error"
+                    style="margin-top: 0.5rem; display: flex; justify-content: flex-start; text-align: left;">
+                    {{ message }}
+                </small>
+                {% endif %}
+                {% endfor %}
+
+                <br>
+
+                <div class="team-list">
+                    {% if event.team.all %}
+                    {% for team_member in event.team.all %}
+                    <div class="team-item">
+                        <span>{{ team_member.email }}</span>
+
+                        <form method="POST" action="{% url 'events:remove_team_member' event.id %}"
+                            class="team-remove-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="email" value="{{ team_member.email }}">
+                            <button type="submit" class="remove-btn btn-icon link-btn">Remove</button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="team-empty">No team members added.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<script src="{% static 'js/validate-tickets.js' %}" data-event-id="{{ event.id }}" id="validate-tickets-script"
+    defer></script>
+
+{% endblock %}

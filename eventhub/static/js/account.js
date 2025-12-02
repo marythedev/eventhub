@@ -39,7 +39,7 @@ if (stripeConnectBtn) {
         showLoading();
 
         try {
-            const data = await fetchURL("/api/stripe/setup");
+            const data = await fetchURL("/api/stripe/setup/");
             if (data.error)
                 throw new Error(data.error);
 
@@ -68,7 +68,7 @@ if (stripeDeleteBtn) {
         showLoading();
 
         try {
-            const data = await fetchURL("/api/stripe/delete");
+            const data = await fetchURL("/api/stripe/delete/");
             if (data.error)
                 throw new Error(data.error);
 

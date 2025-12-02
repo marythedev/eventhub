@@ -1,4 +1,3 @@
-import csv
 import io
 
 from barcode import Code128
@@ -219,7 +218,8 @@ def export_tickets(request, event_id):
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{event.name}_tickets.csv"'
-    writer = csv.writer(response, delimiter=';')
+
+    csv_content = []
     header = [
         "Ticket Number", 
         "Ticket Owner Name", 
@@ -227,20 +227,20 @@ def export_tickets(request, event_id):
         "Purchase Date", 
         "Order Associated with the Ticket"
     ]
-    writer.writerow(header)
+    csv_content.append(';'.join(header))
+ 
+    ticket_data = [
+        (
+            f'"{str(ticket.number).strip()}"',
+            f'"{str(ticket.order.acquirer.get_full_name()).strip()}"',
+            f'"{str(ticket.order.acquirer.email).strip()}"',
+            f'"{str(ticket.order.date.strftime('%d %b %Y at %H:%M')).strip()}"',
+            f'"{str(ticket.order.number).strip()}"',
+        )
+        for price_zone in event.price_zones.all()
+        for ticket in price_zone.tickets.all()
+    ]
 
-    ticket_data = []
-    for price_zone in event.price_zones.all():
-        for ticket in price_zone.tickets.all():
-            formatted_date = ticket.order.date.strftime('%d %b %Y at %H:%M')
-            ticket_data.append([
-                ticket.number,
-                ticket.order.acquirer.get_full_name(),
-                ticket.order.acquirer.email,
-                formatted_date,
-                ticket.order.number
-            ])
-    
     def _get_email(ticket):
         """Return ticket owner's email."""
         return ticket[2]
@@ -249,7 +249,9 @@ def export_tickets(request, event_id):
     ticket_data.sort(key=_get_email)
 
     for ticket in ticket_data:
-        writer.writerow(ticket)
+        csv_content.append(';'.join(ticket))
+
+    response.content = "\n".join(csv_content)
 
     return response
 

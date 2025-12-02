@@ -107,7 +107,7 @@ def _score_location(events, user):
         QuerySet: Events annotated with 'location_score'.
     """
 
-    if user.location:
+    if user.location_lat and user.location_lon:
         events_in_radius_ids = []
         for e in events:
             distance = haversine(user.location_lat, user.location_lon, e.location_lat, e.location_lon)

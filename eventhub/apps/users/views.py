@@ -282,8 +282,8 @@ def profile_update(request):
             user.email = form.cleaned_data['email']
             user.phone = form.cleaned_data['phone']
             user.location = form.cleaned_data['location']
-            user.location_lat = form.cleaned_data.get('latitude', None)
-            user.location_lon = form.cleaned_data.get('longitude', None)
+            user.location_lat = form.cleaned_data.get('latitude', user.location_lat)
+            user.location_lon = form.cleaned_data.get('longitude', user.location_lon)
             user.save()
             success_profile_update = "Your profile has been updated."
         return render(request, 'users/account.html', {'form': form, 'success_profile_update': success_profile_update})

@@ -1,3 +1,4 @@
+import csv
 import io
 
 from barcode import Code128
@@ -6,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from events.models import Order
+from events.models import Event, Order
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
@@ -191,6 +192,66 @@ def search_events_from_orders(request):
         })
 
     return JsonResponse({"results": data})
+
+
+@login_required
+def export_tickets(request, event_id):
+    """
+    Export all tickets issued for the event to CSV file.
+    Only event organizer can export event tickets.
+
+    The CSV has with ';' as the delimiter and the following columns:
+        - Ticket Number
+        - Ticket Owner Name
+        - Ticket Owner Email
+        - Purchase Date (formatted as 'DD MMM YYYY at HH:MM')
+        - Order Associated with the Ticket
+
+    Args:
+        request: Django request object.
+        event_id (int): ID of the event in the database for which ticket details are exported.
+
+    Returns:
+        HttpResponse: object with CSV content-type containing ticket information.
+    """
+
+    event = get_object_or_404(Event, id=event_id, organizer=request.user)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="{event.name}_tickets.csv"'
+    writer = csv.writer(response, delimiter=';')
+    header = [
+        "Ticket Number", 
+        "Ticket Owner Name", 
+        "Ticket Owner Email", 
+        "Purchase Date", 
+        "Order Associated with the Ticket"
+    ]
+    writer.writerow(header)
+
+    ticket_data = []
+    for price_zone in event.price_zones.all():
+        for ticket in price_zone.tickets.all():
+            formatted_date = ticket.order.date.strftime('%d %b %Y at %H:%M')
+            ticket_data.append([
+                ticket.number,
+                ticket.order.acquirer.get_full_name(),
+                ticket.order.acquirer.email,
+                formatted_date,
+                ticket.order.number
+            ])
+    
+    def _get_email(ticket):
+        """Return ticket owner's email."""
+        return ticket[2]
+
+    # sort tickets by ticket owner's email
+    ticket_data.sort(key=_get_email)
+
+    for ticket in ticket_data:
+        writer.writerow(ticket)
+
+    return response
 
 
 @login_required

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %} Validate Ticket {% endblock %}
+{% block title %} Validate Tickets {% endblock %}
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'css/pages/validate-tickets.css' %}" type="text/css">
@@ -41,7 +41,15 @@
                             {% endif %}
                         </div>
 
-                        <button type="submit" class="btn-primary btn-full">Check Ticket</button>
+                        <div class="validate-tickets-actions">
+                            <button type="submit" class="btn-primary btn-full">Check Ticket</button>
+                            {% if request.user == event.organizer %}
+                            <a href="{% url 'api:export_tickets' event.id %}"
+                                title="Export tickets for this event as a CSV file." class="btn-secondary btn-small">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            {% endif %}
+                        </div>
                     </form>
                 </div>
             </div>
@@ -100,7 +108,9 @@
 
             <div class="event-team-members">
                 <p><strong>Event Team</strong></p>
-                <small class="event-team-desc">Anyone added here will be able to validate tickets for this event.</small>
+                <small class="event-team-desc">
+                    Anyone added here will be able to validate tickets for this event.
+                </small>
 
                 <form method="POST" action="{% url 'events:add_team_member' event.id %}" class="team-add-form">
                     {% csrf_token %}

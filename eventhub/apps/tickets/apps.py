@@ -10,4 +10,4 @@ class TicketsConfig(AppConfig):
     name = 'tickets'
 
     def ready(self):
-        import tickets.signals      # pylint: disable=unused-import
+        import tickets.signals  # pylint: disable=unused-import

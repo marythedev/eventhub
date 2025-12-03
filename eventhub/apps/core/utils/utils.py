@@ -4,34 +4,6 @@ from django.utils import timezone
 from events.models import Event
 
 
-def add_event_annotations(events):
-    """
-    Add event annotations:
-        - percent_sold
-        - badge ('Hot' if >80% sold)
-        - badge ('Sold Out' if all seats are sold)
-    
-    Args:
-        events: initial QuerySet of Event to annotate
-
-    Returns:
-        Annotated Event QuerySet
-    """
-
-    return events.annotate(
-        percent_sold=ExpressionWrapper(
-            F('event_seats_sold') * 1.0 / F('event_seats'),
-            output_field=FloatField()
-        ),
-
-        badge=Case(
-            When(event_seats_sold__gte=F('event_seats'), then=Value('Sold Out')),
-            When(percent_sold__gt=0.8, then=Value('Hot')),
-            default=Value(''),
-        )
-    )
-
-
 def get_unique_events_from_orders(user):
     """
     Get all unique events to which user has purchased at least 1 ticket.
@@ -79,3 +51,30 @@ def get_upcoming_user_events(user):
     ).order_by('date')
 
     return upcoming_events
+
+def add_event_annotations(events):
+    """
+    Add event annotations:
+        - percent_sold
+        - badge ('Hot' if >80% sold)
+        - badge ('Sold Out' if all seats are sold)
+    
+    Args:
+        events: initial QuerySet of Event to annotate
+
+    Returns:
+        Annotated Event QuerySet
+    """
+
+    return events.annotate(
+        percent_sold=ExpressionWrapper(
+            F('event_seats_sold') * 1.0 / F('event_seats'),
+            output_field=FloatField()
+        ),
+
+        badge=Case(
+            When(event_seats_sold__gte=F('event_seats'), then=Value('Sold Out')),
+            When(percent_sold__gt=0.8, then=Value('Hot')),
+            default=Value(''),
+        )
+    )

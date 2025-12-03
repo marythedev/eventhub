@@ -1,4 +1,5 @@
 /* Account Page - Avatar Upload */
+const script = document.getElementById('image-upload-script');
 
 // handle image upload with 'Change Photo' button (users/account.html)
 const fileInput = document.getElementById('imageUpload');
@@ -23,7 +24,7 @@ if (avatarUploadForm)
 
 /* Create New Event Page - Event Images Upload */
 
-const MAX_FILE_SIZE_MB = 5;
+const MAX_UPLOAD_MB = parseInt(script.dataset.maxUploadMb) || 5;
 const uploadBox = document.getElementById('uploadBox');
 const imageUpload = document.getElementById('imageUpload');
 const uploadedImages = document.getElementById('uploadedImages');
@@ -33,14 +34,16 @@ const imgUploadError = document.getElementById('image-upload-error');
 
 // frontend validation for event images
 function isValidImage(file) {
-    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     const imageTypeValid = validTypes.includes(file.type);
-    const imageSizeValid = file.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
+    const imageSizeValid = file.size <= MAX_UPLOAD_MB * 1024 * 1024;
+
+    console.log(MAX_UPLOAD_MB)
 
     if (!imageTypeValid)
-        imgUploadError.textContent = `${file.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file.`;
+        imgUploadError.textContent = `${file.name} has unsupported image format. Please upload a JPG, PNG or WEBP file.`;
     else if (!imageSizeValid)
-        imgUploadError.textContent = `${file.name} image file is too large (max ${MAX_FILE_SIZE_MB}MB).`;
+        imgUploadError.textContent = `${file.name} image file is too large (max ${MAX_UPLOAD_MB}MB).`;
 
     return imageTypeValid && imageSizeValid;
 }

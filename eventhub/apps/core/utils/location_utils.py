@@ -74,3 +74,27 @@ def validate_location(location):
         raise ValidationError("Failed to validate location. Try again later.") from e
 
     return location, latitude, longitude
+
+def clean_and_update_location(form, location):
+    """
+    Validate and normalize location.
+    If location is valid, get its latitude and longitude.
+    
+    Args:
+        form: form instance that calls this method.
+        location: location string to be validated and normalized.
+    
+    Returns:
+        The normalized location string.
+    """
+
+    if location:
+        location, lat, lon = validate_location(location)
+
+        # update location on form
+        form.data = form.data.copy()
+        form.data['location'] = location
+        form.cleaned_data['latitude'] = lat
+        form.cleaned_data['longitude'] = lon
+
+    return location

@@ -51,8 +51,8 @@
                                     enctype="multipart/form-data">
                                     {% csrf_token %}
 
-                                    <input type="file" id="imageUpload" name="imageFile"
-                                        accept=".jpg,.jpeg,.png,.gif,.webp" style="display: none;">
+                                    <input type="file" id="imageUpload" name="imageFile" accept=".jpg,.jpeg,.png,.webp"
+                                        style="display: none;">
                                     <button type="button" class="btn-secondary" id="changePhotoBtn">Change
                                         Photo</button>
                                 </form>
@@ -64,8 +64,12 @@
                             </div>
                         </div>
 
-                        {% if avatar_error %}
-                        <small class="form-error"> {{ avatar_error }} </small>
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if 'avatar' in message.tags and 'error' in message.tags %}
+                        <small class="form-error"> {{ message }} </small>
+                        {% endif %}
+                        {% endfor %}
                         {% endif %}
                     </div>
 
@@ -75,16 +79,16 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="full_name">Full Name</label>
-                                <input type="text" id="full_name" name="full_name" value="{{user.full_name}}">
-                                {% if form.full_name.errors %}
-                                <small class="form-error">{{ form.full_name.errors.0 }}</small>
+                                <input type="text" id="full_name" name="full_name" value="{{user.full_name}}" required>
+                                {% if profile_form and profile_form.form_errors.full_name %}
+                                <small class="form-error">{{ profile_form.form_errors.full_name.0 }}</small>
                                 {% endif %}
                             </div>
                             <div class="form-group">
                                 <label for="accountEmail">Email Address</label>
-                                <input type="email" id="accountEmail" name="email" value="{{user.email}}">
-                                {% if form.email.errors %}
-                                <small class="form-error">{{ form.email.errors.0 }}</small>
+                                <input type="email" id="accountEmail" name="email" value="{{user.email}}" required>
+                                {% if profile_form and profile_form.form_errors.email %}
+                                <small class="form-error">{{ profile_form.form_errors.email.0 }}</small>
                                 {% endif %}
                             </div>
                         </div>
@@ -93,22 +97,28 @@
                                 <label for="phoneNumber">Phone Number</label>
                                 <input type="tel" id="phoneNumber" name="phone"
                                     value="{{user.phone|default_if_none:''}}">
-                                {% if form.phone.errors %}
-                                <small class="form-error">{{ form.phone.errors.0 }}</small>
+                                {% if profile_form and profile_form.form_errors.phone %}
+                                <small class="form-error">{{ profile_form.form_errors.phone.0 }}</small>
                                 {% endif %}
                             </div>
                             <div class="form-group">
                                 <label for="location">Location</label>
                                 <input type="text" id="location" name="location"
                                     value="{{user.location|default_if_none:''}}">
-                                {% if form.location.errors %}
-                                <small class="form-error">{{ form.location.errors.0 }}</small>
+                                {% if profile_form and profile_form.form_errors.location %}
+                                <small class="form-error">{{ profile_form.form_errors.location.0 }}</small>
                                 {% endif %}
                             </div>
                         </div>
-                        {% if success_profile_update %}
-                        <small class="form-success">{{ success_profile_update }}</small>
+
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if 'profile' in message.tags and 'success' in message.tags %}
+                        <small class="form-success">{{ message }}</small>
                         {% endif %}
+                        {% endfor %}
+                        {% endif %}
+
                         <button type="submit" class="btn-primary">Save Changes</button>
                     </form>
                 </div>
@@ -126,28 +136,34 @@
                         <div class="form-group">
                             <label for="currentPassword">Current Password</label>
                             <input type="password" id="currentPassword" name="current_password" minlength="8" required>
-                            {% if form.current_password.errors %}
-                            <small class="form-error">{{ form.current_password.errors.0 }}</small>
+                            {% if security_form and security_form.form_errors.current_password %}
+                            <small class="form-error">{{ security_form.form_errors.current_password.0 }}</small>
                             {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="newPassword">New Password</label>
                             <input type="password" id="newPassword" name="new_password" minlength="8" required>
-                            {% if form.new_password.errors %}
-                            <small class="form-error">{{ form.new_password.errors.0 }}</small>
+                            {% if security_form and security_form.form_errors.new_password %}
+                            <small class="form-error">{{ security_form.form_errors.new_password.0 }}</small>
                             {% endif %}
                         </div>
                         <div class="form-group">
                             <label for="confirmNewPassword">Confirm New Password</label>
                             <input type="password" id="confirmNewPassword" name="confirm_new_password" minlength="8"
                                 required>
-                            {% if form.confirm_new_password.errors %}
-                            <small class="form-error">{{ form.confirm_new_password.errors.0 }}</small>
+                            {% if security_form and security_form.form_errors.confirm_new_password %}
+                            <small class="form-error">{{ security_form.form_errors.confirm_new_password.0 }}</small>
                             {% endif %}
                         </div>
-                        {% if success_password_update %}
-                        <small class="form-success">{{ success_password_update }}</small>
+
+                        {% if messages %}
+                        {% for message in messages %}
+                        {% if 'security' in message.tags and 'success' in message.tags %}
+                        <small class="form-success">{{ message }}</small>
                         {% endif %}
+                        {% endfor %}
+                        {% endif %}
+
                         <button type="submit" class="btn-primary">Update Password</button>
                     </form>
                 </div>

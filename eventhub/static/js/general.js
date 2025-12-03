@@ -265,6 +265,20 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// disable main form button to avoid multiple form submissions
+const formBtns = document.querySelectorAll("form .btn-primary");
+formBtns.forEach(btn => {
+    btn.addEventListener('click', function () {
+        const form = btn.closest('form');
+        form.requestSubmit();
+
+        if (form.checkValidity()) {
+            btn.textContent = "Loading...";
+            btn.disabled = true;
+        }
+    });
+});
+
 // footer dynamic year update
 document.addEventListener("DOMContentLoaded", () => {
     const footerYear = document.getElementById("current-year");

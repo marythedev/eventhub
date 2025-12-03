@@ -1,5 +1,5 @@
-from api.event_filter_utils import filter_events_custom
-from api.utils import get_unique_events_from_orders
+from core.utils.event_filter_utils import filter_events_custom
+from core.utils.utils import get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, render
@@ -36,12 +36,12 @@ def view_orders(request):
     """
     Display a list of all orders made by the user.
 
-    Events from orders are filtered based on request.GET search & filters query.
+    Events from orders are filtered based on request.GET search & filters query and ordered by date.
     Orders are filtered based on these events.
     """
 
     events = get_unique_events_from_orders(request.user)
-    events = filter_events_custom(events, request.GET)
+    events = filter_events_custom(events, request.GET).order_by('date')
 
     # get orders for filtered events
     orders = request.user.orders.filter(

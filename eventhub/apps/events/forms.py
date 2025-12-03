@@ -3,15 +3,17 @@ from datetime import date as d
 from datetime import datetime
 from zoneinfo import available_timezones
 
+from core.utils.image_utils import is_valid_image_format
+from core.utils.location_utils import clean_and_update_location
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.forms import JSONField, formset_factory
 from users.models import Profile
-from users.utils import (MAX_FILE_SIZE_MB, clean_and_update_location,
-                         is_valid_image_format)
 
 from .models import Event, EventPriceZone
 
+MAX_UPLOAD_MB = settings.MAX_UPLOAD_MB
 
 class EventInfoValidator(forms.Form):
     """
@@ -126,7 +128,7 @@ class EventImageValidator(forms.Form):
 
     Validation rules:
         - At least one image is uploaded.
-        - Each uploaded image is in a supported format (JPG, PNG, GIF, WEBP).
+        - Each uploaded image is in a supported format (JPG, PNG, WEBP).
         - Each image file does not exceed the maximum allowed size.
 
     Returns:
@@ -147,11 +149,11 @@ class EventImageValidator(forms.Form):
         for image in images:
             if not is_valid_image_format(image):
                 raise ValidationError(
-                    f"{image.name} has unsupported image format. Please upload a JPG, PNG, GIF or WEBP file."
+                    f"{image.name} has unsupported image format. Please upload a JPG, PNG or WEBP file."
                 )
 
-            if image.size > MAX_FILE_SIZE_MB * 1024 * 1024:
-                raise ValidationError(f"{image.name} image file is too large (max {MAX_FILE_SIZE_MB}MB).")
+            if image.size > MAX_UPLOAD_MB * 1024 * 1024:
+                raise ValidationError(f"{image.name} image file is too large (max {MAX_UPLOAD_MB}MB).")
 
         return images
 

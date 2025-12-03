@@ -1,7 +1,11 @@
 import io
 
-from api.stripe_utils import get_stripe_account
+from core.utils.image_utils import (cloud_delete_img, crop_to_center,
+                                    is_valid_image_format, set_custom_avatar,
+                                    set_default_avatar)
+from core.utils.stripe_utils import get_stripe_account
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
@@ -14,9 +18,7 @@ from PIL import Image
 from .forms import (LoginValidator, ProfileValidator, RegisterValidator,
                     SecurityValidator)
 from .models import Profile, StripeAccount
-from .utils import (MAX_FILE_SIZE_MB, TARGET_SIZE, anonymous_required,
-                    cloud_delete_img, crop_to_center, is_valid_image_format,
-                    set_custom_avatar, set_default_avatar)
+from .utils import anonymous_required
 
 EVENT_PREVIEW_NUM = 2
 ORDER_PREVIEW_NUM = 2
@@ -107,7 +109,7 @@ def login(request):
 
             remember_me = request.POST.get('remember_me')
             if remember_me:
-                request.session.set_expiry(int(settings.SESSION_EXPIRY_TIME))
+                request.session.set_expiry(settings.SESSION_EXPIRY_TIME)
             else:
                 request.session.set_expiry(0)
 
@@ -137,6 +139,8 @@ def account(request):
     Returns: Rendered account page.
     """
 
+    profile_form = request.session.pop('profile_form', None)
+    security_form = request.session.pop('security_form', None)
     stripe_account = get_stripe_account(request.user)
 
     # previews only EVENT_PREVIEW_NUM events, rest user can view in events dedicated page
@@ -152,6 +156,8 @@ def account(request):
     unpreview_order_count = order_count - ORDER_PREVIEW_NUM
 
     return render(request, 'users/account.html', {
+        'profile_form': profile_form,
+        'security_form': security_form,
         'stripe_account': stripe_account,
         'events': preview_events,
         'events_more': unpreview_events_count,
@@ -174,27 +180,31 @@ def avatar_upload(request):
         - Uploads new avatar to cloud storage and stores access link in user's instance.
 
     Validations:
-        - Must be JPG, PNG, GIF or WEBP format.
+        - Must be JPG, PNG or WEBP format.
         - Must be smaller than 5MB.
+    
+    Errors:
+        Error message is added to Django's message.error with 'avatar' tag.
 
-    Returns: Rendered account page (with error messages if any).
+    Returns:
+        Redirects to account page.
     """
 
-    avatar_error = None
     user = request.user
 
     if request.method == "POST":
         uploaded_file = request.FILES['imageFile']
 
         if not uploaded_file:
-            avatar_error = "Error uploading the file."
+            messages.error(request, "Error uploading the file.", extra_tags='avatar')
 
         elif not is_valid_image_format(uploaded_file):
-            avatar_error = "Unsupported image format. Please upload a JPG, PNG, GIF or WEBP file."
+            messages.error(
+                request, "Unsupported image format. Please upload a JPG, PNG or WEBP file.", extra_tags='avatar')
 
         # check file size
-        elif uploaded_file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
-            avatar_error = "Image file is too large (max 5MB)."
+        elif uploaded_file.size > settings.MAX_UPLOAD_MB * 1024 * 1024:
+            messages.error(request, "Image file is too large (max 5MB).", extra_tags='avatar')
 
         else:
             try:
@@ -203,7 +213,7 @@ def avatar_upload(request):
 
                 # process new image
                 image = crop_to_center(image)          # crop image 1:1 in the center
-                image = image.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
+                image = image.resize(settings.AVATAR_IMAGE_DIMENSIONS, Image.Resampling.LANCZOS)
 
                 # saves the image so it can be read or uploaded like a real file
                 buffer = io.BytesIO()
@@ -217,9 +227,8 @@ def avatar_upload(request):
                 set_custom_avatar(user, buffer, uploaded_file.name)
 
             except Exception:       # pylint: disable=broad-exception-caught
-                avatar_error = "Something went wrong."
+                messages.error(request, "Something went wrong.", extra_tags='avatar')
 
-        return render(request, 'users/account.html', {'avatar_error': avatar_error})
     return redirect('users:account')
 
 
@@ -235,12 +244,14 @@ def avatar_delete(request):
         - Deletes avatar from cloud storage.
         - Sets default avatar for the user.
 
-    Returns: Rendered account page (with error messages if any).
+    Error:
+        Error message is added to Django's message.error with 'avatar' tag.
+    
+    Returns: Redirects to account page.
     """
 
     if request.method == "POST":
         user = request.user
-        avatar_error = None
 
         try:
             # delete user's avatar from could
@@ -250,9 +261,8 @@ def avatar_delete(request):
             set_default_avatar(user)
 
         except Exception:       # pylint: disable=broad-exception-caught
-            avatar_error = "Failed to delete an avatar."
+            messages.error(request, "Failed to delete avatar.", extra_tags='avatar')
 
-        return render(request, 'users/account.html', {'avatar_error': avatar_error})
     return redirect('users:account')
 
 
@@ -266,16 +276,17 @@ def profile_update(request):
 
         On success:
             - Updates profile information.
-            - Redirect to account page.
+            - Success message is added to Django's message.success with 'profile' tag.
 
         On fail:
-            - Return profile information form on account page with errors.
+            - Form error messages are added to session as 'profile_form'.
+    
+    Returns: Redirects to account page.
     """
 
     if request.method == "POST":
         user = request.user
         form = ProfileValidator(request.POST, user=user)
-        success_profile_update = None
 
         if form.is_valid():
             user.full_name = form.cleaned_data['full_name']
@@ -285,8 +296,12 @@ def profile_update(request):
             user.location_lat = form.cleaned_data.get('latitude', user.location_lat)
             user.location_lon = form.cleaned_data.get('longitude', user.location_lon)
             user.save()
-            success_profile_update = "Your profile has been updated."
-        return render(request, 'users/account.html', {'form': form, 'success_profile_update': success_profile_update})
+            messages.success(request, "Your profile has been updated.", extra_tags='profile')
+        else:
+            request.session['profile_form'] = {
+                'form_errors': form.errors
+            }
+
     return redirect('users:account')
 
 
@@ -300,23 +315,29 @@ def security_update(request):
 
         On success:
             - Updates security (password) information.
-            - Redirect to account page.
+            - Success message is added to Django's message.success with 'security' tag.
 
         On fail:
-            - Return security information form on account page with errors.
+            - Form error messages are added to session as 'security_form'.
+
+    Returns: Redirects to account page.
     """
 
     if request.method == "POST":
         user = request.user
         form = SecurityValidator(request.POST, user=user)
-        success_password_update = None
+
         if form.is_valid():
             new_password = form.cleaned_data['new_password']
             user.set_password(new_password)
             user.save()
             update_session_auth_hash(request, user)
-            success_password_update = "Your password has been updated."
-        return render(request, 'users/account.html', {'form': form, 'success_password_update': success_password_update})
+            messages.success(request, "Your password has been updated.", extra_tags='security')
+        else:
+            request.session['security_form'] = {
+                'form_errors': form.errors
+            }
+
     return redirect('users:account')
 
 

@@ -1,3 +1,5 @@
+const script = document.getElementById('view-event-script');
+
 // Event Image Carousel
 const slides = document.querySelectorAll('.carousel-slide');
 const nextBtn = document.getElementById('nextBtn');
@@ -32,8 +34,8 @@ const taxSpan = document.getElementById('tax');
 const totalSpan = document.getElementById('total');
 const checkoutBtn = document.getElementById('checkoutBtn');
 
-const SERVICE_FEE = 0.08
-const TAX = 0.13
+const SERVICE_FEE = parseFloat(script.dataset.serviceFee) || 0.08;
+const TAX = parseFloat(script.dataset.tax) || 0.13;
 
 // round the second digit of the number
 function round(number) {

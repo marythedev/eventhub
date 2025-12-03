@@ -75,7 +75,8 @@
                                     <p><strong>Ticket Validation</strong></p>
 
                                     {% if request.user == event.organizer %}
-                                    <p>You can validate attendees' tickets for this event and manage who else can validate them.</p>
+                                    <p>You can validate attendees' tickets for this event and manage who else can
+                                        validate them.</p>
                                     {% endif %}
 
                                     {% if request.user in event.team.all %}
@@ -194,6 +195,7 @@
     </div>
 </section>
 
-<script src="{% static 'js/view-event.js' %}"></script>
+<script src="{% static 'js/view-event.js' %}" data-service-fee="{{ SERVICE_FEE }}" data-tax="{{ TAX }}"
+    id="view-event-script"></script>
 
 {% endblock %}

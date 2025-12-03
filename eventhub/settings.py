@@ -1,38 +1,76 @@
 import os
 import sys
+from decimal import Decimal
 from pathlib import Path
 
-from dotenv import load_dotenv
+import environ
 
+# ---------------------------------------
+# App Paths
+# ---------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent             # project (where manage.py & db)
 APP_ROOT = Path(os.path.dirname(__file__))                    # application (where settings.py & other configs)
 sys.path.insert(0, os.path.join(APP_ROOT, 'apps'))            # subapps (backend) of the main eventhub application
 
-load_dotenv()
 
-# development settings
+# ---------------------------------------
+# Environmental Variables
+# ---------------------------------------
+env = environ.Env()
+ENV_FILE = BASE_DIR / ".env"
+if ENV_FILE.exists():
+    environ.Env.read_env(str(ENV_FILE))
+
+
+# Security / Debug Settings
 # TODO: review before prod
 # keep the secret key used in production secret
-SECRET_KEY = 'django-insecure-xll-_^stt^ayck7ys1cq=ui5v7qnz&k8#)j0)-)n8^5+ar)(_6'
-DEBUG = True         # disable on prod
-ALLOWED_HOSTS = []
+SECRET_KEY = env("SECRET_KEY")
+DEBUG = env.bool("DEBUG", default=False)         # disable on prod
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 WSGI_APPLICATION = 'eventhub.wsgi.application'
 
 
-# env load
-DOMAIN_URL = os.getenv("DOMAIN_URL")
-SESSION_EXPIRY_TIME = os.getenv("SESSION_EXPIRY_TIME")
+# Basic Settings
+DOMAIN_URL = env("DOMAIN_URL", default=None)
+SESSION_EXPIRY_TIME = env.int("SESSION_EXPIRY_TIME", default=0)
 
-EMAIL_HOST_USER = os.getenv("SUPPORT_EMAIL")
-EMAIL_HOST_PASSWORD = os.getenv("SUPPORT_EMAIL_APP_PASSWORD")
+# Email Settings
+EMAIL_HOST_USER = env("SUPPORT_EMAIL", default=None)
+EMAIL_HOST_PASSWORD = env("SUPPORT_EMAIL_APP_PASSWORD", default=None)
 
-SERVICE_FEE = os.getenv('SERVICE_FEE')
-TAX = os.getenv('TAX')
-STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+# Media Settings
+UPLOADCARE = {
+    "pub_key": env("UPLOADCARE_PUBLIC_KEY", default=None),
+    "secret": env("UPLOADCARE_SECRET", default=None),
+}
+CDN_DOMAIN = env("CDN_DOMAIN", default=None)
+
+MAX_UPLOAD_MB = env.int("MAX_UPLOAD_MB", default=5)
+SUPPORTED_IMAGE_FORMATS = env.list("SUPPORTED_IMAGE_FORMATS", default=["JPEG", "PNG", "WEBP"])
+
+AVATAR_IMAGE_DIMENSIONS = tuple(env.list("AVATAR_IMAGE_DIMENSIONS", default=[300, 300]))
+
+EVENT_IMAGE_SIZE_KB = env.int("EVENT_IMAGE_SIZE_KB", default=500)
+EVENT_IMAGE_DIMENSION = env.int("EVENT_IMAGE_DIMENSION", default=1200)
+
+# Recommendation System Scoring Settings
+CATEGORY_SCORE = env.int("CATEGORY_SCORE", default=30)
+LOCATION_SCORE = env.int("LOCATION_SCORE", default=40)
+PRICE_MIN_MAX_MATCH_SCORE = env.int("PRICE_MIN_MAX_MATCH_SCORE", default=20)
+PRICE_MAX_MATCH_SCORE = env.int("PRICE_MAX_MATCH_SCORE", default=10)
+PURCHASED_SCORE = env.int("PURCHASED_SCORE", default=-1000)
+
+# Payment / Stripe Settings
+SERVICE_FEE = Decimal(env("SERVICE_FEE", default="0.08"))
+TAX = Decimal(env("TAX", default="0.13"))
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 
 
+# ---------------------------------------
 # Application definition
+# ---------------------------------------
 ROOT_URLCONF = 'eventhub.urls'
 
 INSTALLED_APPS = [
@@ -61,7 +99,10 @@ MIDDLEWARE = [
 
 LOGIN_URL = '/login/'
 
+
+# ---------------------------------------
 # Password validation
+# ---------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -77,6 +118,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+
+# ---------------------------------------
+# Templates & Context Processors
+# ---------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -88,26 +134,27 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.file_upload_settings',
+                'core.context_processors.fee_settings'
             ],
         },
     },
 ]
 
+
+# ---------------------------------------
 # Static files (CSS, JavaScript, Images)
+# ---------------------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ APP_ROOT / "static" ]
 
 # TODO: for prod run python manage.py collectstatic
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"          # whitenoise(?)
 
-# media
-UPLOADCARE = {
-    "pub_key": os.getenv('UPLOADCARE_PUBLIC_KEY'),
-    "secret": os.getenv('UPLOADCARE_SECRET'),
-}
-CDN_DOMAIN = os.getenv('CDN_DOMAIN')
 
+# ---------------------------------------
 # Database
+# ---------------------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -120,13 +167,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.Profile' # custom user model
 
+
+# ---------------------------------------
 # Email configurations
+# ---------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
+
+# ---------------------------------------
 # Internationalization
+# ---------------------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True

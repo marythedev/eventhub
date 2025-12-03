@@ -1,11 +1,13 @@
 from collections import Counter
 
-from api.location_utils import haversine
-from api.utils import get_unique_events_from_orders
+from core.utils.utils import get_unique_events_from_orders
+from django.conf import settings
 from django.db.models import (Case, F, IntegerField, Max, Min, Subquery, Value,
                               When)
 from django.utils import timezone
 from events.models import Event
+
+from .location_utils import haversine
 
 
 def _get_order_insights(user):
@@ -73,7 +75,7 @@ def _make_event_pool(max_event_pool):
 def _score_category(events, user_top_categories):
     """
     Annotate events with 'category_score'.
-        - 30 points if event category is in top 3 user categories.
+        - max score if event category is in top 3 user categories.
 
     Args:
         events: Event QuerySet to score.
@@ -85,7 +87,7 @@ def _score_category(events, user_top_categories):
 
     events = events.annotate(
         category_score=Case(
-            When(category__in=user_top_categories, then=Value(30)),
+            When(category__in=user_top_categories, then=Value(settings.CATEGORY_SCORE)),
             default=Value(0),
             output_field=IntegerField()
         )
@@ -93,10 +95,10 @@ def _score_category(events, user_top_categories):
 
     return events
 
-def _score_location(events, user):
+def _score_location(events, user, radius_km=25):
     """
     Annotate events with 'location_score'.
-        - 40 points if event's location is within 25km of user's location.
+        - max score if event's location is within radius_km of user's location.
     If no user location set, location score is 0 (gets ignored).
 
     Args:
@@ -111,12 +113,12 @@ def _score_location(events, user):
         events_in_radius_ids = []
         for e in events:
             distance = haversine(user.location_lat, user.location_lon, e.location_lat, e.location_lon)
-            if distance <= 25:
+            if distance <= radius_km:
                 events_in_radius_ids.append(e.id)
 
         events = events.annotate(
             location_score=Case(
-                When(id__in=events_in_radius_ids, then=Value(40)),
+                When(id__in=events_in_radius_ids, then=Value(settings.LOCATION_SCORE)),
                 default=Value(0),
                 output_field=IntegerField()
             )
@@ -131,8 +133,8 @@ def _score_location(events, user):
 def _score_price(events, user_max_price, user_min_price):
     """
     Annotate events with 'price_score' based on whether event's price is within user's previous purchase price range.
-        - 20 points if event price matches both 'user_max_price' and'user_min_price'.
-        - 10 points if event price matches 'user_max_price'.
+        - max score if event price matches both 'user_max_price' and'user_min_price'.
+        - mid score if event price matches 'user_max_price'.
     If user has no previous purchases, price score is 0 (gets ignored).
 
     Args:
@@ -152,8 +154,9 @@ def _score_price(events, user_max_price, user_min_price):
 
         events = events.annotate(
             price_score=Case(
-                When(max_price__lte=user_max_price, min_price__gte=user_min_price, then=Value(20)),
-                When(max_price__lte=user_max_price, then=Value(10)),
+                When(max_price__lte=user_max_price, min_price__gte=user_min_price,
+                     then=Value(settings.PRICE_MIN_MAX_MATCH_SCORE)),
+                When(max_price__lte=user_max_price, then=Value(settings.PRICE_MAX_MATCH_SCORE)),
                 default=Value(0),
                 output_field=IntegerField()
             )
@@ -167,7 +170,8 @@ def _score_price(events, user_max_price, user_min_price):
 def _purchased_penalty(events, user):
     """
     Purchased events are not prioritized.
-    Remove 1000 points from events that the user has already purchased tickets for.
+        max score (usually negative, configurable in settings) applied to the events 
+        that the user has already purchased tickets for.
 
     Args:
         events: Event QuerySet to score.
@@ -181,7 +185,7 @@ def _purchased_penalty(events, user):
 
     events = events.annotate(
         purchased_penalty=Case(
-            When(id__in=purchased_ids, then=Value(-1000)),
+            When(id__in=purchased_ids, then=Value(settings.PURCHASED_SCORE)),
             default=Value(0),
             output_field=IntegerField()
         )

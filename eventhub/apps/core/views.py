@@ -1,7 +1,8 @@
-from api.event_recommendation_utils import get_recommended_events
-from api.utils import get_upcoming_user_events
+from core.utils.utils import get_upcoming_user_events
 from django.core.paginator import Paginator
 from django.shortcuts import render
+
+from .utils.event_recommendation_utils import get_recommended_events
 
 
 def home(request):

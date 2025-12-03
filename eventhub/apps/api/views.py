@@ -2,6 +2,12 @@ import io
 
 from barcode import Code128
 from barcode.writer import ImageWriter
+from core.utils.event_filter_utils import (filter_events_custom,
+                                           filter_events_global,
+                                           get_filtered_paginated_events)
+from core.utils.stripe_utils import (delete_stripe_account,
+                                     get_stripe_account_link)
+from core.utils.utils import get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
@@ -12,11 +18,6 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
                                 TableStyle)
 from tickets.models import Ticket
-
-from .event_filter_utils import (filter_events_custom, filter_events_global,
-                                 get_filtered_paginated_events)
-from .stripe_utils import delete_stripe_account, get_stripe_account_link
-from .utils import get_unique_events_from_orders
 
 SUGGESTION_PREVIEW_NUM = 5
 
@@ -228,7 +229,7 @@ def export_tickets(request, event_id):
         "Order Associated with the Ticket"
     ]
     csv_content.append(';'.join(header))
- 
+
     ticket_data = [
         (
             f'"{str(ticket.number).strip()}"',

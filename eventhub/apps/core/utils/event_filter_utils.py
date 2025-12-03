@@ -3,6 +3,7 @@ from datetime import timezone as dt_timezone
 from math import cos, radians
 from zoneinfo import ZoneInfo
 
+from core.utils.utils import add_event_annotations
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db.models import ExpressionWrapper, F, FloatField, Max, Min, Sum
@@ -11,7 +12,6 @@ from events.models import Event
 
 from .event_search_utils import event_search_filter, event_search_name_filter
 from .location_utils import haversine, validate_location
-from .utils import add_event_annotations
 
 
 def _event_basic_filter(events):
@@ -265,6 +265,7 @@ def filter_events_custom(events, request_query):
 def get_filtered_paginated_events(request, hide_sold_out=True, event_annotation=True):
     """
     Helper function to filter events based on query and apply pagination based on page.
+    Displays 12 events per page (12 divisible by 2, 3, 4 - which will event card rows always even).
     
     Parameters:
     - request: Django HttpRequest with optional query parameters.

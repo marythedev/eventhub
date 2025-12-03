@@ -4,9 +4,10 @@ from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
 import stripe
-from api.event_filter_utils import (filter_events_custom,
-                                    get_filtered_paginated_events)
-from api.stripe_utils import get_stripe_account
+from core.utils.event_filter_utils import (filter_events_custom,
+                                           get_filtered_paginated_events)
+from core.utils.image_utils import cloud_upload_img, compress_image
+from core.utils.stripe_utils import get_stripe_account
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -18,7 +19,6 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from tickets.models import Ticket
 from users.models import Profile
-from users.utils import cloud_upload_img
 
 from .forms import (AddTeamValidator, EventImageValidator, EventInfoValidator,
                     OrderFormValidator, PriceZoneFormSet, RemoveTeamValidator)
@@ -222,7 +222,7 @@ def create_event(request):      # pylint: disable=too-many-locals
         - On success:
             - Create event object (Event) with the validated provided details.
             - Create price zone objects (EventPriceZone) associated with the event.
-            - Create image objects (EventImage) associated with the event.
+            - Compress uploaded images and create image objects (EventImage) associated with the event.
             - Redirect to event page.
     """
 
@@ -274,10 +274,14 @@ def create_event(request):      # pylint: disable=too-many-locals
                 fs = FileSystemStorage()
 
                 for img in images:
-                    file = fs.save(img.name, img)
-                    file_path = fs.path(file)
-                    url = cloud_upload_img(file_path)
-                    fs.delete(file)
+                    # compress original image
+                    compressed_img = compress_image(img)
+
+                    # save compressed image
+                    compressed_file = fs.save(img.name, compressed_img)
+                    compressed_file_path = fs.path(compressed_file)
+                    url = cloud_upload_img(compressed_file_path)
+                    fs.delete(compressed_file)
 
                     EventImage.objects.create(
                         event=event,
@@ -617,11 +621,11 @@ def checkout_fail(request, event_id, order_id):
 def my_events(request):
     """
     Display all events created by the logged-in user.
-    Events are filtered based on request.GET search & filters query.
+    Events are filtered based on request.GET search & filters query and ordered by date.
     """
 
     events = request.user.events.all()
-    events = filter_events_custom(events, request.GET)
+    events = filter_events_custom(events, request.GET).order_by('date')
 
     paginator = Paginator(events, 3)
     page_number = request.GET.get('page')

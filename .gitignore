@@ -4,5 +4,8 @@
 # Python bytecode cache files
 __pycache__/
 
+# Production static files
+/staticfiles/
+
 # Django the SQLite database file
 db.sqlite3

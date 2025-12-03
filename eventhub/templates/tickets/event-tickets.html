@@ -11,6 +11,14 @@
 
 <section id="view-tickets" class="view-tickets-section">
     <div class="container-small">
+        <div class="breadcrumb">
+            <a href="{% url 'events:view_events' %}">Events</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="{% url 'events:view_event' event.id %}">{{ event.name }}</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Your Tickets</span>
+        </div>
+
         <div class="section-header-large">
             <div>
                 <h1>Your Tickets</h1>

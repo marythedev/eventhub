@@ -165,18 +165,19 @@ def cloud_upload_img(file_path):
 
 def cloud_delete_img(url):
     """
-    Delete image from Uploadcare cloud storage based on url.
+    Delete image from Uploadcare cloud storage if image url exists.
 
     Arg:
         url (str): Access link to image ( https://cdn.domain/UUID/ ).
     """
 
-    try:
-        uuid = url.strip('/').split('/')[-1]
-        file = uploadcare.file(uuid)
-        file.delete()
-    except Exception as e:
-        raise Exception(f"Failed to delete image from cloud: {e}") from e   # pylint: disable=broad-exception-raised
+    if url:
+        try:
+            uuid = url.strip('/').split('/')[-1]
+            file = uploadcare.file(uuid)
+            file.delete()
+        except Exception as e:
+            raise Exception(f"Failed to delete image from cloud: {e}") from e   # pylint: disable=broad-exception-raised
 
 
 def set_avatar(user, file_path):

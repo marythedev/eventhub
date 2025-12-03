@@ -254,6 +254,7 @@ def create_event(request):      # pylint: disable=too-many-locals
                 location_lon=event_form.cleaned_data['longitude'],
                 category=event_form.cleaned_data['category'],
                 description=event_form.cleaned_data['description'],
+                allow_reentry=event_form.cleaned_data['allow_reentry'],
                 organizer=user
             )
 
@@ -351,6 +352,7 @@ def edit_event(request, event_id):
             event.location_lon=event_form.cleaned_data['longitude']
             event.category=event_form.cleaned_data['category']
             event.description=event_form.cleaned_data['description']
+            event.allow_reentry=event_form.cleaned_data['allow_reentry']
 
             event.save()
 
@@ -363,6 +365,7 @@ def edit_event(request, event_id):
             'location': event.location,
             'category': event.category,
             'description': event.description,
+            'allow_reentry': event.allow_reentry
         })
 
     return render(request, 'events/edit-event.html', {

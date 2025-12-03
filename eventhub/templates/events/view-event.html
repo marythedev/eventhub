@@ -35,7 +35,7 @@
                         <div class="carousel-container" id="eventCarousel">
                             {% for img in imgs %}
                             <div class="carousel-slide {% if forloop.first %}active{% endif %}">
-                                <img src="{{ img }}" alt="Event image {{ forloop.counter }}">
+                                <img src="{{ img }}" alt="Event image {{ forloop.counter }}" loading="eager">
                             </div>
                             {% endfor %}
                         </div>

@@ -48,9 +48,7 @@ CDN_DOMAIN = env("CDN_DOMAIN", default=None)
 
 MAX_UPLOAD_MB = env.int("MAX_UPLOAD_MB", default=5)
 SUPPORTED_IMAGE_FORMATS = env.list("SUPPORTED_IMAGE_FORMATS", default=["JPEG", "PNG", "WEBP"])
-
-AVATAR_IMAGE_DIMENSIONS = tuple(env.list("AVATAR_IMAGE_DIMENSIONS", default=[300, 300]))
-
+AVATAR_IMAGE_DIMENSIONS = tuple(map(int, env.list("AVATAR_IMAGE_DIMENSIONS", default=["300", "300"])))
 EVENT_IMAGE_SIZE_KB = env.int("EVENT_IMAGE_SIZE_KB", default=500)
 EVENT_IMAGE_DIMENSION = env.int("EVENT_IMAGE_DIMENSION", default=1200)
 
@@ -89,6 +87,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -148,9 +147,8 @@ TEMPLATES = [
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ APP_ROOT / "static" ]
 
-# TODO: for prod run python manage.py collectstatic
-STATIC_ROOT = BASE_DIR / "staticfiles"          # whitenoise(?)
-
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ---------------------------------------
 # Database

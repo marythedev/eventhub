@@ -122,7 +122,19 @@
             </div>
 
             <div class="form-section">
-                <h3>Event Tickets</h3>
+                <div class="form-section-header">
+                    <h3>Event Tickets</h3>
+                    <div class="toggle-wrapper" title="If enabled, attendees can leave and re-enter this event.">
+                        <label class="toggle">
+                            <input type="checkbox" name="allow_reentry" 
+                            {% if event_form.allow_reentry.value %}checked{% endif %}>
+                            <span class="switch">
+                                <span class="slider"></span>
+                            </span>
+                        </label>
+                        <span class="toggle-label">Allow Re-entry</span>
+                    </div>
+                </div>
 
                 <div class="pricing-zones" id="pricingZones">
 

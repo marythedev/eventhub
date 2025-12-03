@@ -225,7 +225,7 @@ def export_tickets(request, event_id):
         "Ticket Number", 
         "Ticket Owner Name", 
         "Ticket Owner Email", 
-        "Purchase Date", 
+        "Purchase Date (UTC)", 
         "Order Associated with the Ticket"
     ]
     csv_content.append(';'.join(header))

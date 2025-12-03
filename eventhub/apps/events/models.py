@@ -19,6 +19,7 @@ class Event(models.Model):
         organizer (Profile): The user who created the event.
         team (Profile - ManyToMany): Additional users assigned to the event team.
             These users are able to validate (scan) tickets for the event.
+        allow_reentry (bool): States whether attendees can leave and re-enter this event.
     """
 
     CATEGORIES = [
@@ -50,6 +51,7 @@ class Event(models.Model):
     location_lon = models.FloatField()
     category = models.CharField(max_length=20, choices=CATEGORIES)
     description = models.TextField(blank=True)
+    allow_reentry = models.BooleanField(default=False)
 
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL,

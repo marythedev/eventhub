@@ -71,6 +71,7 @@ class EventInfoValidator(forms.Form):
             'max_length': 'Description cannot exceed 5000 characters.'
         }
     )
+    allow_reentry = forms.BooleanField(required=False, initial=False)
 
     def clean_date(self):
         """Check that event date is not in the past."""

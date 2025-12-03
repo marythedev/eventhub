@@ -205,13 +205,14 @@ section {
     gap: 2rem;
 }
 
-.not-found-section {
+.error-page-section {
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: row;
     gap: 1rem;
     min-height: 75vh;
+    margin: 3rem;
 }
 
 
@@ -382,7 +383,7 @@ i {
 }
 
 @media (max-width: 320px) {
-    .not-found-section {
+    .error-page-section {
         flex-direction: column;
     }
 }

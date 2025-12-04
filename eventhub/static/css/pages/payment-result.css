@@ -18,12 +18,6 @@
     margin-bottom: 1rem;
 }
 
-.result-message {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    margin-bottom: 3rem;
-}
-
 .confirmation-details {
     display: flex;
     flex-direction: column;

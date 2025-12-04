@@ -11,6 +11,7 @@ class Ticket(models.Model):
         number (str): Unique ticket identifier (auto generated).
         price_zone (EventPriceZone): EventPriceZone which ticket is associated with.
         order (Order): Order in which ticket was purchased.
+        validated_at (datetime): Timestamp when the ticket was last validated.
     """
 
     number = models.CharField(max_length=50, unique=True, blank=False)
@@ -24,6 +25,7 @@ class Ticket(models.Model):
         on_delete=models.CASCADE,
         related_name='tickets'
     )
+    validated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"Ticket {self.number} owned by {self.order.acquirer}"

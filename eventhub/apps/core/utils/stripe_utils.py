@@ -93,3 +93,33 @@ def delete_stripe_account(user):
         user.stripe_account.stripe_account_id = None
         user.stripe_account.stripe_account_ready = False
         user.stripe_account.save()
+
+def create_and_confirm_payment(total, payment_method_id, user_email):
+    """
+    Payment from customer to Eventhub via Stripe.
+    Create and confirm a Stripe PaymentIntent.
+
+    Args:
+        total (Decimal): Charge amount in dollars.
+        payment_method_id (str): ID of Stripe payment method from frontend Stripe fetch.
+        user_email (str): Email of the customer for receipt.
+
+    Returns:
+        stripe.PaymentIntent: Confirmed PaymentIntent object.
+    """
+
+    stripe.api_key = STRIPE_SECRET_KEY
+    payment_intent = stripe.PaymentIntent.create(
+        amount=int(total * 100),
+        currency="usd",
+        payment_method=payment_method_id,
+        receipt_email=user_email,
+        automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
+    )
+
+    # payment confirmation
+    confirmed_intent = stripe.PaymentIntent.confirm(
+        payment_intent.id,
+        payment_method=payment_method_id
+    )
+    return confirmed_intent

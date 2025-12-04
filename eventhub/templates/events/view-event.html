@@ -83,7 +83,7 @@
                                     <p>You can validate attendees' tickets for this event.</p>
                                     {% endif %}
                                 </div>
-                                <a href="{% url 'events:validate_tickets' event.id %}">
+                                <a href="{% url 'tickets:validate_tickets' event.id %}">
                                     <button class="btn-secondary btn-small">Validate Tickets</button>
                                 </a>
                             </div>

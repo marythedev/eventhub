@@ -14,7 +14,7 @@ from .event_search_utils import event_search_filter, event_search_name_filter
 from .location_utils import haversine, validate_location
 
 
-def _event_basic_filter(events):
+def event_basic_filter(events):
     """
     Apply basic event filters:
         - Events must be upcoming (date >= now).
@@ -212,7 +212,7 @@ def filter_events_global(request_query, hide_sold_out=True, event_annotation=Tru
     """
 
     # basic filters
-    events = _event_basic_filter(Event.objects.all())
+    events = event_basic_filter(Event.objects.all())
 
     if hide_sold_out:
         events = events.filter(event_seats_sold__lt=F('event_seats'))

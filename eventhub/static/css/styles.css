@@ -292,6 +292,12 @@ i {
     }
 }
 
+.result-message {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
 .price {
     word-break: keep-all;
 }

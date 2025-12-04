@@ -1,13 +1,13 @@
 from datetime import datetime
 from datetime import timezone as dt_timezone
-from decimal import ROUND_HALF_UP, Decimal
 from zoneinfo import ZoneInfo
 
 import stripe
 from core.utils.event_filter_utils import (filter_events_custom,
                                            get_filtered_paginated_events)
 from core.utils.image_utils import cloud_upload_img, compress_image
-from core.utils.stripe_utils import get_stripe_account
+from core.utils.stripe_utils import (create_and_confirm_payment,
+                                     get_stripe_account)
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -23,102 +23,10 @@ from users.models import Profile
 from .forms import (AddTeamValidator, EventImageValidator, EventInfoValidator,
                     OrderFormValidator, PriceZoneFormSet, RemoveTeamValidator)
 from .models import Event, EventImage, EventPriceZone, Order
+from .utils import calculate_order_totals, save_tickets
 
-# environmental variables
-SERVICE_FEE = settings.SERVICE_FEE
-TAX = settings.TAX
 STRIPE_PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
-STRIPE_SECRET_KEY = settings.STRIPE_SECRET_KEY
 
-
-# helper functions
-def _round(number):
-    """
-    Round decimal number up if it is more than 0.5.
-
-    Args:
-        number (float or Decimal): Input number to round.
-
-    Returns:
-        Decimal: Rounded number to 2 decimal places.
-    """
-
-    return Decimal(number).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-def _calculate_order_totals(selected_tickets):
-    """
-    Accumulate the price summary for selected tickets.
-
-    Args:
-        selected_tickets: List of dictionaries of selected tickets.
-            Each ticket has { id, quantity (selected quantity), total (price * quantity) }
-
-    Returns:
-        tuple: (subtotal, service_fee, tax, total)
-    """
-
-    subtotal = Decimal(0)
-    for ticket in selected_tickets:
-        subtotal += Decimal(ticket.get("total"))
-
-    subtotal = _round(subtotal)
-    service_fee = _round( subtotal * Decimal(SERVICE_FEE) )
-    tax = _round( subtotal * Decimal(TAX) )
-    total = _round( subtotal + service_fee + tax )
-    return subtotal, service_fee, tax, total
-
-def _create_and_confirm_payment(total, payment_method_id, user_email):
-    """
-    Payment from customer to Eventhub via Stripe.
-    Create and confirm a Stripe PaymentIntent.
-
-    Args:
-        total (Decimal): Charge amount in dollars.
-        payment_method_id (str): ID of Stripe payment method from frontend Stripe fetch.
-        user_email (str): Email of the customer for receipt.
-
-    Returns:
-        stripe.PaymentIntent: Confirmed PaymentIntent object.
-    """
-
-    stripe.api_key = STRIPE_SECRET_KEY
-    payment_intent = stripe.PaymentIntent.create(
-        amount=int(total * 100),
-        currency="usd",
-        payment_method=payment_method_id,
-        receipt_email=user_email,
-        automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
-    )
-
-    # payment confirmation
-    confirmed_intent = stripe.PaymentIntent.confirm(
-        payment_intent.id,
-        payment_method=payment_method_id
-    )
-    return confirmed_intent
-
-def _save_tickets(purchased_tickets, order):
-    """
-    Save tickets to db and associate them with successful order.
-    Update ticket quantity for the event (tickets have been purchased).
-
-    Args:
-        purchased_tickets (list of dictionaries): Ticket selection data.
-        order (Order): Order to which tickets belong to.
-    """
-
-    for t in purchased_tickets:
-        price_zone = EventPriceZone.objects.filter(id=t.get("id")).first()
-        if price_zone:
-            for _ in range(t.get('quantity')):
-                Ticket.objects.create(
-                    price_zone = price_zone,
-                    order = order
-                )
-
-
-
-# views
 def view_events(request):
     """
     Display events for users to explore.
@@ -375,28 +283,6 @@ def edit_event(request, event_id):
 
 
 @login_required
-def validate_tickets(request, event_id):
-    """
-    Display the ticket validation page for an event.
-    Only the event organizer or event team members are allowed to access.
-    
-    Raises:
-        Http404: If event does not exist or user does not have permission to access.
-
-    Args:
-        request (HttpRequest)
-        event_id (int): The ID of the event for which ticket validation page should be displayed.
-    """
-
-    event = get_object_or_404(Event, id=event_id)
-
-    if not (event.organizer == request.user or event.is_team_member(request.user)):
-        return Http404("Event not found.")
-
-    return render(request, 'events/validate-tickets.html', { 'event': event })
-
-
-@login_required
 def add_team_member(request, event_id):
     """
     Add a team member to the event.
@@ -430,7 +316,7 @@ def add_team_member(request, event_id):
                 for e in errs:
                     messages.error(request, e)
 
-    return redirect('events:validate_tickets', event_id=event_id)
+    return redirect('tickets:validate_tickets', event_id=event_id)
 
 
 @login_required
@@ -466,7 +352,7 @@ def remove_team_member(request, event_id):
                 for e in errs:
                     messages.error(request, e)
 
-    return redirect('events:validate_tickets', event_id=event_id)
+    return redirect('tickets:validate_tickets', event_id=event_id)
 
 
 @login_required
@@ -497,7 +383,7 @@ def checkout(request, event_id):
     if not selected_tickets or selected_event != event.id:
         return redirect('events:view_event', event_id=event.id)
 
-    subtotal, service_fee, tax, total = _calculate_order_totals(selected_tickets)
+    subtotal, service_fee, tax, total = calculate_order_totals(selected_tickets)
 
     if total == 0:
         order = Order.objects.create(
@@ -509,7 +395,7 @@ def checkout(request, event_id):
             service_fee=service_fee,
             total=total
         )
-        _save_tickets(selected_tickets, order)
+        save_tickets(selected_tickets, order)
         request.session.pop("selected_tickets")
         request.session.pop("selected_event")
         return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
@@ -518,7 +404,7 @@ def checkout(request, event_id):
         payment_method_id = request.POST.get("payment_method_id")
 
         try:
-            confirmed_intent = _create_and_confirm_payment(total, payment_method_id, request.user.email)
+            confirmed_intent = create_and_confirm_payment(total, payment_method_id, request.user.email)
 
             # save order to db
             order = Order.objects.create(
@@ -536,7 +422,7 @@ def checkout(request, event_id):
 
                 # save tickets in db
                 purchased_tickets = request.session.pop("selected_tickets")
-                _save_tickets(purchased_tickets, order)
+                save_tickets(purchased_tickets, order)
 
                 return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
             return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)

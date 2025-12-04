@@ -70,7 +70,7 @@
     padding: 0.3rem 0.6rem;
 }
 
-.event-team-modal {
+.modal {
     position: fixed;
     inset: 0;
     padding: 3.5rem 1rem;
@@ -85,14 +85,14 @@
     z-index: 1000;
 }
 
-.event-team-modal.open {
+.modal.open {
     background-color: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);
     opacity: 1;
     pointer-events: auto;
 }
 
-.event-team {
+.modal-content {
     width: 100%;
     height: 100%;
     overflow-y: auto;
@@ -106,28 +106,39 @@
     transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-.event-team.open {
+.ticket-validation-result .modal-content {
+    height: auto;
+    max-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    padding: 3.5rem 1.5rem;
+}
+
+.modal-content.open {
     opacity: 1;
     transform: translateY(0px) scale(1);
 }
 
 /* scrollbar inside the modal */
-.event-team::-webkit-scrollbar {
+.modal-content::-webkit-scrollbar {
     width: 8px;
 }
 
-.event-team::-webkit-scrollbar-track {
+.modal-content::-webkit-scrollbar-track {
     background: var(--bg-secondary);
     border-radius: 12px;
 }
 
-.event-team::-webkit-scrollbar-thumb {
+.modal-content::-webkit-scrollbar-thumb {
     background: var(--border-color);
     border-radius: 10px;
     transition: background 0.2s ease;
 }
 
-.event-team::-webkit-scrollbar-thumb:hover {
+.modal-content::-webkit-scrollbar-thumb:hover {
     background: var(--bg-tertiary);
 }
 

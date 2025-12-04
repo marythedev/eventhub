@@ -30,16 +30,18 @@
                         {% endif %}
                     </div>
 
-                    <form class="auth-form" action="{% url 'users:login' %}" method="POST">
+                    <form class="auth-form" action="{% url 'tickets:validate_tickets' event.id %}" method="POST">
                         {% csrf_token %}
                         <div class="form-group">
                             <label for="ticketNumber">Ticket Number</label>
-                            <input type="text" id="ticketNumber" name="ticketNumber" placeholder="EH-TCK-XXXX-XXXXX"
-                                required>
+                            <input type="text" id="ticketNumber" name="ticket_number" placeholder="EH-TCK-XXXX-XXXXX"
+                                autofocus required>
                             {% if form.email.errors %}
                             <small class="form-error">{{ form.email.errors.0 }}</small>
                             {% endif %}
                         </div>
+
+                        <input type="hidden" name="event_id" value="{{event.id}}">
 
                         <div class="validate-tickets-actions">
                             <button type="submit" class="btn-primary btn-full">Check Ticket</button>
@@ -75,13 +77,13 @@
 
                         {% for member in event.team.all %}
                         {% if forloop.counter <= 3 %}<span class="team-badge">{{ member.email }}</span> {% endif %}
-                        {% endfor %}
+                            {% endfor %}
 
-                        {% if event.team.all|length > 3 %}
-                        <small class="remaining-count eventTeamModalOpen btn-icon link-btn">
-                            +{{ event.team.all|length|add:"-3" }} more
-                        </small>
-                        {% endif %}
+                            {% if event.team.all|length > 3 %}
+                            <small class="remaining-count eventTeamModalOpen btn-icon link-btn">
+                                +{{ event.team.all|length|add:"-3" }} more
+                            </small>
+                            {% endif %}
                     </div>
                     <br>
                     <button class="btn-secondary eventTeamModalOpen btn-full">Manage Team</button>
@@ -93,8 +95,8 @@
     </div>
 
     {% if request.user == event.organizer %}
-    <div class="event-team-modal" id="eventTeamModal">
-        <div class="event-team">
+    <div class="modal" id="eventTeamModal" data-modal-id="eventTeamModal">
+        <div class="modal-content" id="eventTeam">
             <div class="event-team-header">
                 <h2>Manage Team</h2>
                 <button class="btn-icon" id="eventTeamModalClose">
@@ -158,6 +160,24 @@
         </div>
     </div>
     {% endif %}
+
+    <div class="modal {% if result %} open {% endif %} ticket-validation-result" id="validationResultModal"
+        data-modal-id="validationResultModal">
+        <div class="modal-content {% if result %} open {% endif %}" id="validationResult">
+            {% if result.valid %}
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            {% else %}
+            <div class="fail-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            {% endif %}
+            <p class="result-message">{{result.message}}</p>
+
+            <button class="btn-secondary" id="validationResultModalClose">Okay</button>
+        </div>
+    </div>
 </section>
 
 <script src="{% static 'js/validate-tickets.js' %}" data-event-id="{{ event.id }}" id="validate-tickets-script"

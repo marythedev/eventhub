@@ -2,10 +2,12 @@ from core.utils.event_filter_utils import filter_events_custom
 from core.utils.utils import get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from events.models import Event, Order
 
 from .models import Ticket
+from .utils import validate_ticket
 
 
 @login_required
@@ -29,6 +31,38 @@ def event_tickets(request, event_id):
     )
 
     return render(request, 'tickets/event-tickets.html', { 'event': event, 'tickets_user_owns': owned_tickets })
+
+
+@login_required
+def validate_tickets(request, event_id):
+    """
+    Display the ticket validation page for an event.
+    Only the event organizer or event team members are allowed to access.
+    
+    Raises:
+        Http404: If event does not exist or user does not have permission to access.
+
+    Args:
+        request (HttpRequest)
+        event_id (int): The ID of the event for which ticket validation page should be displayed.
+    """
+
+    event = get_object_or_404(Event, id=event_id)
+    if not (event.organizer == request.user or event.is_team_member(request.user)):
+        raise Http404("Event not found.")
+
+    result = None
+    if request.method == "POST":
+        result = validate_ticket(
+            ticket_number=request.POST.get("ticket_number"),
+            event_id=request.POST.get("event_id"),
+            user=request.user,
+        )
+
+    return render(request, "tickets/validate-tickets.html", {
+        "event": event,
+        "result": result
+    })
 
 
 @login_required

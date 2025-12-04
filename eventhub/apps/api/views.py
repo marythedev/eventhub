@@ -226,7 +226,8 @@ def export_tickets(request, event_id):
         "Ticket Owner Name", 
         "Ticket Owner Email", 
         "Purchase Date (UTC)", 
-        "Order Associated with the Ticket"
+        "Order Associated with the Ticket",
+        "Validated At (UTC)"
     ]
     csv_content.append(';'.join(header))
 
@@ -237,6 +238,7 @@ def export_tickets(request, event_id):
             f'"{str(ticket.order.acquirer.email).strip()}"',
             f'"{str(ticket.order.date.strftime('%d %b %Y at %H:%M')).strip()}"',
             f'"{str(ticket.order.number).strip()}"',
+            f'"{str(ticket.validated_at.strftime('%d %b %Y at %H:%M')).strip() if ticket.validated_at else ''}"'
         )
         for price_zone in event.price_zones.all()
         for ticket in price_zone.tickets.all()

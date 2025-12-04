@@ -4,9 +4,9 @@ from core.utils.utils import get_unique_events_from_orders
 from django.conf import settings
 from django.db.models import (Case, F, IntegerField, Max, Min, Subquery, Value,
                               When)
-from django.utils import timezone
 from events.models import Event
 
+from .event_filter_utils import event_basic_filter
 from .location_utils import haversine
 
 
@@ -50,11 +50,12 @@ def _get_order_insights(user):
 
     return insights
 
-def _make_event_pool(max_event_pool):
+def _make_event_pool(max_event_pool=500):
     """
     Make a set of 'max_event_pool' number events.
         - Events must be upcoming (date >= now).
         - Event organizer has setup Stripe payouts to receive payments from ticket purchases.
+        - Event must not be sold out.
 
     Args:
         max_event_pool (int): Maximum number of events to include in the pool.
@@ -63,14 +64,12 @@ def _make_event_pool(max_event_pool):
         QuerySet: A queryset of 'max_event_pool' Event objects.
     """
 
-    event_pool = Event.objects.filter(
-        date__gte=timezone.now(),
-        organizer__stripe_account__stripe_account_ready=True
-    ).values_list("id", flat=True)[:max_event_pool]
+    events =  event_basic_filter(Event.objects.all())
+    events = events.filter(event_seats_sold__lt=F('event_seats'))   # remove sold out events
+    events_ids = events.values_list("id", flat=True)[:max_event_pool]
 
-    events = Event.objects.filter(id__in=Subquery(event_pool))
-
-    return events
+    events_pool = Event.objects.filter(id__in=Subquery(events_ids))
+    return events_pool
 
 def _score_category(events, user_top_categories):
     """

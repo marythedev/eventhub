@@ -122,26 +122,6 @@
     transform: translateY(0px) scale(1);
 }
 
-/* scrollbar inside the modal */
-.modal-content::-webkit-scrollbar {
-    width: 8px;
-}
-
-.modal-content::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-    border-radius: 12px;
-}
-
-.modal-content::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 10px;
-    transition: background 0.2s ease;
-}
-
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: var(--bg-tertiary);
-}
-
 .event-team-header {
     display: flex;
     flex-direction: row;

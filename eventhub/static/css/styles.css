@@ -43,6 +43,26 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--bg-tertiary);
+}
+
 
 /* buttons */
 button {
@@ -229,6 +249,7 @@ i {
     top: 55px;
     left: 0;
     width: 100%;
+    max-height: 365px;
     margin-top: 5px;
     overflow-y: auto;
     border-radius: 8px;
@@ -244,6 +265,14 @@ i {
     padding: 10px;
     cursor: pointer;
     align-items: center;
+}
+
+.suggestion-item small {
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .suggestion-item:hover {

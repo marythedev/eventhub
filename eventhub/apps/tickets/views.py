@@ -1,10 +1,11 @@
+from checkout.models import Order
 from core.utils.event_filter_utils import filter_events_custom
 from core.utils.utils import get_unique_events_from_orders
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
-from events.models import Event, Order
+from events.models import Event
 
 from .models import Ticket
 from .utils import validate_ticket
@@ -97,7 +98,7 @@ def view_orders(request):
 
 
 @login_required
-def order_tickets(request, order_id):
+def order_tickets(request, order_number):
     """
     Page that displays user's owned tickets of the specific order.
 
@@ -107,9 +108,9 @@ def order_tickets(request, order_id):
 
     Args:
         request (HttpRequest)
-        order_id (int): ID of the order for which user's tickets should be displayed.
+        order_number (int): Unique number of the order for which user's tickets should be displayed.
     """
 
-    order = get_object_or_404(Order, id=order_id, acquirer=request.user)
+    order = get_object_or_404(Order, number=order_number, acquirer=request.user, status="succeeded")
 
     return render(request, 'tickets/order-tickets.html', { 'order': order })

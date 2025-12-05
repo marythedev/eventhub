@@ -16,7 +16,11 @@
                 <i class="fas fa-times-circle"></i>
             </div>
             <h1>Purchase Failed</h1>
+            {% if message %}
+            <p class="result-message">{{message}}</p>
+            {% else %}
             <p class="result-message">Please try again</p>
+            {% endif %}
         </div>
         <div class="confirmation-details">
             <div class="next-actions">

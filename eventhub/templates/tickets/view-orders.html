@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div class="order-actions">
-                    <a href="{% url 'tickets:order_tickets' order.id %}" id="addEventBtn">
+                    <a href="{% url 'tickets:order_tickets' order.number %}" id="addEventBtn">
                         <button class="btn-primary btn-small btn-full">View Tickets</button>
                     </a>
                     {% if order.total > 0 %}

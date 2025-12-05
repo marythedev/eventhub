@@ -34,6 +34,7 @@ WSGI_APPLICATION = 'eventhub.wsgi.application'
 # Basic Settings
 DOMAIN_URL = env("DOMAIN_URL", default=None)
 SESSION_EXPIRY_TIME = env.int("SESSION_EXPIRY_TIME", default=0)
+RESERVED_TICKET_EXPIRATION_MIN = env.int("RESERVED_TICKET_EXPIRATION_MIN", default=10)
 
 # Email Settings
 EMAIL_HOST_USER = env("SUPPORT_EMAIL", default=None)
@@ -82,6 +83,7 @@ INSTALLED_APPS = [
     'core',
     'users',
     'events',
+    'checkout.apps.CheckoutConfig',
     'tickets.apps.TicketsConfig',
 ]
 

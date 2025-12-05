@@ -1,5 +1,6 @@
 import io
 
+from checkout.models import Order
 from core.utils.image_utils import (cloud_delete_img, crop_to_center,
                                     is_valid_image_format, set_custom_avatar,
                                     set_default_avatar)
@@ -12,7 +13,7 @@ from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
-from events.models import Event, Order
+from events.models import Event
 from PIL import Image
 
 from .forms import (LoginValidator, ProfileValidator, RegisterValidator,
@@ -150,7 +151,7 @@ def account(request):
     unpreview_events_count = events_count - EVENT_PREVIEW_NUM
 
     # previews only ORDER_PREVIEW_NUM events, rest user can view in orders dedicated page
-    user_orders = Order.objects.filter(acquirer=request.user).order_by('-date')
+    user_orders = Order.objects.filter(acquirer=request.user, status="succeeded").order_by('-date')
     order_count = user_orders.count()
     preview_orders = user_orders[:ORDER_PREVIEW_NUM]
     unpreview_order_count = order_count - ORDER_PREVIEW_NUM

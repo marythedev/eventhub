@@ -123,3 +123,7 @@ def create_and_confirm_payment(total, payment_method_id, user_email):
         payment_method=payment_method_id
     )
     return confirmed_intent
+
+def get_payment_intent(payment_intent_id):
+    """Retrieve Stripe PaymentIntent by id."""
+    return stripe.PaymentIntent.retrieve(payment_intent_id)

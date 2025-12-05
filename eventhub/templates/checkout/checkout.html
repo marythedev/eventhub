@@ -24,7 +24,7 @@
                 <div class="checkout-box">
 
                     <form class="checkout-form" id="checkout-form"
-                        action="{% url 'events:checkout' event_id=event.id %}" method="POST">
+                        action="{% url 'checkout:checkout' event_id=event.id %}" method="POST">
                         {% csrf_token %}
 
                         <div class="form-group">
@@ -101,8 +101,8 @@
                     <div class="tickets-summary">
                         {% for ticket in selected_tickets %}
                         <div class="ticket-line">
-                            <span>{{ticket.quantity}} x {{ticket.name}}</span>
-                            <span class="price">${{ticket.total}}</span>
+                            <span>{{ticket.quantity}} x {{ticket.price_zone__name}}</span>
+                            <span class="price">${{ticket.total|floatformat:2}}</span>
                         </div>
                         {% endfor %}
                     </div>

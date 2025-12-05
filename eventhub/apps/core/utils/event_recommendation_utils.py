@@ -65,7 +65,7 @@ def _make_event_pool(max_event_pool=500):
     """
 
     events =  event_basic_filter(Event.objects.all())
-    events = events.filter(event_seats_sold__lt=F('event_seats'))   # remove sold out events
+    events = events.filter(event_seats_sold__lt=F('event_seats') - F("event_seats_reserved"))   # remove sold out events
     events_ids = events.values_list("id", flat=True)[:max_event_pool]
 
     events_pool = Event.objects.filter(id__in=Subquery(events_ids))

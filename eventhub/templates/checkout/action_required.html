@@ -1,0 +1,14 @@
+<form id="action-required-form" method="POST" action="{% url 'checkout:action_required' event.id order.number %}">
+    {% csrf_token %}
+</form>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+const stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+const clientSecret = "{{ payment_intent_client_secret }}";
+
+stripe.confirmCardPayment(clientSecret).then(function() {
+    document.getElementById("action-required-form").submit();
+});
+</script>

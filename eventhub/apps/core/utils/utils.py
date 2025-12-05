@@ -73,7 +73,7 @@ def add_event_annotations(events):
         ),
 
         badge=Case(
-            When(event_seats_sold__gte=F('event_seats'), then=Value('Sold Out')),
+            When(event_seats_sold__gte=F('event_seats') - F("event_seats_reserved"), then=Value('Sold Out')),
             When(percent_sold__gt=0.8, then=Value('Hot')),
             default=Value(''),
         )

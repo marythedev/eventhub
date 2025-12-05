@@ -2,18 +2,14 @@ from datetime import datetime
 from datetime import timezone as dt_timezone
 from zoneinfo import ZoneInfo
 
-import stripe
 from core.utils.event_filter_utils import (filter_events_custom,
                                            get_filtered_paginated_events)
 from core.utils.image_utils import cloud_upload_img, compress_image
-from core.utils.stripe_utils import (create_and_confirm_payment,
-                                     get_stripe_account)
-from django.conf import settings
+from core.utils.stripe_utils import get_stripe_account
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -21,11 +17,10 @@ from tickets.models import Ticket
 from users.models import Profile
 
 from .forms import (AddTeamValidator, EventImageValidator, EventInfoValidator,
-                    OrderFormValidator, PriceZoneFormSet, RemoveTeamValidator)
-from .models import Event, EventImage, EventPriceZone, Order
-from .utils import calculate_order_totals, save_tickets
+                    PriceZoneFormSet, RemoveTeamValidator,
+                    TicketSelectionValidator)
+from .models import Event, EventImage, EventPriceZone
 
-STRIPE_PUBLIC_KEY = settings.STRIPE_PUBLIC_KEY
 
 def view_events(request):
     """
@@ -87,7 +82,7 @@ def view_event(request, event_id):
         )
 
     if request.method == "POST":
-        form = OrderFormValidator(request.POST)
+        form = TicketSelectionValidator(request.POST)
 
         # check if user attempts to purchase tickets for past event
         if event.is_past:
@@ -100,10 +95,9 @@ def view_event(request, event_id):
         if not event.is_past and form.is_valid():
             selected_tickets = form.cleaned_data.get('price_zones', [])
             request.session['selected_tickets'] = selected_tickets
-            request.session['selected_event'] = event.id
-            return redirect('events:checkout', event_id=event.id)
+            return redirect('checkout:checkout', event_id=event.id)
     else:
-        form = OrderFormValidator()
+        form = TicketSelectionValidator()
 
     return render(request, 'events/view-event.html', {
         'event': event,
@@ -353,157 +347,6 @@ def remove_team_member(request, event_id):
                     messages.error(request, e)
 
     return redirect('tickets:validate_tickets', event_id=event_id)
-
-
-@login_required
-def checkout(request, event_id):
-    """
-    Handle payment for ticket purchases.
-
-    Workflow:
-        - Load selected tickets from session.
-        - Compute totals (subtotal, service fee, tax, total).
-        - If total = 0 (free tickets only): skip Stripe payment and auto-complete order.
-        - If total > 0 (paid only or paid/free tickets):
-            - Creates and confirms a Stripe PaymentIntent.
-            - If confirmed  PaymentIntent is successful, saves Order and associated Tickets.
-
-    Args:
-        request (HttpRequest)
-        event_id (int): ID of the event, which tickets are being purchased.
-    """
-
-    event = get_object_or_404(Event, id=event_id)
-
-    if not event.organizer.stripe_account.stripe_account_ready:
-        raise Http404("Event not found")
-
-    selected_tickets = request.session.get('selected_tickets')
-    selected_event = request.session.get('selected_event')
-    if not selected_tickets or selected_event != event.id:
-        return redirect('events:view_event', event_id=event.id)
-
-    subtotal, service_fee, tax, total = calculate_order_totals(selected_tickets)
-
-    if total == 0:
-        order = Order.objects.create(
-            status="succeeded",
-            stripePaymentId=None,
-            acquirer=request.user,
-            subtotal=subtotal,
-            tax=tax,
-            service_fee=service_fee,
-            total=total
-        )
-        save_tickets(selected_tickets, order)
-        request.session.pop("selected_tickets")
-        request.session.pop("selected_event")
-        return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
-
-    if request.method == "POST":
-        payment_method_id = request.POST.get("payment_method_id")
-
-        try:
-            confirmed_intent = create_and_confirm_payment(total, payment_method_id, request.user.email)
-
-            # save order to db
-            order = Order.objects.create(
-                status = confirmed_intent.status,
-                stripePaymentId = confirmed_intent.id,
-                acquirer = request.user,
-                subtotal = subtotal,
-                tax = tax,
-                service_fee = service_fee,
-                total = total
-            )
-
-            if confirmed_intent.status == "succeeded":
-                # TODO send money to the event owner
-
-                # save tickets in db
-                purchased_tickets = request.session.pop("selected_tickets")
-                save_tickets(purchased_tickets, order)
-
-                return redirect("events:checkout_success", event_id=event.id, order_id=order.id)
-            return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
-
-        except (stripe.StripeError, Exception):     # pylint: disable=broad-exception-caught
-            return redirect("events:checkout_fail", event_id=event.id, order_id=order.id)
-
-    return render(request, 'events/checkout.html', {
-        'event': event,
-        'selected_tickets': selected_tickets,
-        'subtotal': subtotal,
-        'service_fee': service_fee,
-        'tax': tax,
-        'total': total,
-        'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY
-    })
-
-
-@login_required
-def checkout_success(request, event_id, order_id):
-    """
-    Display the payment success page.
-
-    Redirects to the event page or payment fail page if the check fails.
-    Otherwise displays payment success page.
-
-    Validates:
-        - order_id: belongs to the logged in user
-        - payment succeeded: otherwise redirects to payment fail page
-
-    Args:
-        event_id (int): ID of the event for which the order was made.
-        order_id (int): ID of the order that was made by the user and is successful.
-    """
-
-    event = get_object_or_404(Event, id=event_id)
-    order = get_object_or_404(Order, id=order_id, acquirer=request.user)
-
-    if order.status != 'succeeded':
-        return redirect('events:checkout_fail', event_id=event.id, order_id=order.id)
-
-    purchased_tickets = (
-        order.tickets
-        .values("price_zone__name")
-        .annotate(quantity=Count("id"))
-    )
-
-    return render(request, 'events/payment-success.html', {
-        'event': event, 
-        'order': order,
-        'purchased_tickets': purchased_tickets
-    })
-
-
-@login_required
-def checkout_fail(request, event_id, order_id):
-    """
-    Display the payment fail page.
-
-    Redirects to the event page or payment success page if the check approves.
-    Otherwise displays payment fail page.
-
-    Validates:
-        - order_id: belongs to the logged in user
-        - payment did not succeed: otherwise redirects to payment success page
-
-    Args:
-        event_id (int): ID of the event for which the order was made.
-        order_id (int): ID of the order that was made by the user and has failed.
-    """
-
-    event = get_object_or_404(Event, id=event_id)
-    order = get_object_or_404(Order, id=order_id)
-
-    # users cannot see orders that are not their own
-    if order.acquirer != request.user:
-        return redirect("events:view_event", event_id=event.id)
-
-    if order.status == 'succeeded':
-        return redirect('events:checkout_success', event_id=event.id, order_id=order.id)
-    return render(request, 'events/payment-fail.html')
 
 
 @login_required

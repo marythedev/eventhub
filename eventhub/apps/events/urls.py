@@ -12,9 +12,4 @@ urlpatterns = [
     path('<int:event_id>/', views.view_event, name="view_event"),
     path('<int:event_id>/team/add/', views.add_team_member, name='add_team_member'),
     path('<int:event_id>/team/remove/', views.remove_team_member, name='remove_team_member'),
-    path('<int:event_id>/checkout/', views.checkout, name="checkout"),
-
-    # TODO move from order id to slug:order_number in url for better comprehensiveness on checkout
-    path('<int:event_id>/checkout/success/<int:order_id>', views.checkout_success, name="checkout_success"),
-    path('<int:event_id>/checkout/fail/<int:order_id>', views.checkout_fail, name="checkout_fail"),
 ]

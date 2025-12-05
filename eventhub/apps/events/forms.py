@@ -239,7 +239,7 @@ class PriceZoneValidator(forms.Form):
 PriceZoneFormSet = formset_factory(PriceZoneValidator, extra=0, min_num=1, validate_min=True, can_delete=True)
 
 
-class OrderFormValidator(forms.Form):
+class TicketSelectionValidator(forms.Form):
     """
     Validates user selected tickets before checkout.
 
@@ -338,6 +338,7 @@ class AddTeamValidator(forms.Form):
             raise ValidationError("This user is already a team member.")
 
         return email
+
 
 class RemoveTeamValidator(forms.Form):
     """

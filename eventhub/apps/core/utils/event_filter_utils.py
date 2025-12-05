@@ -24,7 +24,7 @@ def event_basic_filter(events):
         events: initial QuerySet of Event to filter
 
     Returns:
-        Annotated filtered Event QuerySet with total seats, seats sold, lowest and highest prices.
+        Annotated filtered Event QuerySet with total seats, seats sold, reserved seats, lowest and highest prices.
         These are necessary annotations for further filtering (if applicable).
     """
 
@@ -36,6 +36,7 @@ def event_basic_filter(events):
         .annotate(
             event_seats=Sum("price_zones__seats"),
             event_seats_sold=Sum("price_zones__seats_sold"),
+            event_seats_reserved=Sum("price_zones__seats_reserved"),
             min_price=ExpressionWrapper(Min("price_zones__price"), output_field=FloatField()),
             max_price=ExpressionWrapper(Max("price_zones__price"), output_field=FloatField())
         )
@@ -215,7 +216,7 @@ def filter_events_global(request_query, hide_sold_out=True, event_annotation=Tru
     events = event_basic_filter(Event.objects.all())
 
     if hide_sold_out:
-        events = events.filter(event_seats_sold__lt=F('event_seats'))
+        events = events.filter(event_seats_sold__lt=F("event_seats") - F("event_seats_reserved"))
 
     if event_annotation:
         events = add_event_annotations(events)

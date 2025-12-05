@@ -272,12 +272,25 @@ formBtns.forEach(btn => {
         const form = btn.closest('form');
         form.requestSubmit();
 
-        if (form.checkValidity()) {
+        if (form.checkValidity() && (form.id != 'checkout-form' || areStripeFieldsValid())) {
             btn.textContent = "Loading...";
             btn.disabled = true;
         }
     });
 });
+
+function areStripeFieldsValid() {
+    const cardNumber = document.querySelector("#card-number");
+    const cardExpiry = document.querySelector("#card-expiry");
+    const cardCvc = document.querySelector("#card-cvc");
+
+    const cardNumberValid = cardNumber.classList.contains("StripeElement--complete");
+    const cardExpiryValid = cardExpiry.classList.contains("StripeElement--complete");
+    const cardCvcValid = cardCvc.classList.contains("StripeElement--complete");
+
+    return cardNumberValid && cardExpiryValid && cardCvcValid;
+}
+
 
 // footer dynamic year update
 document.addEventListener("DOMContentLoaded", () => {

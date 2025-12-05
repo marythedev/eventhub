@@ -2,6 +2,7 @@ import io
 
 from barcode import Code128
 from barcode.writer import ImageWriter
+from checkout.models import Order
 from core.utils.event_filter_utils import (filter_events_custom,
                                            filter_events_global,
                                            get_filtered_paginated_events)
@@ -12,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
-from events.models import Event, Order
+from events.models import Event
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,

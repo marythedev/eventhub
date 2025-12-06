@@ -6,10 +6,10 @@ from core.utils.event_filter_utils import (filter_events_custom,
                                            get_filtered_paginated_events)
 from core.utils.image_utils import cloud_upload_img, compress_image
 from core.utils.stripe_utils import get_stripe_account
+from core.utils.utils import paginate_queryset
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
-from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -357,15 +357,13 @@ def my_events(request):
     """
 
     events = request.user.events.all()
-    events = filter_events_custom(events, request.GET).order_by('date')
+    events = filter_events_custom(events, request.GET).order_by('-date')
 
-    paginator = Paginator(events, 3)
-    page_number = request.GET.get('page')
-    paginated_events = paginator.get_page(page_number)
-
-    # remove page parameter
-    query = request.GET.copy()
-    query.pop('page', None)
+    paginated_events, query = paginate_queryset(
+        queryset=events,
+        request=request,
+        display_per_page=3
+    )
 
     return render(request, 'events/my-events.html', {
         'paginated_events': paginated_events,

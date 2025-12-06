@@ -1,5 +1,4 @@
-from core.utils.utils import get_upcoming_user_events
-from django.core.paginator import Paginator
+from core.utils.utils import get_upcoming_user_events, paginate_queryset
 from django.shortcuts import render
 
 from .utils.event_recommendation_utils import get_recommended_events
@@ -24,22 +23,23 @@ def home(request):
     if not user.is_authenticated:
         return render(request, "core/home.html")
 
-    upcoming_events = get_upcoming_user_events(user)[:3]
+    upcoming_events = get_upcoming_user_events(user)
+    upcoming_more = len(upcoming_events) - 3
+    upcoming_events = upcoming_events[:3]
     recommended_events = get_recommended_events(user, max_recommend_results=12)
 
     events_per_row = request.GET.get('show', 4)
     events_per_row = max(int(events_per_row), 2)
 
-    paginator = Paginator(recommended_events, events_per_row)
-    page_number = request.GET.get('page')
-    paginated_events = paginator.get_page(page_number)
-
-    # remove page parameter
-    query = request.GET.copy()
-    query.pop('page', None)
+    paginated_events, query = paginate_queryset(
+        queryset=recommended_events,
+        request=request,
+        display_per_page=events_per_row
+    )
 
     return render(request, "core/home.html", {
-        "upcoming_events": upcoming_events,
         "recommended_events": paginated_events,
-        'query': query
+        "upcoming_events": upcoming_events,
+        "upcoming_more": upcoming_more,
+        'query': query,
     })

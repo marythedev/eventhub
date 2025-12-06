@@ -76,7 +76,8 @@
         display: block;
     }
 
-    .my-events-section .event-card .event-revenue-mobile {
+    .my-events-section .event-card .event-revenue-mobile,
+    .mobile-spacing {
         display: none;
     }
 
@@ -114,7 +115,8 @@
 @media (max-width: 475px) {
 
     .my-events-section .event-location,
-    .addEventBtn span {
+    .addEventBtn span,
+    .exploreEventsBtn {
         display: none;
     }
 

@@ -85,9 +85,20 @@
     font-size: 0.9rem;
 }
 
+.upcoming-events a.see-all-mobile {
+    width: 100%;
+    text-align: center;
+    padding-top: 1rem;
+    display: none;
+}
+
 @media (max-width: 465px) {
-    .section-header a {
+    .upcoming-events .see-all-desktop {
         display: none;
+    }
+
+    .upcoming-events a.see-all-mobile {
+        display: block;
     }
 }
 

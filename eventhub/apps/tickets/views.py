@@ -1,14 +1,39 @@
 from checkout.models import Order
 from core.utils.event_filter_utils import filter_events_custom
-from core.utils.utils import get_unique_events_from_orders
+from core.utils.utils import get_unique_events_from_orders, paginate_queryset
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from events.models import Event
 
 from .models import Ticket
 from .utils import validate_ticket
+
+
+@login_required
+def upcoming_events(request):
+    """
+    Display all events for which user has purchased tickets.
+    Events are filtered based on request.GET search & filters query and ordered by date.
+    """
+
+    events = get_unique_events_from_orders(request.user)
+    events = filter_events_custom(events, request.GET)
+    events = events.annotate(
+        owned_tickets=Count('price_zones__tickets', filter=Q(price_zones__tickets__order__acquirer=request.user))
+    ).order_by('date')
+
+    paginated_events, query = paginate_queryset(
+        queryset=events,
+        request=request,
+        display_per_page=3
+    )
+
+    return render(request, 'tickets/upcoming-events.html', {
+        'paginated_events': paginated_events,
+        'query': query
+    })
 
 
 @login_required
@@ -83,13 +108,11 @@ def view_orders(request):
         tickets__price_zone__event__in=events
     ).distinct().order_by('-date')
 
-    paginator = Paginator(orders, 3)
-    page_number = request.GET.get('page')
-    paginated_orders = paginator.get_page(page_number)
-
-    # remove page parameter
-    query = request.GET.copy()
-    query.pop('page', None)
+    paginated_orders, query = paginate_queryset(
+        queryset=orders,
+        request=request,
+        display_per_page=3
+    )
 
     return render(request, 'tickets/view-orders.html', {
         'paginated_orders': paginated_orders,

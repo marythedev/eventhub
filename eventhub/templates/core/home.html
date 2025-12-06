@@ -94,7 +94,8 @@
                                     <h3>{{event.name}}</h3>
                                     <p class="event-location"><i class="fas fa-map-marker-alt"></i>
                                         {{ event.location|truncatechars:50 }}</p>
-                                    <p class="event-genre"><i class="fas {{ event.category_icon }}"></i> {{ event.category_label }}</p>
+                                    <p class="event-genre"><i class="fas {{ event.category_icon }}"></i>
+                                        {{ event.category_label }}</p>
                                 </div>
                             </div>
 
@@ -117,14 +118,16 @@
             {% include "components/pagination.html" with pagination_results=recommended_events query=query only %}
         </div>
 
-        <div>
+        <div class="upcoming-events">
             <div class="section-header">
                 <h2><i class="fas fa-calendar-alt"></i> Your Upcoming Events</h2>
+                <a href="{% url 'tickets:upcoming_events' %}{% if upcoming_events %}?show=upcoming{% endif %}"
+                    class="see-all-desktop link-text">See All</a>
             </div>
 
             {% if not upcoming_events %}
             <div class="no-upcoming-events">
-                <p class="empty-state">You have not made any orders yet.</p>
+                <p class="empty-state">You have not made any purchases yet.</p>
             </div>
             {% endif %}
 
@@ -142,6 +145,13 @@
                 </a>
                 {% endfor%}
             </div>
+            {% endif %}
+            {% if upcoming_more > 0 %}
+            <a href="{% url 'tickets:upcoming_events' %}?show=upcoming">
+                <p class="remaining-count">+{{upcoming_more}} more events{{upcoming_more|pluralize}}</p>
+            </a>
+            {% else %}
+            <a href="{% url 'tickets:upcoming_events' %}?show=upcoming" class="see-all-mobile link-text">See All</a>
             {% endif %}
         </div>
     </div>

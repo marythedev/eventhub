@@ -243,7 +243,6 @@ i {
     min-width: 18px;
     margin: 0;
     padding: 0;
-    padding-top: 4px;
     text-align: center;
 }
 
@@ -252,7 +251,7 @@ i {
     top: 55px;
     left: 0;
     width: 100%;
-    max-height: 365px;
+    max-height: 415px;
     margin-top: 5px;
     overflow-y: auto;
     border-radius: 8px;

@@ -41,10 +41,14 @@
 .event-info p {
     color: var(--text-secondary);
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 0.5rem;
     margin-bottom: 0.3rem;
     font-size: 0.95rem;
+}
+
+.event-info i {
+    padding-top: 4px;
 }
 
 .team-preview p {

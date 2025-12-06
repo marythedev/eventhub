@@ -123,6 +123,10 @@
     gap: 0.5rem;
 }
 
+.v-event-meta i {
+    padding-top: 4px;
+}
+
 .event-manage {
     padding: 1.5rem;
     background-color: var(--bg-secondary);

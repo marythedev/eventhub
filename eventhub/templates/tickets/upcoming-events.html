@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %} My events {% endblock %}
+{% block title %} Upcoming Events {% endblock %}
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'css/pages/my-events.css' %}" type="text/css">
@@ -13,12 +13,12 @@
     <div class="container-small">
         <div class="section-header-large">
             <div>
-                <h1>My Events</h1>
-                <p>View events that you created</p>
+                <h1>Upcoming Events</h1>
+                <p>View events for which you purchased tickets</p>
             </div>
 
-            <a href="{% url 'events:create_event' %}" class="addEventBtn" id="addEventBtn">
-                <button class="btn-primary"><i class="fas fa-plus"></i><span> Create Event</span></button>
+            <a href="{% url 'events:view_events' %}" class="exploreEventsBtn">
+                <button class="btn-secondary"><i class="fas fa-compass"></i> Explore Events</button>
             </a>
         </div>
 
@@ -31,8 +31,8 @@
             </div>
             <div class="search-history">
                 <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search your events..." class="eventsSearch my-events"
-                    value="{{request.GET.search}}">
+                <input type="text" placeholder="Search events you have tickets for..."
+                    class="eventsSearch upcoming-events" value="{{request.GET.search}}">
 
                 <div class="suggestions-box searchSuggestions"></div>
             </div>
@@ -42,7 +42,7 @@
         {% if not paginated_events.object_list and request.GET %}
         <p class="empty-state">No events found.</p>
         {% elif not paginated_events.object_list %}
-        <p class="empty-state">You have not created any events yet.</p>
+        <p class="empty-state">You have not made any purchases yet.</p>
         {% endif %}
 
         {% if paginated_events.object_list|length > 0 %}
@@ -65,32 +65,19 @@
                                 <h3>{{ event.name }}</h3>
                                 <p><i class="fas fa-calendar"></i> <span class="full-date-no-week-day"
                                         data-utc="{{ event.date|date:'c' }}"></p>
-                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}
-                                </p>
+                                <p class="event-location"><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
                                 <div class="event-stats">
-                                    <p><i class="fas fa-ticket-alt"></i> {{event.total_seats_sold}} /
-                                        {{event.total_seats}}
-                                        sold
-                                    </p>
-                                    <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
-                                        {{event.revenue}} revenue</p>
+                                    <p><i class="fas fa-ticket-alt"></i> {{event.owned_tickets}} tickets</p>
                                 </div>
                             </div>
                         </div>
 
+                        {% if event.is_past %}
                         <div class="event-footer">
-                            <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue
-                            </p>
-
-                            {% if event.is_past %}
+                            <span class="mobile-spacing"></span>
                             <button class="btn-secondary btn-small">Past&nbsp;Event</button>
-                            {% else %}
-                            <button class="btn-secondary btn-small"
-                                data-edit-url="{% url 'events:edit_event' event.id %}" onclick="redirectToEdit(event)">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            {% endif %}
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </a>
@@ -102,15 +89,5 @@
         {% endif %}
     </div>
 </section>
-
-<script>
-    function redirectToEdit(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        const btn = e.currentTarget;
-        const editUrl = btn.dataset.editUrl;
-        window.location.href = editUrl;
-    }
-</script>
 
 {% endblock %}

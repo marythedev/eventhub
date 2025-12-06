@@ -145,7 +145,7 @@ def account(request):
     stripe_account = get_stripe_account(request.user)
 
     # previews only EVENT_PREVIEW_NUM events, rest user can view in events dedicated page
-    user_events = Event.objects.filter(organizer=request.user).order_by('date')
+    user_events = Event.objects.filter(organizer=request.user).order_by('-date')
     events_count = user_events.count()
     preview_events = user_events[:EVENT_PREVIEW_NUM]
     unpreview_events_count = events_count - EVENT_PREVIEW_NUM

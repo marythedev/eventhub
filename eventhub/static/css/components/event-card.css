@@ -97,6 +97,7 @@
     font-size: 1.15rem;
     margin-bottom: 0.75rem;
     color: var(--text-primary);
+    word-break: break-all;
 }
 
 .event-info p {
@@ -106,6 +107,10 @@
     display: flex;
     align-items: start;
     gap: 0.5rem;
+}
+
+.event-card i {
+    padding-top: 4px;
 }
 
 .event-footer {

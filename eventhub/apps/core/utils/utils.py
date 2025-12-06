@@ -1,3 +1,4 @@
+from django.core.paginator import Paginator
 from django.db.models import (Case, Count, ExpressionWrapper, F, FloatField, Q,
                               Value, When)
 from django.utils import timezone
@@ -78,3 +79,28 @@ def add_event_annotations(events):
             default=Value(''),
         )
     )
+
+def paginate_queryset(queryset, request, display_per_page=3):
+    """
+    Paginate a queryset with given 'display_per_page' parameter.
+    By default 'display_per_page' is set to 3.
+
+    Args:
+        queryset: Queryset to paginate.
+        request: Django request object (with 'page' parameter).
+        per_page: Number of items to display per page.
+
+    Returns:
+        paginated_events: The paginated queryset.
+        query: The modified GET parameters without 'page' parameter.
+    """
+
+    paginator = Paginator(queryset, display_per_page)
+    page_number = request.GET.get('page')
+    paginated_queryset = paginator.get_page(page_number)
+
+    # remove page parameter
+    query = request.GET.copy()
+    query.pop('page', None)
+
+    return paginated_queryset, query

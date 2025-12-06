@@ -162,6 +162,7 @@ def _score_price(events, user_max_price, user_min_price):
         )
     else:
         events = events.annotate(
+            min_price=Min("price_zones__price"),
             price_score=Value(0, output_field=IntegerField())
         )
     return events

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -137,7 +137,7 @@ class EventImage(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return f"Image for {self.event.name}"
+        return f"Image for {self.event.name}(event ID: {self.event.id})"
 
 
 class EventPriceZone(models.Model):
@@ -148,7 +148,7 @@ class EventPriceZone(models.Model):
         event (Event): The event to which this price zone relates.
         name (str): The name of the price zone.
         desc (str): Brief description of the price zone.
-        price (float): The price of the price zone in USD.
+        price (float): The price (USD) of the price zone including tax.
         seats (int): The total capacity of seats of the price zone.
         seats_sold (int): The number of seats already sold.
         seats_reserved (int): The number of seats that have been reserved but not yet paid for.
@@ -162,19 +162,19 @@ class EventPriceZone(models.Model):
     )
     name = models.CharField(max_length=30)
     desc = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=8, decimal_places=2, default=0,
+    price = models.DecimalField(max_digits=7, decimal_places=2, default=0,
         validators=[
             MinValueValidator(0)
         ]
     )
 
-    seats = models.PositiveBigIntegerField()
+    seats = models.PositiveBigIntegerField(validators=[MaxValueValidator(1_000_000)])
     seats_sold = models.PositiveIntegerField(default=0)
     seats_reserved = models.PositiveIntegerField(default=0)
-    revenue = models.DecimalField(max_digits=20, decimal_places=2, default=0)
+    revenue = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Price Zone {self.name} for {self.event.name} event"
+        return f"Price Zone {self.name} for {self.event.name}(event ID: {self.event.id}) event"
 
     @property
     def remaining_seats(self):

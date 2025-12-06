@@ -10,6 +10,5 @@ def file_upload_settings(request):
 def fee_settings(request):
     """Fees related settings for templates."""
     return {
-        'SERVICE_FEE': settings.SERVICE_FEE,
-        'TAX': settings.TAX
+        'SERVICE_FEE': settings.SERVICE_FEE
     }

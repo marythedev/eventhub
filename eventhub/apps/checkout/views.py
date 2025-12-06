@@ -21,7 +21,7 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
 
     Workflow:
         - Load selected tickets from session or restore previously reserved (TicketInProcess) tickets (if any).
-        - Compute totals (subtotal, service fee, tax, total).
+        - Compute totals (subtotal, service fee, total).
         - If total = 0 (free tickets only): skip Stripe payment and auto-complete order.
         - If total > 0 (paid only or paid/free tickets):
             - Creates and confirms a Stripe PaymentIntent.
@@ -62,7 +62,7 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
     if not checkout_tickets:
         return redirect('events:view_event', event_id=event.id)
 
-    subtotal, service_fee, tax, total = calculate_order_totals(checkout_tickets)
+    subtotal, service_fee, total = calculate_order_totals(checkout_tickets)
 
     if total == 0:
         order = Order.objects.create(
@@ -70,7 +70,6 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
             stripePaymentId=None,
             acquirer=request.user,
             subtotal=subtotal,
-            tax=tax,
             service_fee=service_fee,
             total=total
         )
@@ -89,7 +88,6 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
                 stripePaymentId = confirmed_intent.id,
                 acquirer = request.user,
                 subtotal = subtotal,
-                tax = tax,
                 service_fee = service_fee,
                 total = total
             )
@@ -122,7 +120,6 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
                     stripePaymentId = e.error.payment_intent.id,
                     acquirer = request.user,
                     subtotal = subtotal,
-                    tax = tax,
                     service_fee = service_fee,
                     total = total
                 )
@@ -136,7 +133,6 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
         ).annotate(total=ExpressionWrapper(F('quantity') * F('price_zone__price'), output_field=DecimalField())),
         'subtotal': subtotal,
         'service_fee': service_fee,
-        'tax': tax,
         'total': total,
         'STRIPE_PUBLIC_KEY': STRIPE_PUBLIC_KEY
     })

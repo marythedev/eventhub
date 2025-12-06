@@ -62,7 +62,6 @@ PURCHASED_SCORE = env.int("PURCHASED_SCORE", default=-1000)
 
 # Payment / Stripe Settings
 SERVICE_FEE = Decimal(env("SERVICE_FEE", default="0.08"))
-TAX = Decimal(env("TAX", default="0.13"))
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 

@@ -73,13 +73,21 @@
                                         sold
                                     </p>
                                     <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
-                                        {{event.revenue}} revenue</p>
+                                        {{event.revenue}} <span style="white-space: nowrap;">revenue
+                                            <i class="fas fa-info-circle"
+                                                title="Revenue includes tax as you have set initially price with tax."></i>
+                                        </span>
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
                         <div class="event-footer">
-                            <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} revenue
+                            <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} <span
+                                    style="white-space: nowrap;">revenue
+                                    <i class="fas fa-info-circle"
+                                        title="Revenue includes tax as you have set initially price with tax."></i>
+                                </span>
                             </p>
 
                             {% if event.is_past %}

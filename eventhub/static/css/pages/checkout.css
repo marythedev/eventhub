@@ -129,12 +129,6 @@
     color: var(--text-secondary);
 }
 
-.pricing-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
 @media (max-width: 925px) {
     .checkout-layout {
         flex-wrap: wrap-reverse;

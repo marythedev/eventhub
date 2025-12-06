@@ -92,6 +92,12 @@
     display: none;
 }
 
+@media (max-width: 535px) {
+    .recommended-events .see-all-desktop {
+        display: none;
+    }
+}
+
 @media (max-width: 465px) {
     .upcoming-events .see-all-desktop {
         display: none;

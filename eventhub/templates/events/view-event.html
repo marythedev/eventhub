@@ -176,10 +176,6 @@
                             <span>Service Fee</span>
                             <span id="serviceFee" class="price">$0.00</span>
                         </div>
-                        <div class="pricing-row">
-                            <span>Tax</span>
-                            <span id="tax" class="price">$0.00</span>
-                        </div>
                         <div class="pricing-row total">
                             <span>Total</span>
                             <span id="total" class="price">$0.00</span>
@@ -195,7 +191,6 @@
     </div>
 </section>
 
-<script src="{% static 'js/view-event.js' %}" data-service-fee="{{ SERVICE_FEE }}" data-tax="{{ TAX }}"
-    id="view-event-script"></script>
+<script src="{% static 'js/view-event.js' %}" data-service-fee="{{ SERVICE_FEE }}" id="view-event-script"></script>
 
 {% endblock %}

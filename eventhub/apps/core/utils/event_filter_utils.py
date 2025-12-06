@@ -190,6 +190,33 @@ def _event_location_filter(events, query):
 
     return events, query
 
+def _event_sort_filter(events, query):
+    """
+    Order events based on sorting query parameter.
+    By default is sorting by relevance.
+
+    Supported sorting:
+        - relevance: natural ordering of events after filtering (no sorting)
+        - date: soonest events first
+        - price-low: from low to high
+        - price-high: from high to low
+    """
+
+    sort_option = query.get("sort", "relevance")
+
+    # check if min_price annotation exists
+    if "min_price" not in events.query.annotations:
+        events = events.annotate(min_price=Min("price_zones__price"))
+
+    if sort_option == "date":
+        events = events.order_by("date")
+    elif sort_option == "price-low":
+        events = events.order_by("min_price", "date")
+    elif sort_option == "price-high":
+        events = events.order_by("-min_price", "date")
+
+    return events
+
 def filter_events_global(request_query, hide_sold_out=True, event_annotation=True):
     """
     Apply all filters to events based on user query parameters.
@@ -202,6 +229,7 @@ def filter_events_global(request_query, hide_sold_out=True, event_annotation=Tru
         Date filters.
         Category filters.
         Location & location radius filter.
+        Sort filter.
 
     Args:
         request_query: GET parameters
@@ -228,6 +256,7 @@ def filter_events_global(request_query, hide_sold_out=True, event_annotation=Tru
     events = _event_date_filters(events, query)
     events = _event_category_filter(events, query)
     events, query = _event_location_filter(events, query)
+    events = _event_sort_filter(events, query)
 
     return events, query
 

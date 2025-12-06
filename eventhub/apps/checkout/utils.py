@@ -6,7 +6,6 @@ from events.models import EventPriceZone
 from tickets.models import Ticket, TicketInProcess
 
 SERVICE_FEE = settings.SERVICE_FEE
-TAX = settings.TAX
 
 def _round(number):
     """
@@ -29,7 +28,7 @@ def calculate_order_totals(tickets):
         tickets (TicketInProcess QuerySet): Tickets and their price zone information.
 
     Returns:
-        tuple: (subtotal, service_fee, tax, total)
+        tuple: (subtotal, service_fee, total)
     """
 
     subtotal = Decimal(0)
@@ -38,9 +37,8 @@ def calculate_order_totals(tickets):
 
     subtotal = _round(subtotal)
     service_fee = _round( subtotal * Decimal(SERVICE_FEE) )
-    tax = _round( subtotal * Decimal(TAX) )
-    total = _round( subtotal + service_fee + tax )
-    return subtotal, service_fee, tax, total
+    total = _round( subtotal + service_fee )
+    return subtotal, service_fee, total
 
 def reserve_tickets(tickets, reserver):
     """

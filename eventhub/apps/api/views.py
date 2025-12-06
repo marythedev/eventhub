@@ -295,7 +295,7 @@ def order_receipt(request, order_id):       # pylint: disable=too-many-locals
     Generate a PDF receipt for an order.
 
     Receipt includes event details, tickets purchased with quantity and price,
-    and a payment summary with subtotal, service fee, tax, and total.
+    and a payment summary with subtotal, service fee, and total.
 
     Args:
         request: Django request object.
@@ -384,9 +384,8 @@ def order_receipt(request, order_id):       # pylint: disable=too-many-locals
     elements.append(Paragraph("Payment Summary", header_style))
 
     totals_data = [
-        ["Subtotal:", f"${order.subtotal:.2f}"],
+        ["Subtotal (includes tax):", f"${order.subtotal:.2f}"],
         ["Service Fee:", f"${order.service_fee:.2f}"],
-        ["Tax:", f"${order.tax:.2f}"],
         ["Total:", f"${order.total:.2f}"],
     ]
 

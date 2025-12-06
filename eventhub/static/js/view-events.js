@@ -114,6 +114,19 @@ applyBtn.addEventListener("click", function (e) {
 });
 
 
+// sorting
+// update query string with sorting information
+const sortBy = document.getElementById("sortBy");
+
+if (sortBy) {
+    sortBy.addEventListener("change", function () {
+        const params = new URLSearchParams(window.location.search);
+        params.set("sort", this.value);
+        window.location.href = `/events/explore/?${params.toString()}`;
+    });
+}
+
+
 
 // change the position of create event button depending on breakpoint of max-width: 615px
 const eventsHeader = document.querySelector('.events-header');

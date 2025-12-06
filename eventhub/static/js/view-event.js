@@ -30,12 +30,10 @@ const orderForm = document.querySelector('.order-summary');
 const selectedTicketsDiv = document.getElementById('selectedTickets');
 const subtotalSpan = document.getElementById('subtotal');
 const serviceFeeSpan = document.getElementById('serviceFee');
-const taxSpan = document.getElementById('tax');
 const totalSpan = document.getElementById('total');
 const checkoutBtn = document.getElementById('checkoutBtn');
 
-const SERVICE_FEE = parseFloat(script.dataset.serviceFee) || 0.08;
-const TAX = parseFloat(script.dataset.tax) || 0.13;
+const SERVICE_FEE = parseFloat(script.dataset.serviceFee);
 
 // round the second digit of the number
 function round(number) {
@@ -77,20 +75,17 @@ function updateOrderSummary() {
     if (selectedTicketsExists) {
         subtotal = round(subtotal)
         const serviceFee = round(subtotal * SERVICE_FEE);
-        const tax = round(subtotal * TAX);
-        const total = round(subtotal + serviceFee + tax);
+        const total = round(subtotal + serviceFee);
 
         selectedTicketsDiv.innerHTML = summaryHTML;
         subtotalSpan.textContent = `$${subtotal.toFixed(2)}`;
         serviceFeeSpan.textContent = `$${serviceFee.toFixed(2)}`;
-        taxSpan.textContent = `$${tax.toFixed(2)}`;
         totalSpan.textContent = `$${total.toFixed(2)}`;
         checkoutBtn.disabled = false;
     } else {
         selectedTicketsDiv.innerHTML = '<p class="empty-state">No tickets selected</p>';
         subtotalSpan.textContent = '$0.00';
         serviceFeeSpan.textContent = '$0.00';
-        taxSpan.textContent = '$0.00';
         totalSpan.textContent = '$0.00';
         checkoutBtn.disabled = true;
     }

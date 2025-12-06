@@ -188,7 +188,7 @@ a:hover {
 
 .breadcrumb a:hover,
 .billing-address a:hover,
-.upcoming-events .section-header .link-text:hover {
+.home-section .section-header .link-text:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
 }

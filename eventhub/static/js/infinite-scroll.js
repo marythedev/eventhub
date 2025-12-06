@@ -1,4 +1,4 @@
-import { convertDateToLocalTime } from './general.js';
+import { convertDateToLocalTime } from './timezoneConversion.js';
 
 const eventsWrapper = document.getElementById('events-wrapper');
 const eventsGrid = document.getElementById('eventsGrid');

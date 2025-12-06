@@ -204,17 +204,17 @@ class PriceZoneValidator(forms.Form):
         required=True,
         min_value=0,
         decimal_places=2,
-        max_digits=5,
+        max_digits=7,
+        max_value=99999.99,
         widget=forms.NumberInput(attrs={
             "required": True,
-            "placeholder": "0.00",
+            "placeholder": "0.00 (USD)",
             "class": "zone-price",
             "step": "0.01",
-            "min": "0",
             "inputmode": "numeric"
         }),
         error_messages={
-            'max_digits': 'Price system limit exceeded. Contact support.',
+            'max_value': 'Ticket price cannot exceed 99 999.99 USD.',
             'required': 'Price is required.', 
             'min_value': 'Price cannot be negative.'
         }
@@ -222,16 +222,17 @@ class PriceZoneValidator(forms.Form):
     zone_seats = forms.IntegerField(
         required=True,
         min_value=1,
+        max_value=1000000,
         widget=forms.NumberInput(attrs={
             "required": True,
             "placeholder": "Seat capacity",
             "class": "zone-seats",
-            "min": "1",
             "inputmode": "numeric",
         }),
         error_messages={
             'required': 'Seats capacity is required.', 
-            'min_value': 'Minimum seat capacity is 1.'
+            'min_value': 'Minimum seat capacity is 1.',
+            'max_value': 'Seat capacity cannot exceed 1 000 000 seats.'
         }
     )
 

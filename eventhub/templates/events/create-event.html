@@ -174,7 +174,9 @@
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Price (USD)</label>
+                                <label>Price with tax 
+                                    <i class="fas fa-info-circle" title="Set the price with your local tax included (as per your country's tax laws)."></i>
+                                </label>
                                 {{ form.zone_price }}
                                 {% if form.zone_price.errors %}
                                 <small class="form-error">{{ form.zone_price.errors.0 }}</small>

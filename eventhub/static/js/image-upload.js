@@ -38,8 +38,6 @@ function isValidImage(file) {
     const imageTypeValid = validTypes.includes(file.type);
     const imageSizeValid = file.size <= MAX_UPLOAD_MB * 1024 * 1024;
 
-    console.log(MAX_UPLOAD_MB)
-
     if (!imageTypeValid)
         imgUploadError.textContent = `${file.name} has unsupported image format. Please upload a JPG, PNG or WEBP file.`;
     else if (!imageSizeValid)

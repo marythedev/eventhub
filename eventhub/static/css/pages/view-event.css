@@ -119,7 +119,7 @@
 .v-event-meta p {
     color: var(--text-secondary);
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 0.5rem;
 }
 

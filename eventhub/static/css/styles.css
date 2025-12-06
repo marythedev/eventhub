@@ -180,13 +180,15 @@ a:hover {
 }
 
 .breadcrumb a,
-.billing-address a {
+.billing-address a,
+.upcoming-events .section-header .link-text {
     color: var(--primary-color);
     text-decoration: none;
 }
 
 .breadcrumb a:hover,
-.billing-address a:hover {
+.billing-address a:hover,
+.upcoming-events .section-header .link-text:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
 }
@@ -241,6 +243,7 @@ i {
     min-width: 18px;
     margin: 0;
     padding: 0;
+    padding-top: 4px;
     text-align: center;
 }
 
@@ -286,12 +289,6 @@ i {
     object-fit: cover;
 }
 
-.empty-state {
-    text-align: center;
-    color: var(--text-secondary);
-    padding: 2rem 0;
-}
-
 .success-icon,
 .fail-icon {
     font-size: 5rem;
@@ -319,32 +316,6 @@ i {
     100% {
         transform: scale(1);
     }
-}
-
-.result-message {
-    font-size: 1.25rem;
-    color: var(--text-secondary);
-    margin-bottom: 3rem;
-}
-
-.price {
-    word-break: keep-all;
-}
-
-.pricing-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-    color: var(--text-secondary);
-}
-
-.pricing-row.total {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    padding-top: 1rem;
-    margin-top: 1rem;
-    border-top: 2px solid var(--border-color);
 }
 
 .counter-wrapper {
@@ -394,6 +365,43 @@ i {
     70% {
         transform: translateY(0.25px);
     }
+}
+
+.price {
+    word-break: keep-all;
+}
+
+.pricing-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.pricing-row.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding-top: 1rem;
+    margin-top: 1rem;
+    border-top: 2px solid var(--border-color);
+}
+
+.result-message {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+}
+
+.remaining-count {
+    text-align: center;
+    padding-top: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem 0;
 }
 
 

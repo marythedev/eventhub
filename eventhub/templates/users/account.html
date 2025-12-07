@@ -273,8 +273,8 @@
                                                 </p>
                                                 <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
                                                     {{event.revenue}} <span style="white-space: nowrap;">revenue
-                                                        <i class="fas fa-info-circle"
-                                                            title="Revenue includes tax as you have set initially price with tax."></i>
+                                                        <i class="fas fa-info-circle" title="Revenue includes tax as you have set initially price with tax.
+Revenue is a subject to Stripe fees."></i>
                                                     </span>
                                                 </p>
                                             </div>
@@ -284,8 +284,8 @@
                                     <div class="event-footer">
                                         <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i>
                                             {{event.revenue}} <span style="white-space: nowrap;">revenue
-                                                <i class="fas fa-info-circle"
-                                                    title="Revenue includes tax as you have set initially price with tax."></i>
+                                                <i class="fas fa-info-circle" title="Revenue includes tax as you have set initially price with tax.
+Revenue is a subject to Stripe fees."></i>
                                             </span>
                                         </p>
 
@@ -398,11 +398,35 @@
                         </a>
                     </div>
                 </div>
+
+                <div class="account-section-divider"></div>
+
+                <div class="account-section-content" id="deactivate" style="border-color: var(--error-color);">
+                    <div class="section-header-account">
+                        <h2 style="color: var(--error-color);">Danger Zone</h2>
+                        <p>This action is irreversible</p>
+                    </div>
+
+                    <form class="account-form" action="{% url 'users:deactivate' %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" id="deactivateAccountBtn" class="btn-primary error">
+                            Deactivate Account
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
 <script src="{% static 'js/account.js' %}" defer></script>
+
+{% if messages %}
+{% for message in messages %}
+{% if 'account_deactivation_error' in message.tags and 'error' in message.tags %}
+<script>alert("{{ message }}")</script>
+{% endif %}
+{% endfor %}
+{% endif %}
 
 {% endblock %}

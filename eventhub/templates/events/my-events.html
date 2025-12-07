@@ -74,8 +74,8 @@
                                     </p>
                                     <p class="event-revenue-desktop"><i class="fas fa-dollar-sign"></i>
                                         {{event.revenue}} <span style="white-space: nowrap;">revenue
-                                            <i class="fas fa-info-circle"
-                                                title="Revenue includes tax as you have set initially price with tax."></i>
+                                            <i class="fas fa-info-circle" title="Revenue includes tax as you have set initially price with tax.
+Revenue is a subject to Stripe fees."></i>
                                         </span>
                                     </p>
                                 </div>
@@ -85,8 +85,8 @@
                         <div class="event-footer">
                             <p class="event-revenue-mobile"><i class="fas fa-dollar-sign"></i> {{event.revenue}} <span
                                     style="white-space: nowrap;">revenue
-                                    <i class="fas fa-info-circle"
-                                        title="Revenue includes tax as you have set initially price with tax."></i>
+                                    <i class="fas fa-info-circle" title="Revenue includes tax as you have set initially price with tax.
+Revenue is a subject to Stripe fees."></i>
                                 </span>
                             </p>
 
@@ -110,6 +110,12 @@
         {% endif %}
     </div>
 </section>
+
+{% if messages %}
+{% for message in messages %}
+<script>alert("{{ message }}")</script>
+{% endfor %}
+{% endif %}
 
 <script>
     function redirectToEdit(e) {

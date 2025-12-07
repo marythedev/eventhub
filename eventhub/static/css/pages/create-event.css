@@ -50,8 +50,24 @@
     justify-content: flex-end;
 }
 
+.form-actions.multi-form-submit {
+    margin-top: 3rem;
+}
+
 @media (max-width: 480px) {
     .pricing-zone-item {
         padding: 1.5rem 1.25rem;
+    }
+}
+
+@media (max-width: 365px) {
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
     }
 }

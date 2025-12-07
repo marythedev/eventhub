@@ -1,4 +1,7 @@
+from core.utils.image_utils import cloud_delete_img
 from django.conf import settings
+from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
@@ -67,7 +70,7 @@ class Event(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return f"Event {self.name} created by {self.organizer}"
 
     def is_team_member(self, user):
         """Return True if the user is a member of the event's team."""
@@ -119,6 +122,24 @@ class Event(models.Model):
             revenue += zone.revenue
         return revenue
 
+    def delete(self, *args, **kwargs):
+        """Delete event if there are no tickets sold for it yet."""
+        if self.total_seats_sold > 0:
+            raise ValidationError("Event cannot be deleted because it has sold tickets.")
+
+        for image in self.images.all():
+            cloud_delete_img(image.url)
+
+        super().delete(*args, **kwargs)
+
+
+class EventAdmin(admin.ModelAdmin):
+    """Overrides bulk delete in admin to use custom delete logic for events."""
+
+    def delete_queryset(self, request, queryset):
+        for event in queryset:
+            event.delete()
+
 
 class EventImage(models.Model):
     """
@@ -137,7 +158,7 @@ class EventImage(models.Model):
     url = models.URLField()
 
     def __str__(self):
-        return f"Image for {self.event.name}(event ID: {self.event.id})"
+        return f"Image for Event {self.event.name} created by {self.event.organizer}"
 
 
 class EventPriceZone(models.Model):
@@ -174,7 +195,7 @@ class EventPriceZone(models.Model):
     revenue = models.DecimalField(max_digits=15, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Price Zone {self.name} for {self.event.name}(event ID: {self.event.id}) event"
+        return f"Price Zone {self.name} for Event {self.event.name} created by {self.event.organizer}"
 
     @property
     def remaining_seats(self):

@@ -332,6 +332,9 @@ class AddTeamValidator(forms.Form):
         except Profile.DoesNotExist as e:
             raise ValidationError("No user found with this email.") from e
 
+        if not user.is_active:
+            raise ValidationError("This user has deleted their profile.")
+
         if user == self.event.organizer:
             raise ValidationError("As the organizer, you already part of the team.")
 

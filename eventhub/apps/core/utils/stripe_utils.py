@@ -94,33 +94,45 @@ def delete_stripe_account(user):
         user.stripe_account.stripe_account_ready = False
         user.stripe_account.save()
 
-def create_and_confirm_payment(total, payment_method_id, user_email):
+def create_and_confirm_payment(
+    customer_email,
+    customer_payment_method_id,
+    event_organizer_stripe,
+    subtotal,
+    service_fee):
     """
-    Payment from customer to Eventhub via Stripe.
+    Payment from customer to event organizer via Stripe.
     Create and confirm a Stripe PaymentIntent.
 
     Args:
-        total (Decimal): Charge amount in dollars.
-        payment_method_id (str): ID of Stripe payment method from frontend Stripe fetch.
-        user_email (str): Email of the customer for receipt.
+        customer_email (str): Email of the customer for receipt.
+        customer_payment_method_id (str): Customer's payment method ID (i.e. credit card) provided through the frontend.
+        event_organizer_stripe (StripeAccount): StripeAccount object containing event organizer's Stripe account ID.
+        subtotal (float): Money portion for the tickets including tax (no service fee).
+        service_fee (float): Money portion for service fee.
 
     Returns:
         stripe.PaymentIntent: Confirmed PaymentIntent object.
     """
 
     stripe.api_key = STRIPE_SECRET_KEY
+    total = subtotal + service_fee
     payment_intent = stripe.PaymentIntent.create(
         amount=int(total * 100),
         currency="usd",
-        payment_method=payment_method_id,
-        receipt_email=user_email,
-        automatic_payment_methods={"enabled": True, "allow_redirects": "never"}
+        payment_method=customer_payment_method_id,
+        receipt_email=customer_email,
+        automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
+        transfer_data={
+            "destination": event_organizer_stripe.stripe_account_id,
+        },
+        application_fee_amount=int(service_fee * 100)
     )
 
     # payment confirmation
     confirmed_intent = stripe.PaymentIntent.confirm(
         payment_intent.id,
-        payment_method=payment_method_id
+        payment_method=customer_payment_method_id
     )
     return confirmed_intent
 

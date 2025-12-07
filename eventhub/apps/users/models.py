@@ -1,7 +1,12 @@
+from core.utils.image_utils import cloud_delete_img
+from core.utils.stripe_utils import delete_stripe_account
 from django.conf import settings
+from django.contrib import admin
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 
 class ProfileManager(BaseUserManager):
@@ -95,7 +100,7 @@ class Profile(AbstractBaseUser, PermissionsMixin):
         is_staff (bool): Admin site access status.
     """
 
-    avatar = models.URLField()
+    avatar = models.URLField(blank=True, null=True)
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=20, blank=True, null=True)
@@ -120,6 +125,58 @@ class Profile(AbstractBaseUser, PermissionsMixin):
     def get_short_name(self):
         """Returns: first name (before space) or defaults to full name if no space."""
         return self.full_name.split()[0]
+
+    def delete(self, *args, **kwargs):
+        """
+        Delete profile.
+
+        Profile cannot be deleted if user has events for which payouts were not released.
+        Profile is soft deleted if user has orders and/or upcoming events for tickets were sold.
+        Profile is deleted if it has no orders and events associated with it.
+        """
+
+        upcoming_events_with_revenue = self.events.filter(
+            date__gte=timezone.now(),
+            rice_zones__revenue__gt=0
+        ).distinct()
+
+        if upcoming_events_with_revenue:
+            raise ValidationError("Account cannot be deleted because there are upcoming events with sold tickets.")
+
+        cloud_delete_img(self.avatar)
+
+        # delete user events with no orders
+        for event in self.events.all():
+            try:
+                event.delete()
+            except ValidationError:
+                pass    # event cannot be deleted because it has sold tickets
+
+        user_has_events = self.events.exists()
+        user_has_orders = self.orders.exists()
+
+        if (user_has_events or user_has_orders):
+            self.is_active = False
+            self.avatar = None
+            self.full_name = "Deleted User"
+            self.phone = None
+            self.location = None
+            self.location_lat = None
+            self.location_lon = None
+            self.save()
+
+            delete_stripe_account(self)
+
+        else:
+            super().delete(*args, **kwargs)
+
+
+class ProfileAdmin(admin.ModelAdmin):
+    """Overrides bulk delete in admin to use custom delete logic for user profiles."""
+
+    def delete_queryset(self, request, queryset):
+        for profile in queryset:
+            profile.delete()
 
 
 class StripeAccount(models.Model):

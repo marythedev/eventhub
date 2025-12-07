@@ -9,6 +9,7 @@ from core.utils.stripe_utils import get_stripe_account
 from core.utils.utils import paginate_queryset
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -212,7 +213,7 @@ def edit_event(request, event_id):
     Handle event update.
 
     Restrictions:
-        - Only the event owner may edit.
+        - Only the event owner can edit.
         - Past events cannot be edited.
 
     GET:
@@ -274,6 +275,35 @@ def edit_event(request, event_id):
         'event': event, 
         'event_form': event_form
     })
+
+
+@login_required
+def delete_event(request, event_id):
+    """
+    Handle event deletion.
+
+    Restrictions:
+        - Only the event owner can delete.
+        - Event has to have no tickets sold (otherwise, event is stored for the history).
+    
+    GET:
+        - Redirect to event page.
+
+    POST:
+        - Delete event if it passes restrictions.
+    """
+
+    if request.method == "POST":
+        event = get_object_or_404(Event, id=event_id, organizer=request.user)
+
+        try:
+            event.delete()
+            messages.success(request, "Event successfully deleted.")
+            return redirect('events:my_events')
+        except ValidationError:
+            messages.error(request, "Event cannot be deleted because it has sold tickets.")
+            return redirect('events:my_events')
+    return redirect('events:view_event', event_id=event_id)
 
 
 @login_required

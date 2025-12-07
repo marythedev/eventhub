@@ -105,11 +105,18 @@
                 <small class="form-error">{{ event_form.timezone.errors.0 }}</small>
                 {% endif %}
             </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn-primary">Save Event</button>
-            </div>
         </form>
+
+        <form class="event-form" id="eventDeleteForm" action="{% url 'events:delete_event' event.id %}" method="POST">
+            {% csrf_token %}
+        </form>
+
+        <div class="form-actions multi-form-submit">
+            {% if event.total_seats_sold == 0 %}
+            <button class="btn-secondary" id="deleteEventBtn" data-form-id-submit="eventDeleteForm">Delete</button>
+            {% endif %}
+            <button class="btn-primary" id="editEventBtn" data-form-id-submit="eventEditForm">Save Event</button>
+        </div>
     </div>
 </section>
 

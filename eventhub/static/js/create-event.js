@@ -66,6 +66,11 @@ function removePricingZone(zone) {
     }
 }
 
+function submitForm(btn) {
+    const formId = btn.getAttribute("data-form-id-submit");
+    document.getElementById(formId).submit();
+}
+
 // dynamic update of input characters for event name
 const nameInput = document.getElementById('eventName');
 const nameCounter = document.getElementById('nameCounter');
@@ -110,3 +115,20 @@ const pricingZones = document.getElementById('pricingZones');
 const addZoneButton = document.getElementById('addPricingZone');
 if (addZoneButton)
     addZoneButton.addEventListener('click', () => renderPricingZone());
+
+
+// submit form to edit event
+const editEventBtn = document.getElementById('editEventBtn');
+editEventBtn.addEventListener('click', () => {
+    submitForm(editEventBtn);
+});
+
+// prompt event deletion alert and submit form to delete event upon confirmation
+const deleteEventBtn = document.getElementById('deleteEventBtn');
+if (deleteEventBtn) {
+    deleteEventBtn.addEventListener('click', () => {
+        if (!confirm("Are you sure you want to delete this event?\nThis cannot be undone."))
+            return;
+        submitForm(deleteEventBtn);
+    });
+}

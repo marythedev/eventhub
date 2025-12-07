@@ -12,6 +12,7 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from events.models import Event
 from PIL import Image
@@ -343,6 +344,32 @@ def security_update(request):
 
 
 @login_required
+def deactivate(request):
+    """
+    Handle profile deletion.
+
+    GET:
+        - Redirect to account page.
+
+    POST:
+        - Delete profile.
+            On success, redirect to logout.
+            On fail, redirect to account page with corresponding error message.
+    """
+
+    if request.method == "POST":
+        try:
+            request.user.delete()
+            return redirect('users:logout')
+        except ValidationError:
+            messages.error(request,
+                "Account cannot be deleted because there are events for which payouts have not been released yet.",
+                extra_tags='account_deactivation_error'
+            )
+
+    return redirect('users:account')
+
+
 def logout(request):
     """Terminate current user session and redirect to the homepage."""
     auth_logout(request)

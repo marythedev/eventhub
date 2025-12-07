@@ -80,7 +80,13 @@ def checkout(request, event_id):    # pylint: disable=too-many-return-statements
         payment_method_id = request.POST.get("payment_method_id")
 
         try:
-            confirmed_intent = create_and_confirm_payment(total, payment_method_id, request.user.email)
+            confirmed_intent = create_and_confirm_payment(
+                customer_email=request.user.email,
+                customer_payment_method_id=payment_method_id,
+                event_organizer_stripe=event.organizer.stripe_account,
+                subtotal=subtotal,
+                service_fee=service_fee
+            )
 
             # save order to db
             order = Order.objects.create(

@@ -36,10 +36,13 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 // disable main form button to avoid multiple form submissions
-const formBtns = document.querySelectorAll("form .btn-primary");
+const formBtns = document.querySelectorAll("form .btn-primary, .multi-form-submit button");
 formBtns.forEach(btn => {
     btn.addEventListener('click', function () {
-        const form = btn.closest('form');
+        const formId = btn.getAttribute("data-form-id-submit");
+        
+        let form;
+        formId ? form = document.getElementById(formId) : form = btn.closest('form');
         form.requestSubmit();
 
         if (form.checkValidity() && (form.id != 'checkout-form' || areStripeFieldsValid())) {

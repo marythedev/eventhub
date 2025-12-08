@@ -55,7 +55,7 @@
                     <label class="checkbox-label">
                         <input type="checkbox" {% if form.terms_accepted.value %} checked {% endif %}
                             name="terms_accepted" required>
-                        <span>I agree with <a href="#" class="link-text">Terms and Conditions</a></span>
+                        <span>I agree with <a href="{% url 'terms_and_conditions' %}" class="link-text">Terms and Conditions</a></span>
                     </label>
                     {% if form.terms_accepted.errors %}
                     <small class="form-error">{{ form.terms_accepted.errors.0 }}</small>

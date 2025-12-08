@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Terms and Conditions {% endblock %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'css/pages/terms-and-conditions.css' %}" type="text/css">
+{% endblock %}
+
+{% block content %}
+
+<section class="terms-and-conditions-section">
+    <div class="container-small">
+        <h1>Terms and Conditions</h1>
+
+        <p>By accessing or using the EventHub platform (the "Platform" or "Service"), you agree to these Terms and
+            Conditions and our Privacy Policy. Please read this information carefully.</p>
+
+        <hr>
+
+        <h2>1. About EventHub</h2>
+        <p>EventHub is a platform that allows users to create, promote, and sell tickets for events. We are currently
+            operating in the prototype mode. All transactions are simulated, and no real payments are processed.
+            EventHub does <strong>not</strong> organize, manage, or control any events listed on the Platform. All
+            events are created and managed by independent users ("Organizers").
+        </p>
+
+        <h2>2. User Accounts</h2>
+        <h3>2.1 Account Creation & Responsibility</h3>
+        <ul>
+            <li>Users must provide accurate and up-to-date information when creating an account.</li>
+            <li>You are responsible for maintaining the confidentiality of your login credentials and for all actions
+                taken under your account.</li>
+            <li>EventHub may remove content or deactivate accounts that violate these Terms or applicable laws.</li>
+        </ul>
+
+        <h3>2.2 Data Management & Deletion</h3>
+        <ul>
+            <li>Users can view, update, or delete their data through account settings.</li>
+            <li>Accounts <strong>without</strong> associated events or orders can be permanently deleted.</li>
+            <li>Accounts <strong>with</strong> events or orders are "soft-deleted", meaning personal details are
+                removed, and the account is deactivated but retained in the system to preserve transaction and event
+                history.</li>
+        </ul>
+
+        <h2>3. Event Listings</h2>
+        <h3>3.1 Organizer Responsibilities</h3>
+        <ul>
+            <li>By listing an event, Organizers confirm they have the right to publish the event and agree to comply
+                with all applicable laws.</li>
+            <li>Organizers retain ownership of their content but grant EventHub a license to display and promote it.
+            </li>
+            <li>Organizers must ensure:
+                <ul>
+                    <li>Event information and pricing are accurate.</li>
+                    <li>Ticket prices include all applicable taxes.</li>
+                    <li>Taxes are remitted to the appropriate authorities.</li>
+                </ul>
+            </li>
+            <li>Organizers can add other users to their event team. Organizers are responsible for ensuring that these
+                team members are authorized to check in attendees by validating their tickets.</li>
+            <li>Organizers are solely responsible for complying with all laws, permits, licenses, taxes, and
+                regulations.</li>
+        </ul>
+
+        <h3>3.2 Event Data Management & Deletion</h3>
+        <ul>
+            <li>Events <strong>without sold tickets</strong> can be deleted.</li>
+            <li>Events <strong>with sold tickets cannot be deleted</strong> to preserve transaction history.</li>
+        </ul>
+
+        <h2>4. Payments</h2>
+        <ul>
+            <li>Ticket prices include Organizer-set taxes according to their local tax laws.</li>
+            <li>A service fee is added on top of the ticket price.</li>
+            <li>Organizers receive payouts after EventHub fees are deducted.</li>
+        </ul>
+        <p>
+            EventHub does not store or process any credit card details on our platform. All payment information is
+            handled securely through our third-party provider Stripe, which is PCI-compliant. At this stage, our
+            platform is in prototype mode, and all payments are simulated. <strong>No real transactions will
+                occur.</strong>
+        </p>
+
+        <h2>5. Event Cancellation & Refunds</h2>
+        <ul>
+            <li>EventHub does not provide automatic refunds or ticket cancellations once purchased.</li>
+            <li>If an event is canceled or a refund is requested, Organizers or Buyers can contact EventHub. Our team
+                will review your request and assist with processing refunds when applicable.</li>
+            <li><strong>Service fees are non-refundable</strong>, as they cover Stripe’s processing fees.</li>
+        </ul>
+
+        <hr>
+
+        <h1>Privacy Policy</h1>
+        <h2>1. Information We Collect</h2>
+        <p>EventHub collects:</p>
+        <ul>
+            <li><strong>Profile Information:</strong> Name, email, password (encrypted), and any profile settings.</li>
+            <li><strong>Event Data:</strong> Events created and managed.</li>
+            <li><strong>Purchase History:</strong> Orders and tickets purchased.</li>
+        </ul>
+
+        <h2>2. How We Use Your Information</h2>
+        <p>We use your information to:</p>
+        <ul>
+            <li>Provide and operate the EventHub platform.</li>
+            <li>Process ticket purchases.</li>
+            <li>Personalize your experience.</li>
+            <li>Maintain accurate event and order records.</li>
+        </ul>
+        <p>EventHub does <strong>not</strong> sell or share your personal information. We share your payment
+            information only when required to provide core platform services (payment processing via
+            <strong>Stripe</strong>).
+        </p>
+
+        <h2>3. Data Retention</h2>
+        <ul>
+            <li>Personal data is retained while your account is active and deleted once your account is deactivated.
+            </li>
+            <li>Event and order history may be retained longer for record-keeping and platform integrity.</li>
+        </ul>
+
+        <h2>4. Cookies</h2>
+        <p>EventHub uses <strong>only essential cookies</strong> for login sessions. No advertising or tracking cookies
+            are used.</p>
+
+        <h2>5. Security</h2>
+        <p> EventHub implements reasonable security measures but cannot guarantee complete protection or uninterrupted
+            availability of the Platform.</p>
+
+        <hr>
+
+        <h1>Limitations of Liability</h1>
+        <p>EventHub is provided <strong>"as-is"</strong> without warranties. EventHub is not liable for:</p>
+        <ul>
+            <li>Event quality, legality, accuracy, safety, or fulfillment.</li>
+            <li>Losses, damages, or claims arising from fraudulent, canceled, or poorly managed events.</li>
+            <li>Issues caused by third-party payment providers.</li>
+            <li>Platform outages, technical issues, or data loss.</li>
+        </ul>
+        <p>EventHub does not verify, endorse, or guarantee any event listed by Organizers. Purchase tickets at your own
+            risk.</p>
+
+        <hr>
+
+        <h1>Changes to Terms</h1>
+        <p>EventHub may update these Terms at any time. Continued use of the Platform indicates acceptance of the
+            revised Terms.</p>
+
+        <hr>
+
+        <h1>Ownership</h1>
+        <p>The EventHub Platform is the property of its creator.</p>
+
+        <hr>
+
+        <h1>Contact Us</h1>
+        <p>For feedbacks, questions, or other inquiries, please reach out to us via the
+            <strong><a href="{% url 'contact' %}" class="link-text">Contact Us</a></strong> form.
+            Our team will get back to you shortly.
+        </p>
+    </div>
+</section>
+
+{% endblock %}

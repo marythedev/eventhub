@@ -7,6 +7,7 @@ from .forms import PasswordResetValidator
 urlpatterns = [
     path('', views.home, name="home"),
     path('contact/', views.contact, name="contact"),
+    path('terms-and-conditions/', views.terms_and_conditions, name="terms_and_conditions"),
 
     path('password-reset/',
         auth_views.PasswordResetView.as_view(

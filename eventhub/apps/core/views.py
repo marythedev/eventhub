@@ -106,3 +106,8 @@ def contact(request):
             form = ContactInquiryValidator()
 
     return render(request, 'core/contact.html', { "form": form })
+
+
+def terms_and_conditions(request):
+    """Display the page with platform's terms and conditions."""
+    return render(request, 'core/terms-and-conditions.html')

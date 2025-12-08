@@ -197,7 +197,8 @@ a:hover {
 
 .breadcrumb a:hover,
 .billing-address a:hover,
-.home-section .section-header .link-text:hover {
+.home-section .section-header .link-text:hover,
+.terms-and-conditions-section .link-text:hover {
     text-decoration: underline;
     text-underline-offset: 3px;
 }

@@ -12,7 +12,7 @@ load_dotenv()
 
 
 # helper functions
-def _full_name_field():
+def full_name_field():
     """
     Create a CharField for full name inputs with proper validation.
     Returns:
@@ -28,7 +28,7 @@ def _full_name_field():
         }
     )
 
-def _email_field():
+def email_field():
     """
     Create an EmailField for email inputs with validation rules.
     Returns:
@@ -108,8 +108,8 @@ class RegisterValidator(forms.Form):
         dict: Cleaned data containing validated form input.
     """
 
-    full_name = _full_name_field()
-    email = _email_field()
+    full_name = full_name_field()
+    email = email_field()
     password = _password_field('Password is required.')
     confirm_password = _password_field('Confirm password is required.')
     terms_accepted = forms.BooleanField(
@@ -161,7 +161,7 @@ class LoginValidator(forms.Form):
         dict: The authenticated user is stored in the form's cleaned data.
     """
 
-    email = _email_field()
+    email = email_field()
     password = forms.CharField(
         required=True,
         widget=forms.PasswordInput,
@@ -206,8 +206,8 @@ class ProfileValidator(forms.Form):
         super().__init__(*args, **kwargs)
         self.user = user
 
-    full_name = _full_name_field()
-    email = _email_field()
+    full_name = full_name_field()
+    email = email_field()
     phone = forms.CharField(
         max_length=25,
         required=False,

@@ -1,7 +1,6 @@
 from core.utils.image_utils import cloud_delete_img
 from core.utils.stripe_utils import delete_stripe_account
 from django.conf import settings
-from django.contrib import admin
 from django.contrib.auth.models import (AbstractBaseUser, BaseUserManager,
                                         PermissionsMixin)
 from django.core.exceptions import ValidationError
@@ -169,14 +168,6 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
         else:
             super().delete(*args, **kwargs)
-
-
-class ProfileAdmin(admin.ModelAdmin):
-    """Overrides bulk delete in admin to use custom delete logic for user profiles."""
-
-    def delete_queryset(self, request, queryset):
-        for profile in queryset:
-            profile.delete()
 
 
 class StripeAccount(models.Model):

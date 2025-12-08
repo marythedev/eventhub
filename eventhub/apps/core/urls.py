@@ -6,6 +6,8 @@ from .forms import PasswordResetValidator
 
 urlpatterns = [
     path('', views.home, name="home"),
+    path('contact/', views.contact, name="contact"),
+
     path('password-reset/',
         auth_views.PasswordResetView.as_view(
             subject_template_name='core/password-reset-email/password_reset_subject.txt',

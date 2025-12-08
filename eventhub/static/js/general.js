@@ -35,6 +35,37 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
+// initialize char counters
+export function updateCounter(counterField, maxLength, inputField) {
+    const currentLength = inputField.value.length;
+    counterField.textContent = `${currentLength} / ${maxLength} characters`;
+}
+
+function initiateCharCounters() {
+    const inputFields = document.querySelectorAll('[maxlength]');
+
+    inputFields.forEach(field => {
+        const id = field.getAttribute('id');
+        if (!id)
+            return;
+        
+        const counter = document.querySelector(`[data-char-counter-for="${id}"]`);
+        if (!counter)
+            return;
+
+        const maxLength = field.getAttribute('maxlength');
+
+        updateCounter(counter, maxLength, field);
+        field.addEventListener('input', () => {
+            updateCounter(counter, maxLength, field);
+        })
+    })
+}
+
+initiateCharCounters();
+
+
 // disable main form button to avoid multiple form submissions
 const formBtns = document.querySelectorAll("form .btn-primary, .multi-form-submit button");
 formBtns.forEach(btn => {

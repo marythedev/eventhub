@@ -25,7 +25,7 @@
                 <div class="form-group">
                     <div class="input-meta-row">
                         <label for="eventName">Event Name</label>
-                        <small id="nameCounter" class="char-counter"></small>
+                        <small data-char-counter-for="eventName" class="char-counter"></small>
                     </div>
                     <input type="text" id="eventName" name="name" maxlength="50" placeholder="Enter event name"
                         value="{{ event_form.name.value|default_if_none:'' }}" required>
@@ -83,7 +83,7 @@
                     <label for="eventDescription">Description</label>
                     <textarea id="eventDescription" name="description" rows="6" maxlength="5000"
                         placeholder="Describe your event...">{{ event_form.description.value|default_if_none:'' }}</textarea>
-                    <small id="descCounter" class="char-counter"></small>
+                    <small data-char-counter-for="eventDescription" class="char-counter"></small>
                     {% if event_form.description.errors %}
                     <small class="form-error">{{ event_form.description.errors.0 }}</small>
                     {% endif %}
@@ -207,6 +207,6 @@
     </div>
 </section>
 
-<script src="{% static 'js/create-event.js' %}" defer></script>
+<script src="{% static 'js/create-event.js' %}" type="module" defer></script>
 
 {% endblock %}

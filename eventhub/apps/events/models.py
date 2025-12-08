@@ -1,6 +1,5 @@
 from core.utils.image_utils import cloud_delete_img
 from django.conf import settings
-from django.contrib import admin
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -131,14 +130,6 @@ class Event(models.Model):
             cloud_delete_img(image.url)
 
         super().delete(*args, **kwargs)
-
-
-class EventAdmin(admin.ModelAdmin):
-    """Overrides bulk delete in admin to use custom delete logic for events."""
-
-    def delete_queryset(self, request, queryset):
-        for event in queryset:
-            event.delete()
 
 
 class EventImage(models.Model):

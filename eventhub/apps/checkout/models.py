@@ -20,7 +20,7 @@ class Order(models.Model):
 
     number = models.CharField(max_length=50, unique=True, blank=True)
     status = models.CharField(max_length=150, blank=False)
-    date = models.DateTimeField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True, verbose_name="Date (UTC)")
     stripePaymentId = models.CharField(max_length=50, unique=True, null=True, blank=True)
     acquirer = models.ForeignKey(
         settings.AUTH_USER_MODEL,

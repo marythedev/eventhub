@@ -38,12 +38,6 @@
     margin-bottom: 1rem;
 }
 
-.char-counter {
-    text-align: right;
-    font-size: 0.6rem;
-    opacity: 0.75;
-}
-
 .form-actions {
     display: flex;
     gap: 1rem;

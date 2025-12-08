@@ -1,5 +1,6 @@
+from django import forms
 from django.contrib.auth.forms import SetPasswordForm
-from users.forms import validate_password
+from users.forms import email_field, full_name_field, validate_password
 
 
 class PasswordResetValidator(SetPasswordForm):
@@ -15,3 +16,26 @@ class PasswordResetValidator(SetPasswordForm):
         password = self.cleaned_data.get('new_password1')
         validate_password(password)
         return password
+
+class ContactInquiryValidator(forms.Form):
+    """
+    Validates contact form data.
+
+    Fields:
+        full_name (str): User's full name, max length 100, required.
+        email (str): User's email address, required.
+        message (str): Description of the inquiry, max length 1500, required.
+
+    Returns:
+        dict: Cleaned data containing validated form input.
+    """
+
+    full_name = full_name_field()
+    email = email_field()
+    message = forms.CharField(
+        required=True,
+        max_length=1500,
+        error_messages={
+            'max_length': 'Description cannot exceed 1500 characters.'
+        }
+    )

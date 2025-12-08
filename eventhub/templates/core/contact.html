@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Contact Us {% endblock %}
+
+{% block content %}
+
+<section id="contact" class="auth-section">
+    <div class="auth-container">
+        <div class="auth-box">
+            <div class="auth-header">
+                <h2>Contact Us</h2>
+                <p>Get in touch with Eventhub</p>
+            </div>
+
+            <form class="auth-form" action="{% url 'contact' %}" method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="contactName">Full Name</label>
+                    <input type="text" id="contactName" name="full_name" placeholder="Jack Sparrow"
+                        value="{{ form.full_name.value|default_if_none:'' }}" required>
+                    {% if form.full_name.errors %}
+                    <small class="form-error">{{ form.full_name.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="contactEmail">Email Address</label>
+                    <input type="email" id="contactEmail" name="email" placeholder="your@email.com"
+                        value="{{ form.email.value|default_if_none:'' }}" required>
+                    {% if form.email.errors %}
+                    <small class="form-error">{{ form.email.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="contactMessage">Message</label>
+                    <textarea id="contactMessage" name="message" rows="5" maxlength="1500"
+                        placeholder="Describe your inquiry...">{{ form.message.value|default_if_none:'' }}</textarea>
+                    <div class="char-counter-wrapper">
+                        {% if form.message.errors %}
+                        <small class="form-error">{{ form.message.errors.0 }}</small>
+                        {% else %}
+                        <span></span>
+                        {% endif %}
+                        <small data-char-counter-for="contactMessage" class="char-counter"></small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-full">Send Message</button>
+
+                {% if messages %}
+                {% for message in messages %}
+                {% if 'success' in message.tags %}
+                <small class="form-success" style="text-align: center;">{{ message }}</small>
+                {% elif 'error' in message.tags %}
+                <small class="form-error" style="text-align: center;">{{ message }}</small>
+                {% endif %}
+                {% endfor %}
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

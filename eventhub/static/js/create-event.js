@@ -1,7 +1,4 @@
-function updateCounter(counterField, maxLength, inputField) {
-    const currentLength = inputField.value.length;
-    counterField.textContent = `${currentLength} / ${maxLength} characters`;
-}
+import { updateCounter } from "./general.js";
 
 function renderPricingZone() {
     const totalForms = document.querySelector('#id_zones-TOTAL_FORMS');
@@ -13,7 +10,7 @@ function renderPricingZone() {
     clearZoneInputs(newZone, formCount);
     removeZoneErrors(newZone);
     pricingZones.appendChild(newZone);
-    initiateCharCounters();
+    initiatePriceZoneCharCounters();
 
     // update metadata (formset)
     totalForms.value = formCount + 1;
@@ -33,7 +30,7 @@ function clearZoneInputs(zone, formCount) {
     }
 }
 
-function initiateCharCounters() {
+function initiatePriceZoneCharCounters() {
     const charCounters = document.querySelectorAll('.zoneInputCounter');
     for (const ctr of charCounters) {
         const nameInput = ctr.parentElement.parentElement.parentElement.querySelector('input');
@@ -71,39 +68,20 @@ function submitForm(btn) {
     document.getElementById(formId).submit();
 }
 
-// dynamic update of input characters for event name
-const nameInput = document.getElementById('eventName');
-const nameCounter = document.getElementById('nameCounter');
-if (nameInput) {
-    const nameMaxLength = nameInput.getAttribute('maxlength');
-    updateCounter(nameCounter, nameMaxLength, nameInput);
-    nameInput.addEventListener('input', () => updateCounter(nameCounter, nameMaxLength, nameInput));
-}
-
 // set min date input to today (user can't create a past event)
 const dateInput = document.getElementById('eventDate');
 if (dateInput)
     dateInput.min = new Date().toISOString().slice(0, 10);
 
-// dynamic update of input characters for event description
-const descTextarea = document.getElementById('eventDescription');
-const descCounter = document.getElementById('descCounter');
-if (descTextarea) {
-    const descMaxLength = descTextarea.getAttribute('maxlength');
-    updateCounter(descCounter, descMaxLength, descTextarea);
-    descTextarea.addEventListener('input', () => updateCounter(descCounter, descMaxLength, descTextarea));
-}
-
 
 // pricing zones
-
 // pre-rendered pricing zones forms:
 //      initially there is 1 pricing zone form;
 //      after any submission to backend, django will pre-renders as many forms 
 //          as submitted after backend validations (if the global event creation form had errors)
 
 // initiate char counters for all pre-rendered price zones
-initiateCharCounters();
+initiatePriceZoneCharCounters();
 
 // setup remove on click event for all pre-rendered price zones
 const removeButtons = document.querySelectorAll('.remove-zone');
@@ -117,11 +95,14 @@ if (addZoneButton)
     addZoneButton.addEventListener('click', () => renderPricingZone());
 
 
+
 // submit form to edit event
 const editEventBtn = document.getElementById('editEventBtn');
-editEventBtn.addEventListener('click', () => {
-    submitForm(editEventBtn);
-});
+if (editEventBtn) {
+    editEventBtn.addEventListener('click', () => {
+        submitForm(editEventBtn);
+    });
+}
 
 // prompt event deletion alert and submit form to delete event upon confirmation
 const deleteEventBtn = document.getElementById('deleteEventBtn');

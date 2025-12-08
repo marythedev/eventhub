@@ -351,6 +351,21 @@ i {
     animation: bounce 1.5s infinite;
 }
 
+.char-counter-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap-reverse;
+    gap: 1rem;
+}
+
+.char-counter {
+    text-align: right;
+    font-size: 0.6rem;
+    opacity: 0.75;
+}
+
 @keyframes bounce {
 
     0%,

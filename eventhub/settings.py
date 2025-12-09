@@ -2,8 +2,8 @@ import os
 import sys
 from decimal import Decimal
 from pathlib import Path
-import dj_database_url 
 
+import dj_database_url
 import environ
 
 # ---------------------------------------
@@ -24,10 +24,8 @@ if ENV_FILE.exists():
 
 
 # Security / Debug Settings
-# TODO: review before prod
-# keep the secret key used in production secret
 SECRET_KEY = env("SECRET_KEY")
-DEBUG = env.bool("DEBUG", default=False)         # disable on prod
+DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 WSGI_APPLICATION = 'eventhub.wsgi.application'
 
@@ -178,6 +176,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+# ---------------------------------------
+# Secure headers
+# ---------------------------------------
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_SECONDS = 31536000
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
 
 
 # ---------------------------------------

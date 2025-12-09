@@ -136,7 +136,7 @@ class Profile(AbstractBaseUser, PermissionsMixin):
 
         upcoming_events_with_revenue = self.events.filter(
             date__gte=timezone.now(),
-            rice_zones__revenue__gt=0
+            price_zones__revenue__gt=0
         ).distinct()
 
         if upcoming_events_with_revenue:

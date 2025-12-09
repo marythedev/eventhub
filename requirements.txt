@@ -4,14 +4,18 @@ pylint-django >= 2.6.1
 django-environ >= 0.12.0
 requests>=2.3
 
-# for production static files
+# production static files
 whitenoise >= 6.11.0
 
-# for images
+# images
 Pillow >= 10.3.0
 pyuploadcare[django] ~= 6.2.1
 python-barcode >= 0.16.1
 
-# for payment
+# payment
 stripe~=13.2.0
-reportlab >= 4.4.5 # for receipt generation
+reportlab >= 4.4.5 # receipt generation
+
+# database
+psycopg2-binary ~= 2.9.11
+dj-database-url ~= 3.0.1

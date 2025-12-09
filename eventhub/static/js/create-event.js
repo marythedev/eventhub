@@ -70,8 +70,12 @@ function submitForm(btn) {
 
 // set min date input to today (user can't create a past event)
 const dateInput = document.getElementById('eventDate');
-if (dateInput)
-    dateInput.min = new Date().toISOString().slice(0, 10);
+if (dateInput) {
+    const currentDate = new Date();
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+    dateInput.min = `${currentDate.getFullYear()}-${month}-${day}`;
+}
 
 
 // pricing zones

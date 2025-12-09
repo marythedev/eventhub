@@ -2,6 +2,7 @@ import os
 import sys
 from decimal import Decimal
 from pathlib import Path
+import dj_database_url 
 
 import environ
 
@@ -34,9 +35,10 @@ WSGI_APPLICATION = 'eventhub.wsgi.application'
 # Basic Settings
 DOMAIN_URL = env("DOMAIN_URL", default=None)
 SESSION_EXPIRY_TIME = env.int("SESSION_EXPIRY_TIME", default=0)
-RESERVED_TICKET_EXPIRATION_MIN = env.int("RESERVED_TICKET_EXPIRATION_MIN", default=10)
 
-# Email Settings
+DATABASE_URL = env("DATABASE_URL", default=None)
+
+# Email
 EMAIL_HOST_USER = env("SUPPORT_EMAIL", default=None)
 EMAIL_HOST_PASSWORD = env("SUPPORT_EMAIL_APP_PASSWORD", default=None)
 
@@ -60,7 +62,8 @@ PRICE_MIN_MAX_MATCH_SCORE = env.int("PRICE_MIN_MAX_MATCH_SCORE", default=20)
 PRICE_MAX_MATCH_SCORE = env.int("PRICE_MAX_MATCH_SCORE", default=10)
 PURCHASED_SCORE = env.int("PURCHASED_SCORE", default=-1000)
 
-# Payment / Stripe Settings
+# Checkout / Payment / Stripe Settings
+RESERVED_TICKET_EXPIRATION_MIN = env.int("RESERVED_TICKET_EXPIRATION_MIN", default=10)
 SERVICE_FEE = Decimal(env("SERVICE_FEE", default="0.08"))
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
@@ -151,14 +154,15 @@ STATICFILES_DIRS = [ APP_ROOT / "static" ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
+
 # ---------------------------------------
 # Database
 # ---------------------------------------
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600
+    )
 }
 
 # Default primary key field type

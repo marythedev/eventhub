@@ -419,8 +419,6 @@ Revenue is a subject to Stripe fees."></i>
     </div>
 </section>
 
-<script src="{% static 'js/account.js' %}" defer></script>
-
 {% if messages %}
 {% for message in messages %}
 {% if 'account_deactivation_error' in message.tags and 'error' in message.tags %}
@@ -428,5 +426,7 @@ Revenue is a subject to Stripe fees."></i>
 {% endif %}
 {% endfor %}
 {% endif %}
+
+<script src="{% static 'js/account.js' %}" defer></script>
 
 {% endblock %}

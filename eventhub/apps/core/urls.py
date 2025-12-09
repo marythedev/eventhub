@@ -1,8 +1,10 @@
-from django.contrib.auth import views as auth_views
 from django.urls import path
 
 from . import views
-from .forms import PasswordResetValidator
+
+# from django.contrib.auth import views as auth_views
+# from .forms import PasswordResetValidator
+
 
 urlpatterns = [
     path('', views.home, name="home"),

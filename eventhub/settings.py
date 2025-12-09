@@ -24,7 +24,7 @@ if ENV_FILE.exists():
 
 
 # Security / Debug Settings
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default=None)
 DEBUG = env.bool("DEBUG", default=False)
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 WSGI_APPLICATION = 'eventhub.wsgi.application'
@@ -36,16 +36,13 @@ SESSION_EXPIRY_TIME = env.int("SESSION_EXPIRY_TIME", default=0)
 
 DATABASE_URL = env("DATABASE_URL", default=None)
 
-# Email
-EMAIL_HOST_USER = env("SUPPORT_EMAIL", default=None)
-EMAIL_HOST_PASSWORD = env("SUPPORT_EMAIL_APP_PASSWORD", default=None)
 
 # Media Settings
 UPLOADCARE = {
-    "pub_key": env("UPLOADCARE_PUBLIC_KEY", default=None),
-    "secret": env("UPLOADCARE_SECRET", default=None),
+    "pub_key": env("UPLOADCARE_PUBLIC_KEY", default=""),
+    "secret": env("UPLOADCARE_SECRET", default=""),
 }
-CDN_DOMAIN = env("CDN_DOMAIN", default=None)
+CDN_DOMAIN = env("CDN_DOMAIN", default="")
 
 MAX_UPLOAD_MB = env.int("MAX_UPLOAD_MB", default=5)
 SUPPORTED_IMAGE_FORMATS = env.list("SUPPORTED_IMAGE_FORMATS", default=["JPEG", "PNG", "WEBP"])
@@ -63,8 +60,8 @@ PURCHASED_SCORE = env.int("PURCHASED_SCORE", default=-1000)
 # Checkout / Payment / Stripe Settings
 RESERVED_TICKET_EXPIRATION_MIN = env.int("RESERVED_TICKET_EXPIRATION_MIN", default=10)
 SERVICE_FEE = Decimal(env("SERVICE_FEE", default="0.08"))
-STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
-STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY", default=None)
+STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY", default=None)
 
 
 # ---------------------------------------
@@ -172,10 +169,12 @@ AUTH_USER_MODEL = 'users.Profile' # custom user model
 # ---------------------------------------
 # Email configurations
 # ---------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = env("SUPPORT_EMAIL", default=None)
+# EMAIL_HOST_PASSWORD = env("SUPPORT_EMAIL_APP_PASSWORD", default=None)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
 
 
 # ---------------------------------------

@@ -4,11 +4,8 @@ from core.utils.location_utils import clean_and_update_location
 from django import forms
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from dotenv import load_dotenv
 
 from .models import Profile
-
-load_dotenv()
 
 
 # helper functions

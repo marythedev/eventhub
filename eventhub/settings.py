@@ -36,13 +36,12 @@ SESSION_EXPIRY_TIME = env.int("SESSION_EXPIRY_TIME", default=0)
 
 DATABASE_URL = env("DATABASE_URL", default=None)
 
-
 # Media Settings
 UPLOADCARE = {
-    "pub_key": env("UPLOADCARE_PUBLIC_KEY", default=""),
-    "secret": env("UPLOADCARE_SECRET", default=""),
+    "pub_key": env("UPLOADCARE_PUBLIC_KEY", default=None),
+    "secret": env("UPLOADCARE_SECRET", default=None),
 }
-CDN_DOMAIN = env("CDN_DOMAIN", default="")
+CDN_DOMAIN = env("CDN_DOMAIN", default=None)
 
 MAX_UPLOAD_MB = env.int("MAX_UPLOAD_MB", default=5)
 SUPPORTED_IMAGE_FORMATS = env.list("SUPPORTED_IMAGE_FORMATS", default=["JPEG", "PNG", "WEBP"])

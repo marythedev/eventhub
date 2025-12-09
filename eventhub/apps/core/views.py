@@ -81,20 +81,21 @@ def contact(request):
                 message=form.cleaned_data['message']
             )
 
-            try:
-                send_mail(
-                    subject="EventHub: Contact Us Inquiry",
-                    message=(
-                        f"{inquiry.message}\n\n"
-                        f"Name: {inquiry.full_name}\n"
-                        f"Email: {inquiry.email}"
-                    ),
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[settings.EMAIL_HOST_USER]
-                )
-                messages.success(request, "Thank you, we have received your message.")
-            except Exception:       # pylint: disable=broad-exception-caught
-                messages.error(request, "Something went wrong, please try again.")
+            #try:
+            send_mail(
+                subject="EventHub: Contact Us Inquiry",
+                message=(
+                    f"{inquiry.message}\n\n"
+                    f"Name: {inquiry.full_name}\n"
+                    f"Email: {inquiry.email}"
+                ),
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[settings.EMAIL_HOST_USER],
+                fail_silently=False
+            )
+            messages.success(request, "Thank you, we have received your message.")
+            # except Exception:       # pylint: disable=broad-exception-caught
+            #     messages.error(request, "Something went wrong, please try again.")
             return redirect("contact")
     else:
         if request.user.is_authenticated:

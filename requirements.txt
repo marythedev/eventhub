@@ -21,6 +21,6 @@ reportlab>=4.4.5 # receipt generation
 psycopg2-binary~=2.9.11
 dj-database-url~=3.0.1
 
-# server for deployment on render
+# server for deployment
 gunicorn~=23.0.0
 uvicorn~=0.38.0

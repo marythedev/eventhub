@@ -179,7 +179,7 @@ class PriceZoneValidator(forms.Form):
             "required": True,
             "placeholder": "e.g. General Admission",
             "class": "zone-input",
-            "inputmode": "numeric"
+            "inputmode": "text"
         }),
         error_messages={
             'required': 'Name is required.', 
@@ -193,7 +193,7 @@ class PriceZoneValidator(forms.Form):
             "required": True,
             "placeholder": "Brief description of the price zone",
             "class": "zone-input",
-            "inputmode": "numeric"
+            "inputmode": "text"
         }),
         error_messages={
             'required': 'Brief description is required.', 

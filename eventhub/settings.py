@@ -56,6 +56,9 @@ PRICE_MIN_MAX_MATCH_SCORE = env.int("PRICE_MIN_MAX_MATCH_SCORE", default=20)
 PRICE_MAX_MATCH_SCORE = env.int("PRICE_MAX_MATCH_SCORE", default=10)
 PURCHASED_SCORE = env.int("PURCHASED_SCORE", default=-1000)
 
+# Cron Job Settings
+CRON_JOB_SECRET = env("CRON_JOB_SECRET", default=None)
+
 # Checkout / Payment / Stripe Settings
 RESERVED_TICKET_EXPIRATION_MIN = env.int("RESERVED_TICKET_EXPIRATION_MIN", default=10)
 SERVICE_FEE = Decimal(env("SERVICE_FEE", default="0.08"))

@@ -14,4 +14,5 @@ urlpatterns = [
     path('orders/<int:order_id>/receipt/', views.order_receipt, name='order_receipt'),
     path('stripe/setup/', views.stripe_setup, name="stripe_setup"),
     path('stripe/delete/', views.stripe_delete, name="stripe_delete"),
+    path("release-reserved-tickets/", views.release_reserved_tickets)
 ]

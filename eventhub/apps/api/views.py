@@ -9,10 +9,13 @@ from core.utils.event_filter_utils import (filter_events_custom,
 from core.utils.stripe_utils import (delete_stripe_account,
                                      get_stripe_account_link)
 from core.utils.utils import get_unique_events_from_orders
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.management import call_command
 from django.db.models import Count
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from events.models import Event
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -472,3 +475,24 @@ def stripe_delete(request):
     except Exception as e:      # pylint: disable=broad-exception-caught
         print("Error deleting Stripe account:", e)
         return JsonResponse({'error': str(e)}, status=500)
+
+
+@csrf_exempt
+def release_reserved_tickets(request):
+    """
+    Endpoint for release tickets cron job to execute management command.
+    
+    Restrictions:
+        - Must be POST request.
+        - 'cron-job-secret' parameter must match app's setup CRON_JOB_SECRET.
+    If request doesn't match restrictions raises 404 response.
+    
+    Returns:
+        HttpResponse with success message
+    """
+
+    if request.method != "POST" or request.POST.get('cron-job-secret') != settings.CRON_JOB_SECRET:
+        raise Http404()
+
+    call_command('release_reserved_tickets')
+    return HttpResponse("Expired reserved tickets have been cleaned up.")

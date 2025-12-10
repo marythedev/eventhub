@@ -1,0 +1,28 @@
+name: Release Expired Reserved Tickets
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+
+jobs:
+  release_tickets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: UTC time
+        run: date -u
+
+      - name: Trigger release tickets endpoint
+        run: |
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            --data-urlencode "cron-job-secret=${{ secrets.CRON_JOB_SECRET }}" \
+            https://we-eventhub.up.railway.app/api/release-reserved-tickets/)
+          
+          if [ "$RESPONSE" = "404" ]; then
+            echo "Something went wrong with ${{ secrets.DOMAIN_URL }} - got 404"
+            exit 1
+          elif [ "$RESPONSE" -ge 200 ] && [ "$RESPONSE" -lt 300 ]; then
+            echo "Tickets released"
+          else
+            echo "Unexpected error: $RESPONSE"
+            exit 1
+          fi

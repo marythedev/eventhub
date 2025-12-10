@@ -1,7 +1,7 @@
 const body = document.body;
 const themeToggle = document.getElementById('themeToggle');
 const savedTheme = localStorage.getItem('theme');
-const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const systemPrefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
 
 function setTheme(theme) {
     if (theme === 'light') {
@@ -16,8 +16,8 @@ function setTheme(theme) {
 
 if (savedTheme) {
     setTheme(savedTheme);
-} else if (!systemPrefersDark) {
-    setTheme('light');
+} else {
+    setTheme(systemPrefersLight ? 'light' : 'dark');
 }
 
 themeToggle.addEventListener('click', async function () {

@@ -83,7 +83,7 @@ def contact(request):
 
             try:
                 send_mail(
-                    subject="EventHub: Contact Us Inquiry",
+                    subject="Eventhub: Contact Us Inquiry",
                     message=(
                         f"{inquiry.message}\n\n"
                         f"Name: {inquiry.full_name}\n"

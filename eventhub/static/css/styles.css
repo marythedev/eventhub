@@ -6,6 +6,10 @@
     box-sizing: border-box;
 }
 
+html, body {
+    touch-action: manipulation;
+}
+
 :root {
     --primary-color: #6C63FF;
     --primary-hover: #5548E0;

@@ -182,7 +182,7 @@ def avatar_upload(request):
         - Uploads new avatar to cloud storage and stores access link in user's instance.
 
     Validations:
-        - Must be JPG, PNG or WEBP format.
+        - Must be JPG, JPEG, PNG or WEBP format.
         - Must be smaller than 5MB.
     
     Errors:
@@ -202,7 +202,7 @@ def avatar_upload(request):
 
         elif not is_valid_image_format(uploaded_file):
             messages.error(
-                request, "Unsupported image format. Please upload a JPG, PNG or WEBP file.", extra_tags='avatar')
+                request, "Unsupported image format. Please upload a JPG, JPEG, PNG or WEBP file.", extra_tags='avatar')
 
         # check file size
         elif uploaded_file.size > settings.MAX_UPLOAD_MB * 1024 * 1024:

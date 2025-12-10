@@ -241,7 +241,8 @@ input:disabled {
 
 .uploaded-images img {
     height: 100%;
-    width: fit-content;
+    max-width: 100%;
+    width: auto;
     object-fit: contain;
     border-radius: 10px;
 }
@@ -253,7 +254,6 @@ input:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: fit-content;
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
 }

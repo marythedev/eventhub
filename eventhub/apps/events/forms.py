@@ -129,7 +129,7 @@ class EventImageValidator(forms.Form):
 
     Validation rules:
         - At least one image is uploaded.
-        - Each uploaded image is in a supported format (JPG, PNG, WEBP).
+        - Each uploaded image is in a supported format (JPG, JPEG, PNG, WEBP).
         - Each image file does not exceed the maximum allowed size.
 
     Returns:
@@ -150,7 +150,7 @@ class EventImageValidator(forms.Form):
         for image in images:
             if not is_valid_image_format(image):
                 raise ValidationError(
-                    f"{image.name} has unsupported image format. Please upload a JPG, PNG or WEBP file."
+                    f"{image.name} has unsupported image format. Please upload a JPG, JPEG, PNG or WEBP file."
                 )
 
             if image.size > MAX_UPLOAD_MB * 1024 * 1024:
@@ -211,7 +211,7 @@ class PriceZoneValidator(forms.Form):
             "placeholder": "0.00 (USD)",
             "class": "zone-price",
             "step": "0.01",
-            "inputmode": "numeric"
+            "inputmode": "decimal"
         }),
         error_messages={
             'max_value': 'Ticket price cannot exceed 99 999.99 USD.',

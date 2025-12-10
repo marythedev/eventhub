@@ -66,7 +66,7 @@ def is_valid_image_format(file):
     """
     Validate if the file is in a supported image format.
 
-    Supported formats: JPEG, PNG, WEBP
+    Supported formats: JPG, JPEG, PNG, WEBP
 
     Args:
         file: File object uploaded by the user.

@@ -76,8 +76,12 @@ def is_valid_image_format(file):
     """
 
     try:
+        extension = file.name.split('.')[-1].upper()
+        supported_extensions = {f.upper() for f in settings.SUPPORTED_IMAGE_FORMATS}
+
         image = Image.open(file)
-        return image.format in settings.SUPPORTED_IMAGE_FORMATS
+        image.verify()
+        return extension in supported_extensions
     except Exception:       # pylint: disable=broad-exception-caught
         return False
 

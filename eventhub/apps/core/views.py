@@ -64,7 +64,7 @@ def contact(request):
 
         On Validation success:
             - Create contact inquiry object (ContactInquiry) with the validated provided details.
-            - Send email notification to app's team.
+            - Send email notification to app's team (not used in production).
             - Redirect to contact form with success message.
 
         On Validation fail:
@@ -75,23 +75,23 @@ def contact(request):
         form = ContactInquiryValidator(request.POST)
 
         if form.is_valid():
-            inquiry = ContactInquiry.objects.create(
-                full_name=form.cleaned_data['full_name'],
-                email=form.cleaned_data['email'],
-                message=form.cleaned_data['message']
-            )
-
             try:
-                send_mail(
-                    subject="Eventhub: Contact Us Inquiry",
-                    message=(
-                        f"{inquiry.message}\n\n"
-                        f"Name: {inquiry.full_name}\n"
-                        f"Email: {inquiry.email}"
-                    ),
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[settings.EMAIL_HOST_USER]
+                ContactInquiry.objects.create(
+                    full_name=form.cleaned_data['full_name'],
+                    email=form.cleaned_data['email'],
+                    message=form.cleaned_data['message']
                 )
+
+                # send_mail(
+                #     subject="Eventhub: Contact Us Inquiry",
+                #     message=(
+                #         f"{inquiry.message}\n\n"
+                #         f"Name: {inquiry.full_name}\n"
+                #         f"Email: {inquiry.email}"
+                #     ),
+                #     from_email=settings.EMAIL_HOST_USER,
+                #     recipient_list=[settings.EMAIL_HOST_USER]
+                # )
                 messages.success(request, "Thank you, we have received your message.")
             except Exception:       # pylint: disable=broad-exception-caught
                 messages.error(request, "Something went wrong, please try again.")

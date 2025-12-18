@@ -28,6 +28,7 @@
     padding: 2rem;
     text-align: left;
     word-break: normal;
+    overflow-wrap: anywhere;
 }
 
 .event-info {

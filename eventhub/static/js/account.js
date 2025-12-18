@@ -97,11 +97,12 @@ accountNavLinks.forEach(link => {
 });
 
 
-// prompt account deletion alert and submit form to delete account upon confirmation
+// prompt account deletion alert
 const deactivateAccountBtn = document.getElementById('deactivateAccountBtn');
 deactivateAccountBtn.addEventListener('click', (e) => {
-    e.preventDefault()
-    if (!confirm("Are you sure you want to delete your account?\nThis cannot be undone."))
+    e.preventDefault();
+    if (!confirm("Are you sure you want to delete your account?\nThis cannot be undone.")) {
+        e.stopImmediatePropagation();
         return;
-    deactivateAccountBtn.closest('form').submit();
-});
+    }
+}, true);

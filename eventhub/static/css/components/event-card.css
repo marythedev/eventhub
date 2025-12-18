@@ -97,7 +97,8 @@
     font-size: 1.15rem;
     margin-bottom: 0.75rem;
     color: var(--text-primary);
-    word-break: break-all;
+    word-break: normal;
+    overflow-wrap: anywhere;
 }
 
 .event-info p {

@@ -63,11 +63,6 @@ function removePricingZone(zone) {
     }
 }
 
-function submitForm(btn) {
-    const formId = btn.getAttribute("data-form-id-submit");
-    document.getElementById(formId).submit();
-}
-
 // set min date input to today (user can't create a past event)
 const dateInput = document.getElementById('eventDate');
 if (dateInput) {
@@ -99,21 +94,13 @@ if (addZoneButton)
     addZoneButton.addEventListener('click', () => renderPricingZone());
 
 
-
-// submit form to edit event
-const editEventBtn = document.getElementById('editEventBtn');
-if (editEventBtn) {
-    editEventBtn.addEventListener('click', () => {
-        submitForm(editEventBtn);
-    });
-}
-
-// prompt event deletion alert and submit form to delete event upon confirmation
+// prompt event deletion alert
 const deleteEventBtn = document.getElementById('deleteEventBtn');
 if (deleteEventBtn) {
-    deleteEventBtn.addEventListener('click', () => {
-        if (!confirm("Are you sure you want to delete this event?\nThis cannot be undone."))
+    deleteEventBtn.addEventListener('click', (e) => {
+        if (!confirm("Are you sure you want to delete this event?\nThis cannot be undone.")) {
+            e.stopImmediatePropagation();
             return;
-        submitForm(deleteEventBtn);
-    });
+        }
+    }, true);
 }

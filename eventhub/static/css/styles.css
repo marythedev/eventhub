@@ -397,8 +397,8 @@ i {
 }
 
 .price {
-    word-break: normal;
-    overflow-wrap: anywhere;
+    word-break: keep-all;
+    overflow-wrap: normal;
 }
 
 .pricing-row {

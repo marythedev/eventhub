@@ -1,7 +1,10 @@
-# Eventhub 💙
+# Eventhub💙
 
-Eventhub is a simple, responsive, and user-friendly platform that makes buying and selling tickets for events easier than ever.
+Eventhub is a simple, responsive and user-friendly platform that makes buying and selling tickets for events easier than ever.
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/7de8852e-a1f4-4784-9f31-cc99c09fd788" alt="Eventhub Readme Preview">
+</p>
 
 ## **Why Eventhub? 🏆**
 
